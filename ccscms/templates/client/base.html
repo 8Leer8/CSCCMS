@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% load static %}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+  <link href="{% static 'vendor/bootstrap-5.3.3-dist/css/bootstrap.min.css' %}" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+  <title>Student Council Website</title>
+  <style>
+    /* Combined CSS from all files */
+    @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+    html {
+      font-size: 62.5%;
+      /* 1rem = 10px */
+    }
+
+    * {
+      padding: 0;
+      border: 0;
+      margin: 0;
+      box-sizing: border-box;
+      text-decoration: none;
+      list-style: none;
+      font-family: var(--primary-font);
+    }
+
+    :root {
+      --primary-font: 'Inter', sans-serif;
+      --secondary-font: 'Bricolage Grotesque', sans-serif;
+
+      --base-color: #1B4332;
+      --mid-color: #2D6A4F;
+      --last-color: #40916C;
+
+      --base-w-color: #D8F3DC;
+      --mid-w-color: #B7E4C7;
+      --last-w-color: #95D5B2;
+
+      --d-font-color: #081C15;
+      --w-font-color: #ffffff;
+
+      --d-sub-font-color: #c9c9c9;
+      --w-sub-font-color: #969696;
+
+      --body-color: #ececec;
+      
+      /* small screen font */
+      --h1-font: 4rem;
+      --h2-font: 3.5rem;
+      --h3-font: 2.5rem;
+      --h4-font: 2rem;
+
+      --t1-font: 1.6rem;
+      --t2-font: 1.4rem;
+      --t3-font: 1.2rem;
+      --t4-font: 1rem;
+      /* small screen font */
+
+      /* small screen btn*/
+      --pad-btn: 1.4rem 2.2rem;
+      --font-btn: 1.4rem;
+      --span-btn: 2.4rem;
+      --btn-size: 4.6rem;
+      /* small screen btn*/
+
+      /* -------------------------------------------------------------- */
+
+      /* large screen font */
+      --h1-font-lg: 5.5rem;
+      --h2-font-lg: 5rem;
+      --h3-font-lg: 3rem;
+      --h4-font-lg: 2.4rem;
+
+      --t1-font-lg: 2rem;
+      --t2-font-lg: 1.8rem;
+      --t3-font-lg: 1.6rem;
+      --t4-font-lg: 1.4rem;
+      /* large screen font */
+
+      /*large screen btn*/
+      --pad-btn-lg: 2rem 2.8rem;
+      --font-btn-lg: 2rem;
+      --span-btn-lg: 3rem;
+      --btn-size-lg: 6.6rem;
+      /*large screen btn*/
+    }
+
+    body {
+      background-color: var(--body-color);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    body.dropdown-active {
+      overflow: hidden;
+    }
+
+    /* Header Styles */
+    .header {
+      background-color: var(--base-color);
+      width: 100%;
+      position: relative;
+      z-index: 100;
+    }
+
+    .header-main {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 2rem;
+      margin-left: auto;
+      margin-right: auto;
+      width: 100%;
+    }
+
+    .logo-img {
+      width: 5rem;
+      height: 5rem;
+      overflow: hidden;
+    }
+
+    .logo-img img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .logo-link {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      cursor: pointer;
+      transition: all 0.4s ease;
+    }
+
+    .logo-link:hover {
+      background-color: var(--mid-color);
+    }
+
+    .logo-label {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .logo-label span:first-child {
+      font-size: var(--t1-font);
+      color: var(--w-font-color);
+      font-weight: 600;
+      font-family: var(--secondary-font);
+    }
+
+    .logo-label span:last-child {
+      font-size: var(--t4-font);
+      color: var(--w-sub-font-color);
+    }
+
+    .button {
+      width: var(--btn-size);
+      transition: all 0.4s ease;
+      cursor: pointer;
+    }
+
+    .button.menu-btn {
+      height: var(--btn-size);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: transparent;
+    }
+
+    .button.menu-btn span {
+      font-size: var(--span-btn);
+      color: var(--w-font-color);
+    }
+
+    .button:hover {
+      background-color: var(--mid-color);
+    }
+
+    .dropdown {
+  background-color: var(--base-w-color);
+  width: 100%;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  overflow-y: auto;
+}
+
+.dropdown.active {
+  transform: translateX(0);
+  box-shadow: 0 0 0 100vmax rgba(0,0,0,0.5);
+  pointer-events: auto;
+  opacity: 1;
+}
+
+
+    .dropdown-main {
+      padding: 2rem;
+      margin-left: auto;
+      margin-right: auto;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      padding-bottom: 4rem;
+    }
+
+    .profile-section {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .profile-link {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transition: all 0.4s ease;
+    }
+
+    .profile-link:hover {
+      background-color: var(--mid-w-color);
+    }
+
+    .profile-name {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .profile-name span:first-child {
+      font-size: var(--t1-font);
+      font-family: var(--secondary-font);
+      color: var(--d-font-color);
+      font-weight: 600;
+    }
+
+    .profile-name span:last-child {
+      font-size: var(--t2-font);
+      font-family: var(--primary-font);
+      color: var(--d-sub-font-color);
+      font-weight: 400;
+    }
+
+    .button.close-btn {
+      height: var(--btn-size);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: transparent;
+      border-radius: 50%;
+      border: 0.1rem solid var(--mid-w-color);
+    }
+
+    .button.close-btn:hover {
+      border: 1px solid var(--base-color);
+    }
+
+    .button.close-btn span {
+      color: var(--d-font-color);
+    }
+
+    .profile-img {
+      width: 5rem;
+      height: 5rem;
+      overflow: hidden;
+    }
+
+    .profile-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+
+    .nav-menu {
+      margin-top: 4rem;
+    }
+
+    .nav-menu ul {
+      display: flex;
+      flex-direction: column;
+      gap: 3rem;
+    }
+
+    .accordion-label {
+      font-family: var(--secondary-font);
+      font-size: var(--h3-font);
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .accordion-label::after {
+      content: 'expand_more';
+      font-family: 'Material Symbols Outlined';
+      font-size: var(--span-btn);
+      transition: transform 0.3s ease;
+    }
+
+    .accordion-label.active::after {
+      transform: rotate(180deg);
+    }
+
+    .accordion-content {
+      margin-top: 2rem;
+      margin-left: 2rem;
+      display: none;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .accordion-content.active {
+      display: flex;
+    }
+
+    .accordion-link {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+
+    .accordion-link a {
+      color: var(--d-font-color);
+      font-size: var(--t1-font);
+      font-weight: 600;
+    }
+
+    .accordion-label {
+      color: var(--d-font-color)
+    }
+
+    .accordion-label.login,
+    .accordion-label.logout {
+      display: block;
+      text-align: center;
+      padding: 1rem;
+      background-color: var(--last-color);
+      color: white;
+      border-radius: 0.5rem;
+    }
+
+    .accordion-label.login:hover,
+    .accordion-label.logout:hover {
+      background-color: var(--mid-color);
+    }
+
+    .accordion-about {
+      font-size: var(--t2-font);
+      color: var(--d-sub-font-color);
+      margin-top: 0.5rem;
+    }
+
+    /* Footer Styles */
+    .footer {
+      background-color: var(--base-color);
+      width: 100%;
+      margin-top: auto;
+    }
+
+    .footer-main {
+      padding: 2rem;
+      margin-left: auto;
+      margin-right: auto;
+      width: 100%;
+      display: flex;
+      flex-direction: column; 
+      gap: 4rem;
+    }
+
+    .footer-logo {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+    }
+
+    .logo-link-img {
+      width: 5rem;
+      height: 5rem;
+      display: block;
+      transition: all ease 0.4s;
+    }
+
+    .logo-link-img:hover {
+      background-color: var(--mid-color);
+    }
+
+    .logo-link-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .footer-links {
+      display: flex;
+      flex-direction: column;
+      gap: 3rem;
+    }
+
+    .footer-links ul {
+      margin-top: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .footer-link-title {
+      color: var(--w-font-color);
+      font-size: var(--h4-font);
+      font-family: var(--secondary-font);
+    }
+
+    .footer-link a {
+      color: var(--w-sub-font-color);
+      font-size: var(--t2-font);
+      transition: all 0.4s ease;
+    }
+
+    .footer-link a:hover {
+      background-color: var(--mid-color);
+    }
+
+    /* Main Content Area */
+    .main-content {
+      flex: 1;
+      padding: 2rem;
+    }
+
+    /* Media Queries */
+    /* lg */
+    @media (min-width: 1024px) {
+      .header-main {
+        padding: 4rem;
+      }
+
+      .logo-link {
+        gap: 2rem;
+      }
+
+      .logo-img {
+        width: 6rem;
+        height: 6rem;
+      }
+
+      .logo-label span:first-child {
+        font-size: var(--t1-font-lg);
+      }
+
+      .logo-label span:last-child {
+        font-size: var(--t4-font-lg);
+      }
+
+      .button {
+        width: var(--btn-size-lg);
+      }
+
+      .button.menu-btn {
+        height: var(--btn-size-lg);
+      }
+
+      .button.menu-btn span {
+        font-size: var(--span-btn-lg);
+      }
+
+      .footer-main {
+        flex-direction: row;
+        padding: 4rem;
+      }
+
+      .footer-logo {
+        justify-content: center;
+        align-items: center;
+        width: 40%;
+      }
+
+      .footer-links {
+        width: 60%;
+        flex-direction: row;
+        justify-content: space-between;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <section class="header-main">
+      <div class="header-logo">
+        <a href="{%url 'landing_page'%}" class="logo-link">
+          <div class="logo-img">
+            <img src="{%static 'landing/img/CCS.jpg'%}" alt="cscs logo">
+          </div>
+          <div class="logo-label">
+            <span>Student Council</span>
+            <span>College of Computing Studies</span>
+          </div>
+        </a>
+      </div>
+      <button class="button menu-btn" id="menuBtn">
+        <span class="material-symbols-outlined">drag_handle</span>
+      </button>
+    </section>
+  </header>
+
+  <!-- Dropdown Menu -->
+  <section class="dropdown" id="dropdownMenu">
+    <section class="dropdown-main">
+      <section class="profile-section">
+        {% if user.is_authenticated %}
+          <a href="#" class="profile-link">
+            <div class="profile-img">
+              {% if user.profile_img %}
+                <img src="{{ user.profile_img.url }}" alt="Profile Image">
+              {% else %}
+                <img src="img_samples/home-zamboanga.jpg" alt="Default Profile Image">
+              {% endif %}
+            </div>
+            <div class="profile-name">
+              <span>@{{ user.firstname }} {{ user.lastname }}</span>
+              <span>{{ user.email }}</span>
+            </div>
+          </a>
+        {% else %}
+          <a href="{% url 'login' %}" class="profile-link">
+            <div class="profile-img">
+              <img src="img_samples/home-zamboanga.jpg" alt="Default Profile Image">
+            </div>
+            <div class="profile-name">
+              <span>@Jane Doe</span>
+              <span>Guest User</span>
+            </div>
+          </a>
+        {% endif %}
+        <button class="button close-btn" id="closeBtn">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </section>
+
+      <nav class="nav-menu">
+        <ul>
+          <li class="accordion-list">
+            <span class="accordion-label">Academics</span>
+            <ul class="accordion-content">
+              <li>
+                <div class="accordion-link">
+                  <a href="https://wmsu.edu.ph/?page_id=1425">Academics</a>
+                  <span class="material-symbols-outlined">arrow_right_alt</span>
+                </div>
+                <p class="accordion-about">
+                  Learn at WMSU, where education meets excellence. Explore our diverse programs and discover your path to success.
+                </p>
+              </li>
+              <li>
+                <div class="accordion-link">
+                  <a href="https://wmsu.edu.ph">WMSU University</a>
+                  <span class="material-symbols-outlined">arrow_right_alt</span>
+                </div>
+              </li>
+            </ul>
+          </li>
+
+          <li class="accordion-list">
+            <span class="accordion-label">In Focus</span>
+            <ul class="accordion-content">
+              <li>
+                <div class="accordion-link">
+                  <a href="#">Accomplishment</a>
+                  <span class="material-symbols-outlined">arrow_right_alt</span>
+                </div>
+              </li>
+              <li>
+                <div class="accordion-link">
+                  <a href="#">Achievements</a>
+                  <span class="material-symbols-outlined">arrow_right_alt</span>
+                </div>
+              </li>
+              <li>
+                <div class="accordion-link">
+                  <a href="{% url 'events_list' %}">Events</a>
+                  <span class="material-symbols-outlined">arrow_right_alt</span>
+                </div>
+              </li>
+              <li>
+                <div class="accordion-link">
+                  <a href="{% url 'posts_list' %}">Posts</a>
+                  <span class="material-symbols-outlined">arrow_right_alt</span>
+                </div>
+              </li>
+              <li>
+                <div class="accordion-link">
+                  <a href="#">Transparency</a>
+                  <span class="material-symbols-outlined">arrow_right_alt</span>
+                </div>
+              </li>
+            </ul>
+          </li>
+
+          <li class="accordion-list">
+            <span class="accordion-label">Department</span>
+            <ul class="accordion-content">
+              <li>
+                <div class="accordion-link">
+                  <a href="#">Faculties</a>
+                  <span class="material-symbols-outlined">arrow_right_alt</span>
+                </div>
+              </li>
+              <li>
+                <div class="accordion-link">
+                  <a href="#">CSC Officers</a>
+                  <span class="material-symbols-outlined">arrow_right_alt</span>
+                </div>
+              </li>
+              <li>
+                <div class="accordion-link">
+                  <a href="#">Committees</a>
+                  <span class="material-symbols-outlined">arrow_right_alt</span>
+                </div>
+              </li>
+              <li>
+                <div class="accordion-link">
+                  <a href="#">Services</a>
+                  <span class="material-symbols-outlined">arrow_right_alt</span>
+                </div>
+              </li>
+            </ul>
+          </li>
+
+          <li class="accordion-list">
+            <span class="accordion-label">Oraganizations</span>
+            <ul class="accordion-content">
+              <li>
+                <div class="accordion-link">
+                  <a href="#">Genders Club</a>
+                  <span class="material-symbols-outlined">arrow_right_alt</span>
+                </div>
+              </li>
+            </ul>
+          </li>
+
+          <li class="accordion-list">
+            <span class="accordion-label">About</span>
+            <ul class="accordion-content">
+              <li>
+                <div class="accordion-link">
+                  <a href="#">About Us</a>
+                  <span class="material-symbols-outlined">arrow_right_alt</span>
+                </div>
+              </li>
+              <li>
+                <div class="accordion-link">
+                  <a href="#">Contact Us</a>
+                  <span class="material-symbols-outlined">arrow_right_alt</span>
+                </div>
+              </li>
+              <li>
+                <div class="accordion-link">
+                  <a href="#">Concerns</a>
+                  <span class="material-symbols-outlined">arrow_right_alt</span>
+                </div>
+              </li>
+              <li>
+                <div class="accordion-link">
+                  <a href="#">Feedback</a>
+                  <span class="material-symbols-outlined">arrow_right_alt</span>
+                </div>
+              </li>
+            </ul>
+          </li>
+
+          <li class="accordion-list">
+            {% if user.is_authenticated %}
+              <a href="{% url 'logout' %}" class="accordion-label logout">Log out</a>
+            {% else %}
+              <a href="{% url 'login' %}" class="accordion-label login">Log in</a>
+            {% endif %}
+          </li>
+        </ul>
+      </nav>
+    </section>
+  </section>
+
+  <!-- Main Content Area -->
+  <main class="main-content">
+    {% block content %}
+    
+    {% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <section class="footer-main">
+      <div class="footer-logo">
+        <a href="#" class="logo-link-img">
+          <img src="img_logos/wmsu.jpg" alt="wmsu logo">
+        </a>
+        <a href="#" class="logo-link-img">
+          <img src="img_logos/ccs.jpg" alt="ccs logo">
+        </a>
+        <a href="#" class="logo-link-img">
+          <img src="img_logos/csc.jpg" alt="csc logo">
+        </a>
+      </div>
+
+      <section class="footer-links">
+        <div class="footer-link-container">
+          <h4 class="footer-link-title">Quick links</h4>
+          <ul>
+            <li class="footer-link">
+              <a href="#">Home</a>
+            </li>
+            <li class="footer-link">
+              <a href="#">Accomplishment</a>
+            </li>
+            <li class="footer-link">
+              <a href="#">Achievements</a>
+            </li>
+            <li class="footer-link">
+              <a href="{% url 'announcements_list' %}">Announcements</a>
+            </li>
+            <li class="footer-link">
+              <a href="{% url 'events_list' %}">Events</a>
+            </li>
+            <li class="footer-link">
+              <a href="{% url 'posts_list' %}">Posts</a>
+            </li>
+            <li class="footer-link">
+              <a href="#">Transparencies</a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="footer-link-container">
+          <h3 class="footer-link-title">About</h3>
+          <ul>
+            <li class="footer-link">
+              <a href="#">About us</a>
+            </li>
+            <li class="footer-link">
+              <a href="#">Concerns</a>
+            </li>
+            {% if user.is_authenticated %}
+              <li class="footer-link">
+                <a href="{% url 'feedback' %}">Feedback</a>
+              </li>
+            {% else %}
+              <li class="footer-link">
+                <a href="{% url 'login' %}?next={% url 'feedback' %}" title="Login to submit feedback">Feedback</a>
+              </li>
+            {% endif %}
+          </ul>
+        </div>
+
+        <div class="footer-link-container">
+          <h3 class="footer-link-title">Contact</h3>
+          <ul>
+            <li class="footer-link">
+              <a href="#">+96-123-4567</a>
+            </li>
+            <li class="footer-link">
+              <a href="#">studentcouncil@gmail.com</a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="footer-link-container">
+          <h3 class="footer-link-title">Department</h3>
+          <ul>
+            <li class="footer-link">
+              <a href="#">Officers</a>
+            </li>
+            <li class="footer-link">
+              <a href="#">Faculties</a>
+            </li>
+            <li class="footer-link">
+              <a href="#">Committee</a>
+            </li>
+          </ul>
+        </div>
+      </section>
+    </section>
+  </footer>
+
+ <script>
+  document.addEventListener('DOMContentLoaded', function () {
+  // Get DOM elements
+  const menuBtn = document.getElementById('menuBtn');
+  const closeBtn = document.getElementById('closeBtn');
+  const dropdownMenu = document.getElementById('dropdownMenu');
+  const accordionLabels = document.querySelectorAll('.accordion-list > .accordion-label:not(.login):not(.logout)');
+
+  // Check if elements exist
+  if (!menuBtn || !closeBtn || !dropdownMenu) {
+    console.error('Required elements not found in the DOM');
+    return;
+  }
+
+  // Open dropdown menu
+  function openMenu() {
+    dropdownMenu.classList.add('active');
+    document.body.classList.add('dropdown-active');
+    document.addEventListener('click', closeOnOutsideClick);
+  }
+
+  // Close dropdown menu
+  function closeMenu() {
+    dropdownMenu.classList.remove('active');
+    document.body.classList.remove('dropdown-active');
+    document.removeEventListener('click', closeOnOutsideClick);
+  }
+
+  // Close menu when clicking outside
+  function closeOnOutsideClick(event) {
+    if (!dropdownMenu.contains(event.target) && !menuBtn.contains(event.target)) {
+      closeMenu();
+    }
+  }
+
+  // Toggle accordion content
+  function toggleAccordion(event) {
+    const label = event.currentTarget;
+    const content = label.nextElementSibling;
+    
+    label.classList.toggle('active');
+    content.classList.toggle('active');
+    
+    // Prevent event from bubbling up to document click handler
+    event.stopPropagation();
+  }
+
+  // Event listeners
+  menuBtn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    openMenu();
+  });
+
+  closeBtn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    closeMenu();
+  });
+
+  // Accordion functionality
+  accordionLabels.forEach(label => {
+    label.addEventListener('click', toggleAccordion);
+    
+    // Also prevent clicks on accordion content from closing menu
+    const content = label.nextElementSibling;
+    if (content) {
+      content.addEventListener('click', function(e) {
+        e.stopPropagation();
+      });
+    }
+  });
+
+  // Close menu when pressing Escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && dropdownMenu.classList.contains('active')) {
+      closeMenu();
+    }
+  });
+});
+ </script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<div class="space-y-6">
+    <input type="hidden" id="accountId">
+    
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-6">
+        <!-- Profile Image -->
+        <div class="sm:col-span-6">
+            <div class="flex items-center justify-center">
+                <div class="relative">
+                    <img id="accountPreview" class="h-32 w-32 rounded-full object-cover hidden" src="" alt="Profile preview">
+                    <div id="accountNoPreview" class="h-32 w-32 rounded-full bg-gray-200 flex items-center justify-center">
+                        <i class="fas fa-user text-gray-400 text-4xl"></i>
+                    </div>
+                    <label for="accountProfileImg" class="absolute bottom-0 right-0 bg-white rounded-full p-2 shadow-md cursor-pointer hover:bg-gray-100">
+                        <i class="fas fa-camera text-gray-600"></i>
+                        <input id="accountProfileImg" type="file" class="hidden" accept="image/*">
+                    </label>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Email -->
+        <div class="sm:col-span-6">
+            <label for="accountEmail" class="block text-sm font-medium text-gray-700">Email Address*</label>
+            <input type="email" id="accountEmail" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm" required>
+        </div>
+        
+        <!-- Password (only shown for new accounts or when changing password) -->
+        <div class="sm:col-span-6" id="passwordFieldContainer">
+            <label for="accountPassword" class="block text-sm font-medium text-gray-700">Password*</label>
+            <input type="password" id="accountPassword" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
+            <p class="mt-1 text-xs text-gray-500">Leave blank to keep current password (for existing accounts)</p>
+        </div>
+        
+        <!-- First Name -->
+        <div class="sm:col-span-3">
+            <label for="accountFirstname" class="block text-sm font-medium text-gray-700">First Name*</label>
+            <input type="text" id="accountFirstname" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm" required>
+        </div>
+        
+        <!-- Last Name -->
+        <div class="sm:col-span-3">
+            <label for="accountLastname" class="block text-sm font-medium text-gray-700">Last Name*</label>
+            <input type="text" id="accountLastname" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm" required>
+        </div>
+        
+        <!-- Middle Name -->
+        <div class="sm:col-span-6">
+            <label for="accountMiddlename" class="block text-sm font-medium text-gray-700">Middle Name</label>
+            <input type="text" id="accountMiddlename" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
+        </div>
+        
+        <!-- Contact Number -->
+        <div class="sm:col-span-6">
+            <label for="accountContact" class="block text-sm font-medium text-gray-700">Contact Number</label>
+            <input type="tel" id="accountContact" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
+        </div>
+        
+        <!-- Account Type -->
+        <div class="sm:col-span-3">
+            <label for="accountType" class="block text-sm font-medium text-gray-700">Account Type*</label>
+            <select id="accountType" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm" required>
+                <option value="">Select Type</option>
+                <option value="admin">Admin</option>
+                <option value="user">User</option>
+            </select>
+        </div>
+        
+        <!-- Status -->
+        <div class="sm:col-span-3">
+            <label for="accountStatus" class="block text-sm font-medium text-gray-700">Status*</label>
+            <select id="accountStatus" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm" required>
+                <option value="true">Active</option>
+                <option value="false">Inactive</option>
+            </select>
+        </div>
+    </div>
+</div>

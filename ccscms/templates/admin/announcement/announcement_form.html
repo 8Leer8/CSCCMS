@@ -1,0 +1,56 @@
+<div class="space-y-4">
+    <input type="hidden" id="announcementId">
+    
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div>
+            <label for="announcementTitle" class="block text-sm font-medium text-gray-700">Title *</label>
+            <input type="text" id="announcementTitle" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm" required>
+        </div>
+        
+        <div>
+            <label for="announcementCategory" class="block text-sm font-medium text-gray-700">Category *</label>
+            <select id="announcementCategory" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm" required>
+                <option value="">Select Category</option>
+                <!-- Categories will be loaded via JS -->
+            </select>
+        </div>
+    </div>
+    
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div>
+            <label for="announcementPublishStart" class="block text-sm font-medium text-gray-700">Publish Start Date</label>
+            <input type="date" id="announcementPublishStart" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
+        </div>
+        
+        <div>
+            <label for="announcementPublishEnd" class="block text-sm font-medium text-gray-700">Publish End Date</label>
+            <input type="date" id="announcementPublishEnd" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
+        </div>
+    </div>
+    
+    <div>
+        <label for="announcementStatus" class="block text-sm font-medium text-gray-700">Status *</label>
+        <select id="announcementStatus" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm" required>
+            <!-- Status options will be loaded via JS -->
+        </select>
+    </div>
+    
+    <div>
+        <label for="announcementAudiences" class="block text-sm font-medium text-gray-700">Target Audiences</label>
+        <select id="announcementAudiences" multiple class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
+            <!-- Audiences will be loaded via JS -->
+        </select>
+        <p class="mt-1 text-sm text-gray-500">Select multiple audiences (hold Ctrl/Cmd to select multiple)</p>
+    </div>
+    
+    <div>
+        <label for="announcementContext" class="block text-sm font-medium text-gray-700">Short Description *</label>
+        <textarea id="announcementContext" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm" required></textarea>
+        <p class="mt-1 text-sm text-gray-500">A brief summary that will be displayed in lists</p>
+    </div>
+    
+    <div>
+        <label for="announcementContent" class="block text-sm font-medium text-gray-700">Content *</label>
+        <textarea id="announcementContent" rows="10" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm" required></textarea>
+    </div>
+</div>

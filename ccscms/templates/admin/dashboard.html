@@ -1,0 +1,349 @@
+<!-- Dashboard Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="bg-primary-light shadow-lg rounded-lg p-6 text-primary-dark">
+        <div class="flex items-center">
+            <i class="fas fa-newspaper text-4xl mr-4"></i>
+            <div>
+                <h2 class="text-lg font-semibold">Total Posts</h2>
+                <p class="text-3xl font-bold" id="totalPosts">0</p>
+            </div>
+        </div>
+    </div>
+    <div class="bg-primary-light shadow-lg rounded-lg p-6 text-primary-dark">
+        <div class="flex items-center">
+            <i class="fas fa-calendar-alt text-4xl mr-4"></i>
+            <div>
+                <h2 class="text-lg font-semibold">Total Events</h2>
+                <p class="text-3xl font-bold" id="totalEvents">0</p>
+            </div>
+        </div>
+    </div>
+    <div class="bg-primary-light shadow-lg rounded-lg p-6 text-primary-dark">
+        <div class="flex items-center">
+            <i class="fas fa-bullhorn text-4xl mr-4"></i>
+            <div>
+                <h2 class="text-lg font-semibold">Total Announcements</h2>
+                <p class="text-3xl font-bold" id="totalAnnouncements">0</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <!-- Posts by Category Chart -->
+    <div class="bg-neutral-light rounded-lg shadow-lg overflow-hidden">
+        <div class="p-5 border-b border-gray-200 flex items-center justify-between">
+            <h3 class="text-lg font-medium text-primary-dark">Posts by Category</h3>
+            <i class="fas fa-chart-bar text-gray-400"></i>
+        </div>
+        <div class="p-5 flex justify-center items-center">
+            <div class="h-72 w-72">
+                <canvas id="postsByCategoryChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Complaints Status Chart -->
+    <div class="bg-neutral-light rounded-lg shadow-lg overflow-hidden">
+        <div class="p-5 border-b border-gray-200 flex items-center justify-between">
+            <h3 class="text-lg font-medium text-primary-dark">Complaints Status</h3>
+            <i class="fas fa-exclamation-circle text-gray-400"></i>
+        </div>
+        <div class="p-5 flex justify-center items-center">
+            <div class="h-72 w-72">
+                <canvas id="complaintsStatusChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Events Status Chart -->
+    <div class="bg-neutral-light rounded-lg shadow-lg overflow-hidden">
+        <div class="p-5 border-b border-gray-200 flex items-center justify-between">
+            <h3 class="text-lg font-medium text-primary-dark">Events Status</h3>
+            <i class="fas fa-calendar-check text-gray-400"></i>
+        </div>
+        <div class="p-5 flex justify-center items-center">
+            <div class="h-72 w-72">
+                <canvas id="eventsStatusChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Latest Records -->
+<div class="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <!-- Latest Posts -->
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div class="p-5 border-b border-gray-200 flex justify-between items-center">
+            <h3 class="text-lg font-medium text-gray-900">Latest Posts</h3>
+            <a href="#" data-page="posts" class="text-sm font-medium text-blue-600 hover:text-blue-500">View All</a>
+        </div>
+        <div class="p-5 h-80 overflow-y-auto custom-scrollbar" id="latest-posts">
+            <!-- Posts will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Latest Events -->
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div class="p-5 border-b border-gray-200 flex justify-between items-center">
+            <h3 class="text-lg font-medium text-gray-900">Latest Events</h3>
+            <a href="#" data-page="events" class="text-sm font-medium text-green-600 hover:text-green-500">View All</a>
+        </div>
+        <div class="p-5 h-80 overflow-y-auto custom-scrollbar" id="latest-events">
+            <!-- Events will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Latest Announcements -->
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div class="p-5 border-b border-gray-200 flex justify-between items-center">
+            <h3 class="text-lg font-medium text-gray-900">Latest Announcements</h3>
+            <a href="#" data-page="announcements" class="text-sm font-medium text-cyan-600 hover:text-cyan-500">View All</a>
+        </div>
+        <div class="p-5 h-80 overflow-y-auto custom-scrollbar" id="latest-announcements">
+            <!-- Announcements will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Latest Complaints -->
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div class="p-5 border-b border-gray-200 flex justify-between items-center">
+            <h3 class="text-lg font-medium text-gray-900">Latest Complaints</h3>
+            <a href="#" data-page="complaints" class="text-sm font-medium text-red-600 hover:text-red-500">View All</a>
+        </div>
+        <div class="p-5 h-80 overflow-y-auto custom-scrollbar" id="latest-complaints">
+            <!-- Complaints will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Latest Achievements -->
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div class="p-5 border-b border-gray-200 flex justify-between items-center">
+            <h3 class="text-lg font-medium text-gray-900">Latest Achievements</h3>
+            <a href="#" data-page="achievements" class="text-sm font-medium text-yellow-600 hover:text-yellow-500">View All</a>
+        </div>
+        <div class="p-5 h-80 overflow-y-auto custom-scrollbar" id="latest-achievements">
+            <!-- Achievements will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Latest Accomplishments -->
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div class="p-5 border-b border-gray-200 flex justify-between items-center">
+            <h3 class="text-lg font-medium text-gray-900">Latest Accomplishments</h3>
+            <a href="#" data-page="accomplishments" class="text-sm font-medium text-purple-600 hover:text-purple-500">View All</a>
+        </div>
+        <div class="p-5 h-80 overflow-y-auto custom-scrollbar" id="latest-accomplishments">
+            <!-- Accomplishments will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Latest New Accounts -->
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div class="p-5 border-b border-gray-200 flex justify-between items-center">
+            <h3 class="text-lg font-medium text-gray-900">New Accounts</h3>
+            <a href="#" data-page="accounts" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">View All</a>
+        </div>
+        <div class="p-5 h-80 overflow-y-auto custom-scrollbar" id="latest-accounts">
+            <!-- New accounts (users only) will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Feedback and Concerns -->
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div class="p-5 border-b border-gray-200 flex justify-between items-center">
+            <h3 class="text-lg font-medium text-gray-900">Feedback and Concerns</h3>
+            <i class="fas fa-comments text-gray-400"></i>
+        </div>
+        <div class="p-5 flex justify-center items-center">
+            <div class="h-72 w-72">
+                <canvas id="feedbackConcernsChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// This will be called by the main script after loading the dashboard
+function initializeDashboard(data) {
+    // Update card counts
+    $('#totalPosts').text(data.total_posts || 0);
+    $('#totalEvents').text(data.total_events || 0);
+    $('#totalAnnouncements').text(data.total_announcements || 0);
+    $('#pending-complaints').text(data.pending_complaints || 0);
+    $('#total-achievements').text(data.total_achievements || 0);
+    $('#total-volunteers').text(data.total_volunteers || 0);
+    
+    // Render latest items
+    renderLatestItems('#latest-posts', data.latest_posts || [], 'category__category', 'bg-blue-100 text-blue-800');
+    renderLatestItems('#latest-events', data.latest_events || [], 'status', 'bg-green-100 text-green-800');
+    renderLatestItems('#latest-announcements', data.latest_announcements || [], 'category__category', 'bg-cyan-100 text-cyan-800');
+    renderLatestItems('#latest-complaints', data.latest_complaints || [], 'remarks', 'bg-red-100 text-red-800');
+    renderLatestItems('#latest-achievements', data.latest_achievements || [], 'category__category', 'bg-yellow-100 text-yellow-800');
+    renderLatestItems('#latest-accomplishments', data.latest_accomplishments || [], 'category__category', 'bg-purple-100 text-purple-800');
+    renderLatestItems('#latest-accounts', data.latest_accounts || [], 'account_type', 'bg-indigo-100 text-indigo-800');
+    
+    // Initialize charts
+    initializeDashboardCharts(data);
+}
+
+function renderLatestItems(container, items, categoryField, badgeClass) {
+    let html = '';
+    
+    if (items.length > 0) {
+        items.forEach(item => {
+            html += `
+                <div class="mb-4 pl-4 border-l-2 border-blue-500">
+                    <div class="flex justify-between items-start">
+                        <h4 class="text-sm font-medium text-gray-900">${item.title || item.name || item.complaint_type__type || 'N/A'}</h4>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${badgeClass}">
+                            ${item[categoryField] || 'N/A'}
+                        </span>
+                    </div>
+                    <p class="mt-1 text-sm text-gray-500 truncate">${item.context || item.description || item.awarded_by || ''}</p>
+                    <p class="mt-1 text-xs text-gray-400">${formatDate(item.created_at || item.date_event || item.start_publish_on || item.awarded_on || item.accomplish_on)}</p>
+                </div>
+            `;
+        });
+    } else {
+        html = '<div class="text-center text-gray-500 py-4">No recent items</div>';
+    }
+    
+    $(container).html(html);
+}
+
+function formatDate(dateString) {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+// Initialize charts for the dashboard
+function initializeDashboardCharts(data) {
+    try {
+        // Posts by Category Chart
+        if (data.posts_by_category && data.posts_by_category.length > 0) {
+            const postsByCategoryCtx = document.getElementById('postsByCategoryChart').getContext('2d');
+            new Chart(postsByCategoryCtx, {
+                type: 'bar',
+                data: {
+                    labels: data.posts_by_category.map(item => item.category || 'Unknown'),
+                    datasets: [{
+                        label: 'Posts by Category',
+                        data: data.posts_by_category.map(item => item.count || 0),
+                        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Complaints Status Chart
+        if (data.complaints_by_status && data.complaints_by_status.length > 0) {
+            const complaintsStatusCtx = document.getElementById('complaintsStatusChart').getContext('2d');
+            new Chart(complaintsStatusCtx, {
+                type: 'pie',
+                data: {
+                    labels: data.complaints_by_status.map(item => item.status || 'Unknown'),
+                    datasets: [{
+                        label: 'Complaints by Status',
+                        data: data.complaints_by_status.map(item => item.count || 0),
+                        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Events Status Chart
+        if (data.events_by_status && data.events_by_status.length > 0) {
+            const eventsStatusCtx = document.getElementById('eventsStatusChart').getContext('2d');
+            new Chart(eventsStatusCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: data.events_by_status.map(item => item.status || 'Unknown'),
+                    datasets: [{
+                        label: 'Events by Status',
+                        data: data.events_by_status.map(item => item.count || 0),
+                        backgroundColor: ['#4BC0C0', '#FF9F40', '#9966FF'],
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Feedback and Concerns Chart
+        if (data.complaint_data && data.complaint_data.length > 0) {
+            const feedbackConcernsCtx = document.getElementById('feedbackConcernsChart').getContext('2d');
+            new Chart(feedbackConcernsCtx, {
+                type: 'pie',
+                data: {
+                    labels: data.complaint_data.map(item => item.type || 'Unknown'),
+                    datasets: [{
+                        label: 'Feedback and Concerns',
+                        data: data.complaint_data.map(item => item.count || 0),
+                        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'],
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    } catch (e) {
+        console.error('Error initializing dashboard charts:', e);
+        showAlert('danger', 'Failed to initialize dashboard charts.');
+    }
+}
+</script>

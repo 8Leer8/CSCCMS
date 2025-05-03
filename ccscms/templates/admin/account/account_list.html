@@ -1,0 +1,69 @@
+<div class="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-100">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between p-6 border-b border-gray-200">
+        <div class="mb-4 md:mb-0">
+            <h2 class="text-xl font-bold text-gray-800">Account Management</h2>
+            <p class="text-sm text-gray-600">Manage all system accounts (Admins and Users)</p>
+        </div>
+        <div>
+            <button id="addAccountBtn" class="px-4 py-2 bg-primary-dark text-white rounded-md hover:bg-primary-darker transition-colors flex items-center justify-center text-sm font-medium">
+                <i class="fas fa-plus mr-2"></i> Add Account
+            </button>
+        </div>
+    </div>
+    
+    <!-- Filters -->
+    <div class="p-5 border-b border-gray-200 bg-gray-50">
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-4">
+            <div>
+                <label for="accountTypeFilter" class="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Account Type</label>
+                <select id="accountTypeFilter" class="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-primary-dark focus:border-primary-dark text-sm">
+                    <option value="">All Types</option>
+                    <option value="admin">Admin</option>
+                    <option value="user">User</option>
+                </select>
+            </div>
+            <div>
+                <label for="accountStatusFilter" class="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Status</label>
+                <select id="accountStatusFilter" class="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-primary-dark focus:border-primary-dark text-sm">
+                    <option value="">All Statuses</option>
+                    <option value="true">Active</option>
+                    <option value="false">Inactive</option>
+                </select>
+            </div>
+            <div class="sm:col-span-2">
+                <label for="accountSearchFilter" class="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Search</label>
+                <div class="relative rounded-md shadow-sm">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-search text-gray-400"></i>
+                    </div>
+                    <input type="text" id="accountSearchFilter" placeholder="Search by name or email..." class="block w-full border border-gray-300 rounded-md py-2 pl-10 pr-3 focus:outline-none focus:ring-2 focus:ring-primary-dark focus:border-primary-dark text-sm">
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Accounts Table -->
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Account</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Contact</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Type</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Created</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Last Login</th>
+                    <th scope="col" class="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200" id="accountsTableBody">
+                <!-- Accounts will be loaded here -->
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Pagination -->
+    <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between" id="paginationContainer">
+        <!-- Pagination will be loaded here -->
+    </div>
+</div>

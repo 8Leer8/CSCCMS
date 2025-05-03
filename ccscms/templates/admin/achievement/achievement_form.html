@@ -1,0 +1,106 @@
+<form id="achievementForm" enctype="multipart/form-data">
+    <input type="hidden" id="achievementId" name="id">
+    
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <!-- Left Column -->
+        <div class="space-y-4">
+            <div>
+                <label for="achievementTitle" class="block text-sm font-medium text-gray-700">Title*</label>
+                <input type="text" id="achievementTitle" name="title" required
+                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
+            </div>
+            
+            <div>
+                <label for="achievementTeamName" class="block text-sm font-medium text-gray-700">Team Name</label>
+                <input type="text" id="achievementTeamName" name="team_name"
+                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
+            </div>
+            
+            <div>
+                <label for="achievementMentor" class="block text-sm font-medium text-gray-700">Mentor</label>
+                <input type="text" id="achievementMentor" name="mentor"
+                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
+            </div>
+            
+            <div>
+                <label for="achievementLocation" class="block text-sm font-medium text-gray-700">Location</label>
+                <input type="text" id="achievementLocation" name="location"
+                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
+            </div>
+            
+            <div>
+                <label for="achievementAwardedBy" class="block text-sm font-medium text-gray-700">Awarded By*</label>
+                <input type="text" id="achievementAwardedBy" name="awarded_by" required
+                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
+            </div>
+            
+            <div>
+                <label for="achievementCategory" class="block text-sm font-medium text-gray-700">Category*</label>
+                <select id="achievementCategory" name="category" required
+                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
+                    <option value="">Select Category</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- Right Column -->
+        <div class="space-y-4">
+            <div>
+                <label for="achievementAwardedOn" class="block text-sm font-medium text-gray-700">Date Awarded*</label>
+                <input type="date" id="achievementAwardedOn" name="awarded_on" required
+                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
+            </div>
+            
+            <div>
+                <label for="achievementStartDate" class="block text-sm font-medium text-gray-700">Start Date</label>
+                <input type="date" id="achievementStartDate" name="start_date"
+                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
+            </div>
+            
+            <div>
+                <label for="achievementEndDate" class="block text-sm font-medium text-gray-700">End Date</label>
+                <input type="date" id="achievementEndDate" name="end_date"
+                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
+            </div>
+            
+            <div>
+                <div>
+                    <label for="achievementStatus" class="block text-sm font-medium text-gray-700">Status*</label>
+                    <select id="achievementStatus" name="status" required
+                        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
+                        <option value="">Select Status</option>
+                        <!-- Options will be populated by JavaScript -->
+                    </select>
+                </div>
+            </div>
+            
+            <div>
+                <label for="achievementContext" class="block text-sm font-medium text-gray-700">Short Description*</label>
+                <textarea id="achievementContext" name="context" rows="3" required
+                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm"></textarea>
+            </div>
+            
+            <div>
+                <label for="achievementContent" class="block text-sm font-medium text-gray-700">Full Description*</label>
+                <textarea id="achievementContent" name="content" rows="5" required
+                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm"></textarea>
+            </div>
+            
+            <div>
+                <label for="achievementImages" class="block text-sm font-medium text-gray-700">Images</label>
+                <input type="file" id="achievementImages" name="images" multiple accept="image/*"
+                    class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary-light file:text-primary-dark hover:file:bg-primary-dark hover:file:text-white">
+                <p class="mt-1 text-xs text-gray-500">Upload multiple images (optional)</p>
+                
+                <!-- Preview of uploaded images -->
+                <div id="uploadedImages" class="mt-2 grid grid-cols-3 gap-2"></div>
+                
+                <!-- Existing images -->
+                <div id="existingImages" class="mt-2 hidden">
+                    <p class="text-xs text-gray-500 mb-2">Current Images (click to delete)</p>
+                    <div class="grid grid-cols-3 gap-2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

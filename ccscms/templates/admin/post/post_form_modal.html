@@ -1,0 +1,88 @@
+<div class="fixed inset-0 z-50 hidden" id="postModal">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+            <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+        </div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+            <div class="bg-white px-6 pt-6 pb-6 sm:p-8">
+                <div class="sm:flex sm:items-start">
+                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900" id="postModalTitle">Add New Post</h3>
+                        <div class="mt-4 max-h-[70vh] overflow-y-auto custom-scrollbar" id="postModalBody">
+                            <form id="postForm">
+                                <input type="hidden" id="postId">
+                                <div class="grid grid-cols-1 gap-6">
+                                    <div>
+                                        <label for="postTitle" class="block text-sm font-medium text-gray-700">Title</label>
+                                        <input type="text" id="postTitle" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
+                                    </div>
+                                    <div>
+                                        <label for="postCategory" class="block text-sm font-medium text-gray-700">Category</label>
+                                        <select id="postCategory" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
+                                            <!-- Categories will be populated via JavaScript -->
+                                        </select>
+                                    </div>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label for="postStatus" class="block text-sm font-medium text-gray-700">Status</label>
+                                            <select id="postStatus" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
+                                                <!-- Status options will be populated via JavaScript -->
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label for="postPublishStart" class="block text-sm font-medium text-gray-700">Publish Start Date</label>
+                                            <input type="date" id="postPublishStart" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
+                                        </div>
+                                        <div>
+                                            <label for="postPublishEnd" class="block text-sm font-medium text-gray-700">Publish End Date</label>
+                                            <input type="date" id="postPublishEnd" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label for="postContext" class="block text-sm font-medium text-gray-700">Context (Short Description)</label>
+                                        <textarea id="postContext" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm"></textarea>
+                                    </div>
+                                    <div>
+                                        <label for="postContent" class="block text-sm font-medium text-gray-700">Content</label>
+                                        <textarea id="postContent" rows="6" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm"></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Images</label>
+                                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                                            <div class="space-y-1 text-center">
+                                                <div class="flex text-sm text-gray-600">
+                                                    <label for="postImages" class="relative cursor-pointer bg-white rounded-md font-medium text-primary-dark hover:text-primary-darker focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-dark">
+                                                        <span>Upload images</span>
+                                                        <input id="postImages" name="postImages" type="file" multiple class="sr-only">
+                                                    </label>
+                                                    <p class="pl-1">or drag and drop</p>
+                                                </div>
+                                                <p class="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                                            </div>
+                                        </div>
+                                        <div id="uploadedImages" class="mt-2 grid grid-cols-2 md:grid-cols-4 gap-2">
+                                            <!-- Uploaded images preview will appear here -->
+                                        </div>
+                                        <div id="existingImages" class="mt-4">
+                                            <!-- Existing images for edit mode will appear here -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-6 py-4 sm:px-8 sm:flex sm:flex-row-reverse">
+                <button type="button" onclick="submitPostForm()" class="w-full inline-flex items-center justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm" id="postModalSubmitBtn">
+                    <i class="fas fa-plus-circle mr-2" id="postSubmitBtnIcon"></i>
+                    <span id="postSubmitBtnText">Add Post</span>
+                </button>
+                <button type="button" onclick="closeModal('postModal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

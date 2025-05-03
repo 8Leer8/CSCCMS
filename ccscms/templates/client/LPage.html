@@ -1,0 +1,502 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organization Payment Management System - WMSU CCS</title>
+    <link href="{% static 'vendor/bootstrap-5.3.3-dist/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'landing/landingPage.css' %}" rel="stylesheet">
+</head>
+<body>
+
+<!-- Menu Button -->
+<button class="menu-btn">☰ MENU</button>
+
+<!-- Offcanvas Menu -->
+<div class="offcanvas">
+    <span class="close-btn">&times;</span>
+    <nav>
+        <a href="#" class="nav-link">HOME</a>
+        <a href="#" class="nav-link">ABOUT</a>
+        <a href="#" class="nav-link">ANNOUNCEMENT</a>
+        <a href="#" class="nav-link">EVENTS</a>
+        <a href="#" class="nav-link">ACHIEVEMENTS</a>
+        <a href="#" class="nav-link">PROFESSORS</a>
+        <a href="#" class="nav-link">OFFICERS</a>
+    </nav>
+</div>
+
+<!-- Hero Section -->
+<section class="hero text-center text-white py-5">
+    <div class="container d-flex flex-column justify-content-center align-items-center h-100">
+        <h1 class="display-3 fw-bold fade-up">Welcome to the College of Computing Studies Student Council</h1>
+        <p class="lead fade-up">Western Mindanao State University - College of Computing Studies</p>
+        
+        <!-- Logos -->
+        <div class="d-flex justify-content-center mt-5 fade-scale">
+            <div class="logo mx-3">
+                <img src="{% static 'landing/img/WMSU.jpg' %}" alt="WMSU Logo" class="img-fluid wmsu-logo">
+            </div>
+            <div class="logo mx-3">
+                <img src="{% static 'landing/img/CCS.jpg' %}" alt="CSS Logo" class="img-fluid css-logo">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- About Section -->
+<section class="about py-5 bg-dark text-light">
+    <div class="container text-center">
+        <h2 class="mb-4 fw-bold">About the College of Computing Studies Student Council</h2>
+        <p class="lead mb-5">
+        The Student Council is the official representative body of the College of Computing Studies. It serves as a vital link between students, faculty, and administration, advocating for student concerns, addressing their needs, and fostering a supportive academic environment. Committed to student empowerment, the council organizes initiatives, events, and programs that enhance academic growth, leadership development, and community engagement. Through collaboration and active representation, it strives to create a dynamic and inclusive college experience, ensuring that every student's voice is heard and valued.
+        </p>
+        <div class="row justify-content-center">
+            <div class="col-md-4">
+                <h4>Empowering Leadership & Innovation</h4>
+                <p>Dedicated to fostering a dynamic and inclusive academic environment, the council organizes initiatives that promote leadership, innovation, and professional growth. Through various programs and events, it enhances student engagement, strengthens the computing community, and contributes to the continuous improvement of the academic experience.</p>
+            </div>
+            <div class="col-md-4">
+                <h4>Enhancing Student Advocacy & Development</h4>
+                <p>With a strong emphasis on advocacy, collaboration, and student development, the CCS Student Council serves as a bridge between students and administration. It ensures that student concerns are heard, promotes a culture of inclusivity, and helps shape a forward-thinking educational environment within the college.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Oath-Taking Section -->
+<section class="oath-taking py-5">
+    <div class="container text-center" data-aos="fade-up" data-aos-duration="1000">
+        <h2 class="fw-bold mb-4">OATH-TAKING CEREMONY</h2>
+        <p class="lead mb-5">
+            Congratulations to the newly elected Executive Officers of the College of Computing Studies Student Council!
+        </p>
+
+        <div class="row justify-content-center" data-aos="fade-up" data-aos-duration="1000">
+            <!-- Image Boxes -->
+            <div class="col-md-5 mb-4" data-aos="fade-up" data-aos-duration="1000">
+                <div class="oath-img-box">
+                    <img src="{% static 'landing/img/OATH1.jpg' %}" alt="Oath-Taking Image 1" class="img-fluid">
+                </div>
+            </div>
+
+            <div class="col-md-5 mb-4" data-aos="fade-up" data-aos-duration="1000">
+                <div class="oath-img-box">
+                    <img src="{% static 'landing/img/OATH2.jpg' %}" alt="Oath-Taking Image 2" class="img-fluid">
+                </div>
+            </div>
+        </div>
+
+        <!-- Text Section -->
+        <div class="row justify-content-center mt-5" data-aos="fade-up" data-aos-duration="1000">
+            <div class="col-md-6" data-aos="fade-up" data-aos-duration="1000">
+                <div class="oath-text">
+                    <h4 class="fw-bold mb-3">READY TO LEAD AND EMPOWER THE FUTURE</h4>
+                    <p>
+                    On November 22, you took your oaths and pledged to lead with integrity and dedication to the College, this day marks the beginning of a new journey filled with leadership, innovation, and service. May your commitment inspire excellence and unity within the college. Here's to a successful term ahead! 
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modern Separator Line -->
+    <div class="separator-container" data-aos="fade-up" data-aos-duration="1000">
+        <div class="modern-separator"></div>
+    </div>
+
+    <!-- Session Section -->
+    <section class="oath-takingsession py-5" data-aos="fade-up" data-aos-duration="1000">
+        <div class="container text-center" data-aos="fade-up" data-aos-duration="1000">
+            <h2 class="fw-bold mb-4">CCS-CSC REGULAR SESSION</h2>
+            <p class="lead mb-5">
+            The CCS-CSC Executives held their 2nd regular session on February 27, 2025, at the CCS Organization's Office. The officers discussed upcoming projects for students, refining organizational policies and explored solutions to existing concerns, aiming to enhance student experience and organizational efficiency.
+            </p>
+
+            <div class="row justify-content-center" data-aos="fade-up" data-aos-duration="1000">
+                <!-- Image Boxes -->
+                <div class="col-md-5 mb-4">
+                    <div class="session-img-box">
+                        <img src="{% static 'landing/img/SESSION1.jpg' %}" alt="Session Image 1" class="img-fluid">
+                    </div>
+                </div>
+
+                <div class="col-md-5 mb-4">
+                    <div class="session-img-box">
+                        <img src="{% static 'landing/img/SESSION2.jpg' %}" alt="Session Image 2" class="img-fluid">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Text Section -->
+            <div class="row justify-content-center mt-5" data-aos="fade-up" data-aos-duration="1000">
+                <div class="col-md-6" data-aos="fade-up" data-aos-duration="1000">
+                    <div class="session-text">
+                        <h4 class="fw-bold mb-3">Advancing Student Interests and Organizational Excellence</h4>
+                        <p>
+                        The CCS-CSC is determined to uphold its mission of advocating the best interest of the student body and continuous improvement within the organization. With a shared vision for progress, CCS-CSC remains dedicated to making meaningful changes that will benefit the entire CCS student community.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</section>
+
+<!-- Announcement Section -->
+<section class="announcement-section">
+    <div class="announcement" data-aos="fade-up" data-aos-duration="1000">
+        <h2 class="fw-bold">ANNOUNCEMENT</h2>
+    </div>
+    <div class="container">
+        {% if announcements %}
+        <div class="row">
+            <!-- Main Featured Announcement -->
+            <div class="col-lg-6" data-aos="fade-up" data-aos-duration="1000">
+                <a href="{% url 'announcement_detail' announcements.0.id %}" class="announcement-card large">
+                    <div class="announcement-image">
+                        {% if announcements.0.admin.account.profile_img %}
+                        <img src="{{ announcements.0.admin.account.profile_img.url }}" alt="{{ announcements.0.title }}">
+                        {% else %}
+                        <img src="{% static 'landing/img/img5.jpg' %}" alt="{{ announcements.0.title }}">
+                        {% endif %}
+                    </div>
+                    <div class="announcement-content">
+                        <span class="category">{{ announcements.0.category.category|upper }}</span>
+                        <h3>{{ announcements.0.title }}</h3>
+                        <p>{{ announcements.0.context|truncatechars:100 }}</p>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Two Smaller Announcements -->
+            {% if announcements|length > 1 %}
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-duration="1000">
+                <a href="{% url 'announcement_detail' announcements.1.id %}" class="announcement-card small">
+                    <div class="announcement-image">
+                        {% if announcements.1.admin.account.profile_img %}
+                        <img src="{{ announcements.1.admin.account.profile_img.url }}" alt="{{ announcements.1.title }}">
+                        {% else %}
+                        <img src="{% static 'landing/img/img5.jpg' %}" alt="{{ announcements.1.title }}">
+                        {% endif %}
+                    </div>
+                    <div class="announcement-content">
+                        <span class="category">{{ announcements.1.category.category|upper }}</span>
+                        <h3>{{ announcements.1.title }}</h3>
+                        <p>{{ announcements.1.context|truncatechars:100 }}</p>
+                    </div>
+                </a>
+            </div>
+            {% endif %}
+
+            {% if announcements|length > 2 %}
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-duration="1000">
+                <a href="{% url 'announcement_detail' announcements.2.id %}" class="announcement-card small">
+                    <div class="announcement-image">
+                        {% if announcements.2.admin.account.profile_img %}
+                        <img src="{{ announcements.2.admin.account.profile_img.url }}" alt="{{ announcements.2.title }}">
+                        {% else %}
+                        <img src="{% static 'landing/img/img5.jpg' %}" alt="{{ announcements.2.title }}">
+                        {% endif %}
+                    </div>
+                    <div class="announcement-content">
+                        <span class="category">{{ announcements.2.category.category|upper }}</span>
+                        <h3>{{ announcements.2.title }}</h3>
+                        <p>{{ announcements.2.context|truncatechars:100 }}</p>
+                    </div>
+                </a>
+            </div>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="no-content-message text-center py-5" data-aos="fade-up" data-aos-duration="1000">
+            <p>There are no announcements at the moment.</p>
+        </div>
+        {% endif %}
+    </div>  
+</section>
+
+<!-- Announcement Section - Reversed Layout -->
+{% if announcements and announcements|length > 3 %}
+<section class="announcement-section">
+    <div class="container">
+        <div class="row">
+            <!-- Two Smaller Announcements First -->
+            {% if announcements|length > 3 %}
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-duration="1000">
+                <a href="{% url 'announcement_detail' announcements.3.id %}" class="announcement-card small">
+                    <div class="announcement-image">
+                        {% if announcements.3.admin.account.profile_img %}
+                        <img src="{{ announcements.3.admin.account.profile_img.url }}" alt="{{ announcements.3.title }}">
+                        {% else %}
+                        <img src="{% static 'landing/img/img5.jpg' %}" alt="{{ announcements.3.title }}">
+                        {% endif %}
+                    </div>
+                    <div class="announcement-content">
+                        <span class="category">{{ announcements.3.category.category|upper }}</span>
+                        <h3>{{ announcements.3.title }}</h3>
+                        <p>{{ announcements.3.context|truncatechars:100 }}</p>
+                    </div>
+                </a>
+            </div>
+            {% endif %}
+
+            {% if announcements|length > 4 %}
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-duration="1000">
+                <a href="{% url 'announcement_detail' announcements.4.id %}" class="announcement-card small">
+                    <div class="announcement-image">
+                        {% if announcements.4.admin.account.profile_img %}
+                        <img src="{{ announcements.4.admin.account.profile_img.url }}" alt="{{ announcements.4.title }}">
+                        {% else %}
+                        <img src="{% static 'landing/img/img5.jpg' %}" alt="{{ announcements.4.title }}">
+                        {% endif %}
+                    </div>
+                    <div class="announcement-content">
+                        <span class="category">{{ announcements.4.category.category|upper }}</span>
+                        <h3>{{ announcements.4.title }}</h3>
+                        <p>{{ announcements.4.context|truncatechars:100 }}</p>
+                    </div>
+                </a>
+            </div>
+            {% endif %}
+
+            <!-- Main Featured Announcement -->
+            {% if announcements|length > 5 %}
+            <div class="col-lg-6" data-aos="fade-up" data-aos-duration="1000">
+                <a href="{% url 'announcement_detail' announcements.5.id %}" class="announcement-card large">
+                    <div class="announcement-image">
+                        {% if announcements.5.admin.account.profile_img %}
+                        <img src="{{ announcements.5.admin.account.profile_img.url }}" alt="{{ announcements.5.title }}">
+                        {% else %}
+                        <img src="{% static 'landing/img/img5.jpg' %}" alt="{{ announcements.5.title }}">
+                        {% endif %}
+                    </div>
+                    <div class="announcement-content">
+                        <span class="category">{{ announcements.5.category.category|upper }}</span>
+                        <h3>{{ announcements.5.title }}</h3>
+                        <p>{{ announcements.5.context|truncatechars:100 }}</p>
+                    </div>
+                </a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- See More Button -->
+        <div class="see-more-container" data-aos="fade-up" data-aos-duration="1000">
+            <a href="" class="see-more-btn">See More Announcements</a>
+        </div>
+    </div>  
+</section>
+{% endif %}
+
+<!-- Events Section -->
+<section class="events-section">
+    <div class="events text-center" data-aos="fade-up" data-aos-duration="1000">
+        <h2 class="fw-bold">EVENTS</h2>
+    </div>
+
+    <div class="container">
+        {% if events %}
+        <div class="row">
+            {% for event in events|slice:":4" %}
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-duration="1000">
+                <a href="{% url 'event_detail' event.id %}" class="event-card">
+                    <div class="event-image">
+                        {% if event.event_img %}
+                        <img src="{{ event.event_img.url }}" alt="{{ event.name }}">
+                        {% else %}
+                        <img src="{% static 'landing/img/OATH1.jpg' %}" alt="{{ event.name }}">
+                        {% endif %}
+                        <span class="event-date">{{ event.date_event|date:"M"|upper }}<br>{{ event.date_event|date:"d" }}</span>
+                    </div>
+                    <div class="event-content">
+                        <span class="category">
+                            {% if event.types.all %}
+                            {{ event.types.first.type|upper }}
+                            {% else %}
+                            EVENT
+                            {% endif %}
+                        </span>
+                        <h3>{{ event.name }}</h3>
+                        <p>{{ event.start_at|time:"g:i A" }} - {{ event.end_at|time:"g:i A" }}</p>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="see-more-container" data-aos="fade-up" data-aos-duration="1000">
+            <a href="" class="see-more-btn">See More Events</a>
+        </div>
+        {% else %}
+        <div class="no-content-message text-center py-5" data-aos="fade-up" data-aos-duration="1000">
+            <p>There are no events at the moment.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Achievements Section -->
+<section class="achievements-section">
+    <div class="achievements text-center" data-aos="fade-up" data-aos-duration="1000">
+        <h2 class="fw-bold">ACHIEVEMENTS</h2>
+    </div>
+
+    <div class="container">
+        {% if achievements %}
+        {% for achievement in achievements|slice:":2" %}
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <div class="achievement-card d-flex flex-wrap align-items-center p-4 shadow-lg rounded" data-aos="fade-up" data-aos-duration="1000">
+                    <!-- Image with Hover Effect -->
+                    <div class="achievement-image col-md-5">
+                        {% if achievement.images.all %}
+                        <img src="{{ achievement.images.first.image.url }}" alt="{{ achievement.title }}" class="img-fluid hover-zoom">
+                        {% else %}
+                        <img src="{% static 'landing/img/ACHIEVEMENT1.jpg' %}" alt="{{ achievement.title }}" class="img-fluid hover-zoom">
+                        {% endif %}
+                    </div>
+
+                    <!-- Text Content -->
+                    <div class="achievement-content col-md-7">
+                        <h2 class="fw-bold">{{ achievement.title }}</h2>
+                        <p>{{ achievement.context|truncatechars:200 }}</p>
+                        <div class="text-center mt-3">
+                            <a href="{% url 'achievement_detail' achievement.id %}" class="btn btn-primary">See More Details</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <div class="see-more-container" data-aos="fade-up" data-aos-duration="1000">
+            <a href="" class="see-more-btn">See More Achievements</a>
+        </div>
+        {% else %}
+        <div class="no-content-message text-center py-5" data-aos="fade-up" data-aos-duration="1000">
+            <p>There are no achievements at the moment.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Posts Section -->
+<section class="post-section">
+    <div class="achievements text-center" data-aos="fade-up" data-aos-duration="1000">
+        <h2 class="fw-bold">POST</h2>
+    </div>
+    
+    <div class="container py-5">
+        {% if posts %}
+        <div class="row g-4 justify-content-center">
+            {% for post in posts|slice:":4" %}
+            <div class="row col-12 col-md-6 col-lg-6" data-aos="fade-up" data-aos-duration="1000">
+                <div class="exam-card position-relative overflow-hidden">
+                    <div class="exam-image">
+                        {% if post.images.all %}
+                        <img src="{{ post.images.first.image.url }}" alt="{{ post.title }}" class="img-fluid w-100 h-100">
+                        {% else %}
+                        <img src="{% static 'landing/img/img9.jpg' %}" alt="{{ post.title }}" class="img-fluid w-100 h-100">
+                        {% endif %}
+                    </div>
+                    <div class="exam-info text-white p-4 d-flex flex-column justify-content-between">
+                        <div>
+                            <p class="exam-date mb-1">{{ post.created_at|date:"F j, Y" }}</p>
+                            <h4 class="exam-title m-0">{{ post.title }}</h4>
+                        </div>
+                        <div class="text-end">
+                            <a href="{% url 'post_detail' post.id %}" class="read-more">Read More <span>&rarr;</span></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+            <div class="see-more-container" data-aos="fade-up" data-aos-duration="1000">
+                <a href="" class="see-more-btn">See More Posts</a>
+            </div>
+        </div>
+        {% else %}
+        <div class="no-content-message text-center py-5" data-aos="fade-up" data-aos-duration="1000">
+            <p>There are no posts at the moment.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<footer class="footer bg-dark text-white py-4">
+    <div class="container text-center">
+        <p>&copy; 2025 WMSU - College of Computing Studies Student Council. All Rights Reserved.</p>
+        
+        <!-- Logos Section -->
+        <div class="footer-logos d-flex justify-content-center align-items-center gap-3 mt-3">
+            <img src="{% static 'landing/img/WMSU.jpg' %}" alt="WMSU Logo" class="footer-logo">
+            <img src="{% static 'landing/img/student_Council.JPG' %}" alt="CCS Student Council Logo" class="footer-logo">
+            <img src="{% static 'landing/img/CCS.jpg' %}" alt="CCS Logo" class="footer-logo">
+        </div>
+    </div>
+</footer>
+
+<script src="{% static 'vendor/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet" />
+<script>
+AOS.init();
+</script>
+    
+<script>
+    document.addEventListener("DOMContentLoaded", function () { 
+    // Menu toggle functionality
+    const menuBtn = document.querySelector(".menu-btn");
+    const offcanvasMenu = document.querySelector(".offcanvas");
+    const closeBtn = document.querySelector(".close-btn");
+
+    if (menuBtn && offcanvasMenu && closeBtn) {
+        function openMenu() {
+            offcanvasMenu.classList.add("show");
+            document.addEventListener("click", closeMenuOnOutsideClick);
+        }
+
+        function closeMenu() {
+            offcanvasMenu.classList.remove("show");
+            document.removeEventListener("click", closeMenuOnOutsideClick);
+        }
+
+        function closeMenuOnOutsideClick(event) {
+            if (!offcanvasMenu.contains(event.target) && !menuBtn.contains(event.target)) {
+                closeMenu();
+            }
+        }
+
+        menuBtn.addEventListener("click", function (event) {
+            event.stopPropagation();
+            openMenu();
+        });
+
+        closeBtn.addEventListener("click", function (event) {
+            event.stopPropagation();
+            closeMenu();
+        });
+    }
+
+    // Animation triggers
+    const fadeUpElements = document.querySelectorAll(".fade-up");
+    const fadeScaleElements = document.querySelectorAll(".fade-scale");
+
+    fadeUpElements.forEach((el, index) => {
+        setTimeout(() => {
+            el.style.animation = "fadeUp 1s ease-out forwards";
+        }, index * 300);
+    });
+
+    fadeScaleElements.forEach((el, index) => {
+        setTimeout(() => {
+            el.style.animation = "fadeScale 1s ease-out forwards";
+        }, 600 + index * 300);
+    });
+});
+</script>
+</body>
+</html>

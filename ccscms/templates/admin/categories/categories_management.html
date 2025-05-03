@@ -1,0 +1,424 @@
+<!-- templates/admin/categories/categories_management.html -->
+<div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+    <!-- Tabs Navigation -->
+    <div class="border-b border-gray-200 mb-6">
+        <nav class="-mb-px flex space-x-8">
+            <a href="javascript:void(0)" data-tab="labels" 
+               class="categories-tab transition-all duration-300 ease-in-out whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                Event Labels
+            </a>
+            <a href="javascript:void(0)" data-tab="types"
+               class="categories-tab transition-all duration-300 ease-in-out whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                Event Types
+            </a>
+            <a href="javascript:void(0)" data-tab="audiences"
+               class="categories-tab transition-all duration-300 ease-in-out whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                Target Audiences
+            </a>
+        </nav>
+    </div>
+
+    <!-- Content will be loaded here -->
+    <div id="categories-content" class="transition-opacity duration-300 ease-in-out opacity-100">
+        <!-- Content loaded via AJAX -->
+    </div>
+</div>
+
+<!-- Add/Edit Modal -->
+<div id="categoryModal" class="hidden fixed z-50 inset-0 overflow-y-auto">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal()"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div class="sm:flex sm:items-start">
+                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900" id="modalTitle">Add New Item</h3>
+                        <div class="mt-4">
+                            <input type="hidden" id="categoryId">
+                            <input type="hidden" id="categoryType">
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700">Name</label>
+                                <input type="text" id="categoryName" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700">Description</label>
+                                <textarea id="categoryDescription" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Status</label>
+                                <select id="categoryStatus" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm rounded-md">
+                                    <option value="true">Active</option>
+                                    <option value="false">Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button type="button" onclick="saveCategory()" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary-dark text-base font-medium text-white hover:bg-primary-darker focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">
+                    Save
+                </button>
+                <button type="button" onclick="closeModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="hidden fixed z-50 inset-0 overflow-y-auto">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal()"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div class="sm:flex sm:items-start">
+                    <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                        <i class="fas fa-exclamation-triangle text-red-600"></i>
+                    </div>
+                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">Confirm Delete</h3>
+                        <div class="mt-2">
+                            <p class="text-sm text-gray-500">Are you sure you want to delete this item? This action cannot be undone.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button type="button" onclick="deleteCategory()" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">
+                    Delete
+                </button>
+                <button type="button" onclick="closeModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Alerts Container -->
+<div id="alerts-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+<script>
+// Global variables - declared only once at the top
+currentCategoryType = '';
+currentCategoryId = '';
+
+// Function to load data via AJAX
+function loadData(categoryType) {
+    showLoading();
+    console.log('Loading data for:', categoryType);
+    let url = '';
+    switch(categoryType) {
+        case 'label':
+            console.log('Loading labels...');
+            url = "{% url 'ajax_labels' %}";
+            break;
+        case 'type':
+            url = "{% url 'ajax_types' %}";
+            break;
+        case 'audience':
+            url = "{% url 'ajax_audiences' %}";
+            break;
+    }
+    
+    $.ajax({
+        url: url,
+        type: 'GET',
+        success: function(response) {
+            console.log('Data loaded successfully:', response.data);
+            updateTable(categoryType, response.data);
+            $('#categories-content').css('opacity', '0').animate({opacity: 1}, 300);
+            hideLoading();
+        },
+        error: function(xhr, status, error) {
+            console.error('Error loading data:', error);
+            showAlert('danger', 'Failed to load data');
+            $('#categories-content').css('opacity', '1');
+            hideLoading();
+        }
+    });
+}
+
+function updateTable(categoryType, data) {
+    let tableBody = '';
+    console.log(categoryType, data);
+    console.log('Trying to insert into:', `#${categoryType}-table tbody`);
+    console.log(document.querySelector(`#${categoryType}-table tbody`));
+
+    if (data.length === 0) {
+        tableBody = `
+            <tr>
+                <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">
+                    No items found
+                </td>
+            </tr>
+        `;
+    } else {
+        data.forEach(item => {
+            tableBody += `
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">${item.type}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-500">${item.description || 'N/A'}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        ${item.is_active ? 
+                            '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>' : 
+                            '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Inactive</span>'}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button onclick="editCategory('${categoryType}', ${item.id}, '${escapeSingleQuote(item.type)}', '${escapeSingleQuote(item.description || '')}', ${item.is_active})" 
+                                class="text-blue-600 hover:text-blue-900 mr-3">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="confirmDeleteCategory('${categoryType}', ${item.id})" 
+                                class="text-red-600 hover:text-red-900">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+    
+    $(`#${categoryType}-table tbody`).html(tableBody);
+}
+
+function escapeSingleQuote(str) {
+    return str.replace(/'/g, "\\'");
+}
+
+function openAddModal(categoryType) {
+    currentCategoryType = categoryType;
+    currentCategoryId = '';
+    
+    let title = '';
+    switch(categoryType) {
+        case 'label': title = 'Add New Event Label'; break;
+        case 'type': title = 'Add New Event Type'; break;
+        case 'audience': title = 'Add New Target Audience'; break;
+    }
+    
+    $('#modalTitle').text(title);
+    $('#categoryId').val('');
+    $('#categoryType').val(categoryType);
+    $('#categoryName').val('');
+    $('#categoryDescription').val('');
+    $('#categoryStatus').val('true');
+    
+    $('#categoryModal').removeClass('hidden').hide().fadeIn(200);
+}
+
+function editCategory(categoryType, id, name, description, isActive) {
+    currentCategoryType = categoryType;
+    currentCategoryId = id;
+    
+    let title = '';
+    switch(categoryType) {
+        case 'label': title = 'Edit Event Label'; break;
+        case 'type': title = 'Edit Event Type'; break;
+        case 'audience': title = 'Edit Target Audience'; break;
+    }
+    
+    $('#modalTitle').text(title);
+    $('#categoryId').val(id);
+    $('#categoryType').val(categoryType);
+    $('#categoryName').val(name);
+    $('#categoryDescription').val(description);
+    $('#categoryStatus').val(isActive ? 'true' : 'false');
+    
+    $('#categoryModal').removeClass('hidden').hide().fadeIn(200);
+}
+
+function saveCategory() {
+    showLoading();
+    
+    const id = $('#categoryId').val();
+    const categoryType = $('#categoryType').val();
+    const type = $('#categoryName').val();
+    const description = $('#categoryDescription').val();
+    const is_active = $('#categoryStatus').val() === 'true';
+    
+    const data = {
+        category_type: categoryType,
+        type: type,
+        description: description,
+        is_active: is_active
+    };
+    
+    if (id) {
+        data.id = id;
+        var url = "{% url 'ajax_update_category' %}";
+    } else {
+        var url = "{% url 'ajax_create_category' %}";
+    }
+    
+    $.ajax({
+        url: url,
+        type: 'POST',
+        data: JSON.stringify(data),
+        contentType: 'application/json',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        success: function(response) {
+            if (response.success) {
+                showAlert('success', 'Item saved successfully');
+                closeModal();
+                loadData(categoryType);
+            } else {
+                showAlert('danger', response.error || 'Failed to save item');
+            }
+            hideLoading();
+        },
+        error: function(xhr, status, error) {
+            console.error('Error saving item:', error);
+            showAlert('danger', 'Failed to save item. Please try again.');
+            hideLoading();
+        }
+    });
+}
+
+function confirmDeleteCategory(categoryType, id) {
+    currentCategoryType = categoryType;
+    currentCategoryId = id;
+    $('#deleteModal').removeClass('hidden').hide().fadeIn(200);
+}
+
+function deleteCategory() {
+    showLoading();
+    
+    const data = {
+        category_type: currentCategoryType,
+        id: currentCategoryId
+    };
+    
+    $.ajax({
+        url: "{% url 'ajax_delete_category' %}",
+        type: 'POST',
+        data: JSON.stringify(data),
+        contentType: 'application/json',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        success: function(response) {
+            if (response.success) {
+                showAlert('success', 'Item deleted successfully');
+                closeModal();
+                loadData(currentCategoryType);
+            } else {
+                showAlert('danger', response.error || 'Failed to delete item');
+            }
+            hideLoading();
+        },
+        error: function(xhr, status, error) {
+            console.error('Error deleting item:', error);
+            showAlert('danger', 'Failed to delete item. Please try again.');
+            hideLoading();
+        }
+    });
+}
+
+function closeModal() {
+    $('#categoryModal').fadeOut(200, function() {
+        $(this).addClass('hidden');
+    });
+    $('#deleteModal').fadeOut(200, function() {
+        $(this).addClass('hidden');
+    });
+    currentCategoryType = '';
+    currentCategoryId = '';
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function showLoading() {
+    $('#loading-indicator').removeClass('hidden');
+}
+
+function showAlert(type, message) {
+    const alertClass = {
+        'success': 'bg-green-100 border-green-400 text-green-700',
+        'danger': 'bg-red-100 border-red-400 text-red-700',
+        'warning': 'bg-yellow-100 border-yellow-400 text-yellow-700',
+        'info': 'bg-blue-100 border-blue-400 text-blue-700'
+    };
+    
+    const alertDiv = $(`
+        <div class="alert ${alertClass[type]} border px-4 py-3 rounded relative" role="alert">
+            <span class="block sm:inline">${message}</span>
+            <span class="absolute top-0 bottom-0 right-0 px-4 py-3" onclick="$(this).parent().remove()">
+                <svg class="fill-current h-6 w-6" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                    <title>Close</title>
+                    <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/>
+                </svg>
+            </span>
+        </div>
+    `);
+    $('#alerts-container').append(alertDiv);
+    setTimeout(() => alertDiv.fadeOut(300, () => alertDiv.remove()), 5000);
+}
+
+$(document).ready(function() {
+    // Handle tab clicks
+    $('.categories-tab').on('click', function(e) {
+        e.preventDefault();
+        const tab = $(this).data('tab');
+        
+        $('.categories-tab').removeClass('border-primary-dark text-primary-dark')
+                           .addClass('border-transparent text-gray-500');
+        $(this).removeClass('border-transparent text-gray-500')
+               .addClass('border-primary-dark text-primary-dark');
+        
+        $('#categories-content').animate({opacity: 0}, 200);
+        
+        showLoading();
+        
+        setTimeout(() => {
+            if (tab === 'labels') {
+                loadData('label');
+            } else if (tab === 'types') {
+                loadData('type');
+            } else if (tab === 'audiences') {
+                loadData('audience');
+            }
+        }, 200);
+    });
+    
+    // Load initial data
+    const path = window.location.pathname;
+    if (path.includes('labels')) {
+        loadData('label');
+        $('.categories-tab[data-tab="labels"]').addClass('border-primary-dark text-primary-dark')
+                           .removeClass('border-transparent text-gray-500');
+    } else if (path.includes('types')) {
+        loadData('type');
+        $('.categories-tab[data-tab="types"]').addClass('border-primary-dark text-primary-dark')
+                           .removeClass('border-transparent text-gray-500');
+    } else if (path.includes('audiences')) {
+        loadData('audience');
+        $('.categories-tab[data-tab="audiences"]').addClass('border-primary-dark text-primary-dark')
+                           .removeClass('border-transparent text-gray-500');
+    }
+});
+</script>

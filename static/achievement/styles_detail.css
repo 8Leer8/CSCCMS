@@ -1,0 +1,971 @@
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: #1B4332; /* Dark Green Background */
+    color: white;
+    padding: 15px 20px;
+    font-size: 18px;
+    font-weight: bold;
+    z-index: 1000; /* Ensures it stays above other content */
+    display: flex;
+    align-items: center; /* Align vertically */
+    justify-content: flex-start; /* Align text to the left */
+}
+
+.header .college {
+    margin-left: -900px; /* Adds spacing from the left edge */
+}
+
+.header a {
+    text-decoration: none;
+    font-family: var(--college-font);
+    color: #f1f1f1;
+    font-size: 1.2rem;
+    transition: color 0.3s ease;
+}
+
+/* Hover effect for better interaction */
+.header a:hover {
+    color: #d4d4d4;
+}
+
+/* Adds space below header so content isn't hidden behind it */
+body {
+    padding-top: 60px; /* Matches header height to prevent overlap */
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .header {
+        font-size: 16px;
+        padding: 10px 15px;
+        height: 50px;
+    }
+
+    .header a {
+        font-size: 1rem;
+    }
+
+    body {
+        padding-top: 50px; /* Adjust padding for smaller screens */
+    }
+}
+
+  
+
+/* Nav Section */
+.event_header {
+    background-color: #fff;
+    padding: 1rem 10rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.event_title span {
+    font-family: var(--college-font);
+    color: #1B4332;
+    font-weight: 900;
+    font-style: normal;
+}
+
+.event_title {
+    font-family: var(--second-font);
+    font-size: 4rem;
+    font-weight: lighter;
+}
+
+/* Fixed Bottom Navigation Bar */
+.bottom-nav {
+    background-color: white;
+    padding: 15px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); /* Softer shadow */
+    border-bottom: 2px solid rgba(0, 0, 0, 0.1); /* Lighter border */
+    height: 60px;
+    position: fixed; /* Makes it stay on scroll */
+    top: 60px; /* Adjusted so it doesn't overlap the header */
+    left: 0;
+    width: 100%;
+    z-index: 999; /* Ensures it stays above other content but below the header */
+}
+
+/* Ensures body doesn't get covered by the fixed navbar */
+body {
+    padding-top: 120px; /* Adjusted to avoid overlap with header and nav */
+}
+
+/* Navigation Links */
+.bottom-nav .nav-link {
+    color: black;
+    text-decoration: none;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    position: relative;
+    padding: 5px 0;
+    transition: color 0.3s ease-in-out;
+    display: flex;
+    align-items: center;
+}
+
+/* Navigation Links */
+.bottom-nav .nav-link {
+    color: black;
+    text-decoration: none;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    position: relative;
+    padding: 5px 0;
+    transition: color 0.3s ease-in-out;
+    display: flex;
+    align-items: center;
+}
+
+/* Hover Effect - Change Text Color */
+.bottom-nav .nav-link:hover,
+.bottom-nav .dropdown-content a:hover {
+    color: #1B4332;
+}
+
+/* Hover Effect - Underline Animation */
+.bottom-nav .nav-link::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -5px;
+    width: 0%;
+    height: 3px;
+    background-color: #006400;
+    transition: width 0.3s ease-in-out, left 0.3s ease-in-out;
+    transform: translateX(-50%);
+}
+
+.bottom-nav .nav-link:hover::after {
+    width: 100%;
+}
+
+/* Dropdown Styling */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: white;
+    min-width: 160px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    border-radius: 5px;
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 10px;
+    text-decoration: none;
+    display: block;
+    transition: color 0.3s ease-in-out;
+}
+
+/* Show dropdown on hover */
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+
+
+/* Ensure header remains fixed at the top */
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: #1B4332;
+    color: white;
+    padding: 15px 20px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    z-index: 1000; /* Higher than navbar to stay on top */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 60px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Ensures header text is centered properly */
+.header .college {
+    display: flex;
+    align-items: center;
+}
+
+/* Styling for the link inside header */
+.header a {
+    text-decoration: none;
+    font-family: var(--college-font);
+    color: #f1f1f1;
+    font-size: 1.2rem;
+    transition: color 0.3s ease;
+}
+
+/* Hover effect for better interaction */
+.header a:hover {
+    color: #d4d4d4;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .bottom-nav {
+        flex-direction: column;
+        gap: 1rem;
+        height: auto;
+        padding: 10px 0;
+    }
+
+    .bottom-nav .nav-link {
+        font-size: 0.9rem;
+    }
+
+    .header {
+        font-size: 16px;
+        padding: 10px 15px;
+        height: 50px;
+    }
+
+    .header a {
+        font-size: 1rem;
+    }
+
+    body {
+        padding-top: 110px;
+    }
+}
+
+/* Reset default margin and padding */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Dropdown Container */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+/* Dropdown Content (Hidden by Default) */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: white;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    min-width: 150px;
+    z-index: 1000;
+    margin-top: 5px;
+}
+
+/* Dropdown Links */
+.dropdown-content a {
+    color: black;
+    padding: 10px 15px;
+    display: block;
+    text-decoration: none;
+    font-family: 'Poppins', sans-serif;
+    transition: background 0.3s ease;
+}
+
+/* Hover effect on dropdown links */
+.dropdown-content a:hover {
+    background-color: #f0f0f0;
+}
+
+/* Show dropdown menu on hover */
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+
+/* General Styles */
+body {
+    background-color: #f8f9fa;
+    font-family: "Poppins", sans-serif;
+}
+
+/* Hero Section */
+.hero {
+    position: relative;
+    width: 100%;
+    height: 600px; /* Adjust as needed */
+    display: flex;
+    align-items: flex-end; /* Push text to bottom */
+    justify-content: flex-start; /* Push text to left */
+    padding: 40px; /* Space from edges */
+    color: white;
+    overflow: hidden;
+}
+
+/* Image inside HTML */
+.hero-img {
+    width: 100%;
+    height: 740px; /* Adjust based on screen size */
+    display: block;
+    object-position: center bottom; /* Moves image down */
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    transform: translateY(-140px); /* Moves image up by 20px */  
+}
+
+
+
+/* Dark Overlay */
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0)); 
+    z-index: 0;
+}
+
+
+/* Hero Content */
+.hero-content {
+    position: relative;
+    z-index: 1;
+    padding: 20px;
+    text-align: left; /* Align text to the left */
+}
+
+/* Title Styling */
+/* Hero Title Styling */
+.hero-title {
+    font-size: 80px;  /* Reduce size for professionalism */
+    font-weight: 700;   /* Keep it bold but not overwhelming */
+    text-transform: uppercase; /* Keep text in uppercase */
+    line-height: 1.2;   /* Reduce space between lines */
+    letter-spacing: 1px; /* Adds slight spacing for elegance */
+}
+
+.hero-content p {
+    font-size: 1rem; /* Adjust font size */
+    font-weight: bold; /* Make it bold */
+    color: #ffffff; /* White text for contrast */
+    text-transform: uppercase; /* Uppercase for consistency */
+    letter-spacing: 1px; /* Improve readability */
+    margin-bottom: -5px; /* Reduce space between p and h1 */
+    text-align: left;
+}
+
+
+
+/* Underline Effect */
+.underline {
+    width: 100spx;
+    height: 4px;
+    background-color: #006400;
+    margin-top: 5px;
+}
+
+/* Smooth Fade-In and Slide-Up Animation for Hero Content */
+.hero-content {
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeSlideUp 1.5s ease-out 0.5s forwards;
+}
+
+/* Fade and Slide-Up Effect */
+@keyframes fadeSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Underline Effect */
+.underline {
+    width: 100%; /* Set initial width to make it visible */
+    height: 4px;
+    background-color: #006400;
+    margin-top: 5px;
+    transition: width 0.8s ease-out;
+}
+
+/* Animation Effect - Expands on Hover */
+.hero-content:hover .underline {
+    width: 150px;
+}
+
+
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .hero {
+        height: 400px;
+        padding: 30px; /* Adjust padding */
+    }
+    .hero-title {
+        font-size: 2.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero {
+        height: 350px;
+        padding: 20px;
+    }
+    .hero-title {
+        font-size: 2rem;
+    }
+    .underline {
+        width: 60px;
+        height: 3px;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero {
+        height: 300px;
+        padding: 15px;
+    }
+    .hero-title {
+        font-size: 1.8rem;
+    }
+    .underline {
+        width: 50px;
+        height: 2px;
+    }
+}
+
+/* Section Title Styling */
+.section-title {
+    color: white; /* Make text readable */
+    font-size: 2.5rem;
+    font-weight: bold;
+    text-align: center;
+}
+
+.professor-title-container {
+    background-color: #1B4332;
+    height: 100px; /* Adjust height as needed */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+}
+
+
+/* Back Arrow Container */
+.back-arrow-container {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 9; /* Ensure it's behind the navbar */
+}
+
+/* Back Arrow Button */
+.back-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 40px;
+    background: red; /* Red button */
+    color: white; /* White icon */
+    font-size: 24px;
+    text-decoration: none;
+    border-radius: 6px; /* Slightly rounded edges */
+    transition: background 0.3s ease-in-out, transform 0.2s ease-in-out;
+}
+
+/* Hover Effect */
+.back-arrow:hover {
+    background: darkred; /* Darker red on hover */
+    transform: scale(1.1); /* Slight zoom effect */
+}
+
+
+
+
+
+/* Achievements Section */
+#achievements {
+    padding: 60px 0;
+    background: #2d221e; /* Dark brown background */
+    color: white;
+    position: relative;
+}
+
+/* General Styles */
+body {
+    font-family: "Poppins", sans-serif;
+}
+
+/* Dark Header Section */
+#header-section {
+    background: #d32f2f;
+    color: white;
+    height: 300px;
+    display: flex;
+    align-items: center; /* Centers content vertically */
+    justify-content: center; /* Centers content horizontally */
+    position: relative;
+    padding: 20px;
+}
+
+/* Manually adjustable positioning */
+#header-section .container {
+    position: absolute; /* Allows precise positioning */
+    left: 620px;  /* Adjust this to move left/right */
+    top: 85px;   /* Adjust this to move up/down */
+    max-width: 800px; /* Adjust width for better layout */
+}
+
+/* Adjust individual text elements */
+#header-section p, #header-section h2 {
+    margin-bottom: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    text-transform: uppercase;
+    position: relative; /* Keep elements aligned properly */
+    left: 0; /* Reset to prevent double shifting */
+    top: 0;
+}
+
+#header-section h2 {
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 10px;
+    color: white; /* Change to any visible color */
+}
+
+
+
+/* Achievements Section */
+#achievements {
+    background: #f8f9fa;
+    padding: 60px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Achievement Card */
+.achievement-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    margin-top: -40px; /* Moves the card higher */
+    max-width: 90%; /* Ensures proper width */
+    border-radius: 20px;
+}
+
+/* Hover Effect */
+.achievement-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.25);
+}
+
+.achievement-img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
+/* Title Styling */
+.achievement-content h4 {
+    font-size: 20px;
+    font-weight: bold;
+    color: #2d2d2d;
+    margin-bottom: 10px;
+    text-transform: capitalize; /* Ensures proper casing */
+}
+
+/* Institution Text */
+.achievement-content p strong {
+    font-size: 14px;
+    color: #333; /* Darker text for readability */
+}
+
+/* Team Name */
+.achievement-content h4 {
+    font-size: 22px;
+    font-weight: bold;
+    color: #222;
+    margin-bottom: 12px;
+    text-align: center;
+}
+
+/* Team Members Label */
+.team-label {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+/* Team Members List */
+.team-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.team-list li {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 5px;
+    padding-left: 20px;
+    position: relative;
+}
+
+/* Bullet Point Icon */
+.team-list li::before {
+    content: "•";
+    color: #007bff;
+    font-size: 18px;
+    position: absolute;
+    left: 0;
+    top: 2px;
+}
+
+/* Event Date Styling */
+.event-date {
+    font-size: 14px;
+    font-weight: 600;
+    color: #d9534f;
+    margin-top: 12px;
+}
+
+/* Location Styling */
+.location {
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+.location-link {
+    font-weight: bold;
+    color: #007bff;
+    text-decoration: none;
+}
+
+.location-link:hover {
+    text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .achievement-content h4 {
+        font-size: 20px;
+    }
+    .team-list li,
+    .event-date,
+    .location {
+        font-size: 13px;
+    }
+}
+
+
+/* Right Side: Event Description */
+.event-description {
+    max-width: 800px; /* Limits width for better readability */
+    padding: 30px;
+    text-align: justify;
+    margin-top: 200px; /* Adjust this value to move it further down */
+    background: #fff; /* White background for a clean look */
+    border-radius: 20px; /* Smooth rounded corners */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15); /* Soft shadow effect */
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    margin-left: 40px; /* Adds space from the left */
+}
+
+/* Hover Effect */
+.event-description:hover {
+    transform: translateY(-5px); /* Moves up slightly on hover */
+    box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.25); /* More pronounced shadow */
+}
+
+/* Event Title */
+.event-description h3 {
+    font-size: 32px; /* Increased size for better readability */
+    font-weight: bold;
+    color: #2d221e;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Paragraph Styling */
+.event-description p {
+    font-size: 18px; /* Increased size for readability */
+    color: #333; /* Darker shade for better contrast */
+    line-height: 1.9; /* Improved spacing between lines */
+    margin-bottom: 18px;
+}
+
+/* Bold Highlights */
+.event-description strong {
+    font-size: 18px; /* Makes strong text more prominent */
+    color: #111; /* Slightly darker for emphasis */
+}
+
+/* Responsive Design for Smaller Screens */
+@media (max-width: 992px) {
+    .achievement-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .achievement-card,
+    .event-description {
+        width: 100%;
+    }
+
+    .event-description {
+        text-align: left;
+        padding: 25px;
+    }
+}
+
+@media (max-width: 768px) {
+    .event-description {
+        padding: 20px;
+        text-align: center;
+        margin-top: 100px; /* Adjust position for mobile */
+    }
+
+    .event-description h3 {
+        font-size: 24px;
+    }
+
+    .event-description p {
+        font-size: 16px;
+        line-height: 1.7;
+    }
+}
+
+
+/* History Section */
+.history-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    padding: 50px 0;
+}
+
+.history-section1 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    padding: 50px 0;
+    margin-top: -50px;
+}
+
+.history-section2 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    padding: 50px 0;
+    margin-top: -50px;
+}
+
+/* Boxed Container */
+.history-box {
+    background: white;
+    border-radius: 12px;
+    padding: 40px;
+    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.history-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 12px 24px rgba(0, 0, 0, 0.2);
+}
+
+/* Image Container */
+.image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.history-image {
+    width: 100%;
+    border-radius: 10px;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease-in-out;
+}
+
+.history-image:hover {
+    transform: scale(1.05);
+}
+
+/* Right Side Styling */
+.year {
+    color: #6c757d;
+    font-size: 16px;
+    letter-spacing: 1px;
+}
+
+.title {
+    font-size: 32px;
+    font-weight: bold;
+    color: #212529;
+    margin-bottom: 15px;
+}
+
+.description {
+    font-size: 18px;
+    color: #495057;
+    line-height: 1.8;
+}
+
+/* Explore Button */
+.explore-button {
+    display: inline-flex;
+    align-items: center;
+    background-color: #d32f2f;
+    color: white;
+    font-weight: bold;
+    padding: 12px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background 0.3s ease-in-out, transform 0.2s ease-in-out;
+    font-size: 16px;
+}
+
+.explore-button i {
+    margin-left: 10px;
+    transition: transform 0.3s ease-in-out;
+}
+
+.explore-button:hover {
+    background-color: #b71c1c;
+    transform: scale(1.05);
+}
+
+.explore-button:hover i {
+    transform: translateX(5px);
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+    .history-box {
+        padding: 30px;
+        text-align: center;
+    }
+
+    .row {
+        flex-direction: column;
+    }
+
+    .image-container {
+        margin-bottom: 20px;
+    }
+
+    .title {
+        font-size: 28px;
+    }
+
+    .description {
+        font-size: 16px;
+    }
+
+    .explore-button {
+        justify-content: center;
+    }
+}
+
+
+
+
+
+/* Footer Section */
+.footer {
+    background-color: #1B4332;
+    color: #ffffff;
+    padding: 2rem 0;
+    text-align: center;
+    position: relative;
+    z-index: 20;
+}
+
+.footer p {
+    margin-top: 1.5rem;
+    font-size: 1rem;
+    color: #ffffff;
+}
+
+.footer-logos img {
+    max-width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 3px solid #ffffff;
+    object-fit: cover;
+    margin: 10px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.footer-logos img:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(255, 255, 255, 0.6);
+}
+
+.footer-logos {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+}
+
+@media (max-width: 768px) {
+    .footer-logos img {
+        max-width: 60px;
+        height: 60px;
+    }
+
+    .footer p {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .footer-logos img {
+        max-width: 50px;
+        height: 50px;
+    }
+
+    .footer p {
+        font-size: 0.85rem;
+    }
+}
+
+
+
+
+
+
