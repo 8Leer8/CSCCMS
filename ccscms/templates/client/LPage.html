@@ -20,7 +20,7 @@
         <a href="#" class="nav-link">HOME</a>
         <a href="#" class="nav-link">ABOUT</a>
         <a href="#" class="nav-link">ANNOUNCEMENT</a>
-        <a href="#" class="nav-link">EVENTS</a>
+        <a href="{%url 'events_list'%}" class="nav-link">EVENTS</a>
         <a href="#" class="nav-link">ACHIEVEMENTS</a>
         <a href="#" class="nav-link">PROFESSORS</a>
         <a href="#" class="nav-link">OFFICERS</a>
@@ -407,7 +407,7 @@
                             <h4 class="exam-title m-0">{{ post.title }}</h4>
                         </div>
                         <div class="text-end">
-                            <a href="{% url 'post_detail' post.id %}" class="read-more">Read More <span>&rarr;</span></a>
+                            <a href="{% url 'posts_detail' post.id %}" class="read-more">Read More <span>&rarr;</span></a>
                         </div>
                     </div>
                 </div>

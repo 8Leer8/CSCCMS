@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POST CSC</title>
+    <link href="bootstrap-5.3.3-dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="postDetails_CSC.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css">
+</head>
+<body>
+<main class="main">
+    <div class="event_header">
+      <h1 class="event_title1"><span>WMSU-COLLEGE OF COMPUTING STUDIES</span> | POST</h1>
+    </div>
+    <!-- Back Arrow Section -->
+    <div class="back-arrow-container">
+        <a href="post_CSC.html" class="back-arrow">
+            <i class="bi bi-arrow-left"></i> <!-- Bootstrap Icon -->
+        </a>
+    </div>
+
+    <div class="event_title_info">
+      <p class="category"></p>
+      <h2 class="event_title">FIRST SEMESTER CLEARANCE‼</h2>
+      <p class="organizer">It is essential to promptly settle your fees the previous semester to facilitate a smooth enrollment process. For guidance, refer to as follows:</p>
+    </div>
+    </section>
+</main>
+
+<section class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
+      <!-- Image Section -->
+      <div class="post-image-container overflow-hidden rounded-top">
+        <img src="img/img10.jpg" alt="Clearance Poster" class="img-fluid w-100">
+      </div>
+
+      <!-- Text Content Section -->
+      <div class="post-details bg-white shadow rounded-bottom p-4">
+        <h2 class="fw-bold text-danger mb-4">CLEARANCE ANNOUNCEMENT</h2>
+
+        <p><strong>📅 DATE:</strong> December 17–20, 2024</p>
+
+        <p><strong>🕒 SERVICE HOURS:</strong></p>
+        <ul>
+          <li>Morning: 9AM to 11:30AM</li>
+          <li>Afternoon: 1PM to 5PM</li>
+        </ul>
+
+        <p><strong>📝 BRING THE FOLLOWING:</strong></p>
+        <ul>
+          <li>1. Clearance Slip (1st Semester)</li>
+          <li>2. Org Slip/Receipts from 1st sem fees</li>
+          <li>3. School ID (Validated)</li>
+        </ul>
+
+        <p><strong>📍 LOCATION:</strong> CCS-CSC Office, 2nd floor, CCS Bldg.</p>
+
+        <p><strong>🗓️ SCHEDULE:</strong></p>
+        <ul>
+          <li><strong>December 17 (Tuesday):</strong> 1st Years</li>
+          <li><strong>December 18 (Wednesday):</strong> 2nd Years</li>
+          <li><strong>December 19 (Thursday):</strong> 3rd Years</li>
+          <li><strong>December 20 (Friday):</strong> 4th Years</li>
+        </ul>
+
+        <p class="mt-4 fw-semibold">Good luck on your finals & see you around, Pythons! 🐍</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+    <script src="bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
+    <script src="script.js"></script>
+    <script>
+      // Init Lightbox
+      const lightbox = GLightbox({ selector: '.glightbox' });
+
+      // Sort functionality
+      const sortSelect = document.getElementById('sortSelect');
+      const gallery = document.getElementById('gallery');
+
+      sortSelect.addEventListener('change', () => {
+        const sortOrder = sortSelect.value;
+        const items = Array.from(gallery.querySelectorAll('.gallery-item'));
+
+        if (sortOrder === 'asc' || sortOrder === 'desc') {
+          items.sort((a, b) => {
+            const dateA = new Date(a.dataset.date);
+            const dateB = new Date(b.dataset.date);
+            return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+          });
+
+          // Reorder DOM elements
+          items.forEach(item => gallery.appendChild(item));
+        }
+      });
+    </script>
+    
+</body>
+</html>

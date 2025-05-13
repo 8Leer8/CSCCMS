@@ -1,0 +1,171 @@
+{% extends 'client/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link href="{% static 'achievement/achievements.css' %}" rel="stylesheet">
+<style>
+.history-box {
+    max-width: 1100px !important;
+    width: 100%;
+    padding: 3rem 2.5rem !important;
+    min-height: 380px;
+    font-size: 1.25rem;
+}
+.title {
+    font-size: 2.8rem !important;
+    font-weight: 800 !important;
+    line-height: 1.1;
+    margin-bottom: 1rem;
+}
+.description {
+    font-size: 1.4rem !important;
+    font-weight: 500;
+    margin-bottom: 1.2rem;
+}
+.year {
+    font-size: 1.7rem !important;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 0.7rem;
+}
+.achievement-meta {
+    margin-bottom: 1.2rem;
+}
+.explore-button {
+    margin-top: 1.2rem;
+    display: inline-block;
+}
+.history-image {
+    height: 250px !important;
+    max-width: 100%;
+    object-fit: cover;
+    border-radius: 16px;
+}
+@media (max-width: 1200px) {
+    .history-box {
+        max-width: 98vw !important;
+        padding: 2rem 1rem !important;
+    }
+    .history-image {
+        height: 180px !important;
+    }
+}
+@media (max-width: 768px) {
+    .history-box {
+        padding: 1.2rem 0.5rem !important;
+        min-height: 220px;
+    }
+    .title {
+        font-size: 1.5rem !important;
+    }
+    .description {
+        font-size: 1.1rem !important;
+    }
+    .year {
+        font-size: 1.1rem !important;
+    }
+    .history-image {
+        height: 120px !important;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<section id="event-gallery" class="py-5">
+    <div class="container-fluid px-4">
+        <!-- Header -->
+        <div class="event_header">
+            <h1 class="event_title"><span>WMSU-COLLEGE OF COMPUTING STUDIES</span> | ACHIEVEMENTS</h1>
+        </div>
+        <div class="container text-center mb-5">
+            <h2 class="sub-heading text-dark">Recent Milestones of the College of Computing Studies</h2>
+            <p class="description text-muted">
+                Stay informed on the latest milestones and achievements of the College of Computing Studies. Our commitment to excellence in education, research, and technological advancement continues to shape the future of computing, empowering the next generation of innovators.
+            </p>
+        </div>
+    </div>
+
+    <div class="separator-container">
+        <div class="modern-separator"></div>
+    </div>
+
+    <section class="event_section">
+        <!-- Section Title Wrapper -->
+        <div class="event_section_header">
+            <h2 class="event_section_title fw-bold">ACHIEVEMENTS</h2>
+        </div>
+
+
+        <!-- Achievement List -->
+        <div class="all-history-sections">
+            {% for achievement in achievements %}
+            <section class="history-section container py-5" data-aos="fade-up" data-aos-duration="1000">
+                <div class="history-box">
+                    <div class="row align-items-center">
+                        {% if forloop.counter|divisibleby:2 %}
+                        <!-- Left Side: Text Description -->
+                        <div class="col-md-8">
+                            <p class="year text-uppercase fw-bold">{{ achievement.awarded_on|date:"Y" }}</p>
+                            <h2 class="title">{{ achievement.title }}</h2>
+                            <div class="achievement-meta">
+                                <p>Category: {{ achievement.category.get_category_display }}</p>
+                                <p class="description">{{ achievement.context }}</p>
+                            </div>
+                            <a href="{% url 'achievements_detail' achievement.pk %}" class="explore-button">
+                                <span>SEE MORE DETAILS</span> <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                        <!-- Right Side: Image -->
+                        <div class="col-md-4">
+                            <div class="image-container">
+                                {% if achievement.image %}
+                                <img src="{{ achievement.image.url }}" class="img-fluid history-image" alt="{{ achievement.title }}">
+                                {% else %}
+                                <img src="https://placehold.co/600x400/007bff/ffffff?text=Achievement" class="img-fluid history-image" alt="Default Achievement Image">
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% else %}
+                        <!-- Left Side: Image -->
+                        <div class="col-md-4">
+                            <div class="image-container">
+                                {% if achievement.image %}
+                                <img src="{{ achievement.image.url }}" class="img-fluid history-image" alt="{{ achievement.title }}">
+                                {% else %}
+                                <img src="https://placehold.co/600x400/007bff/ffffff?text=Achievement" class="img-fluid history-image" alt="Default Achievement Image">
+                                {% endif %}
+                            </div>
+                        </div>
+                        <!-- Right Side: Text Description -->
+                        <div class="col-md-8">
+                            <p class="year text-uppercase fw-bold">{{ achievement.awarded_on|date:"Y" }}</p>
+                            <h2 class="title">{{ achievement.title }}</h2>
+                            <div class="achievement-meta">
+                                <p>Category: {{ achievement.category.get_category_display }}</p>
+                                <p class="description">{{ achievement.context }}</p>
+                            </div>
+                            <a href="{% url 'achievements_detail' achievement.pk %}" class="explore-button">
+                                <span>SEE MORE DETAILS</span> <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+            {% empty %}
+            <div class="container text-center py-5">
+                <p class="lead">No achievements found.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+</section>
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+<script>
+    AOS.init();
+</script>
+{% endblock %}
+{% endblock %}

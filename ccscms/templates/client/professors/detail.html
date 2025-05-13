@@ -1,0 +1,38 @@
+<!-- templates/faculty/faculty_detail.html -->
+{% extends 'client/base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-4">
+            {% if faculty.faculty_img %}
+            <img src="{{ faculty.faculty_img.url }}" class="img-fluid rounded" alt="{{ faculty.firstname }} {{ faculty.lastname }}">
+            {% endif %}
+        </div>
+        <div class="col-md-8">
+            <h1>{{ faculty.firstname }} {{ faculty.lastname }}</h1>
+            <h4 class="text-muted">{{ faculty.position.name }}</h4>
+            
+            <div class="mt-4">
+                <h5>Academic Information</h5>
+                <ul class="list-unstyled">
+                    <li><strong>College:</strong> {{ faculty.college.name }}</li>
+                    <li><strong>Department:</strong> {{ faculty.department.name }}</li>
+                    <li><strong>Designation:</strong> {{ faculty.designation }}</li>
+                    <li><strong>Degree:</strong> {{ faculty.degree }}</li>
+                    <li><strong>Specialty:</strong> {{ faculty.specialty }}</li>
+                </ul>
+            </div>
+            
+            <div class="mt-4">
+                <h5>Contact Information</h5>
+                <ul class="list-unstyled">
+                    <li><strong>Office Location:</strong> {{ faculty.office_location }}</li>
+                    <li><strong>Contact Number:</strong> {{ faculty.contact_number }}</li>
+                    <li><strong>Email:</strong> {{ faculty.email }}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

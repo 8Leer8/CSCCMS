@@ -1,0 +1,70 @@
+document.addEventListener("DOMContentLoaded", () => {
+  // Calculate scrollbar width
+  const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+  document.documentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`);
+
+  // Menu elements
+  const menuToggle = document.getElementById("menuToggle");
+  const closeMenu = document.getElementById("closeMenu");
+  const dropdownMenu = document.getElementById("dropdownMenu");
+  const body = document.body;
+
+  // Store scroll position
+  let scrollPosition = 0;
+
+  // Open menu function
+  const openMobileMenu = () => {
+    scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+    dropdownMenu.classList.add("active");
+    body.classList.add("menu-open");
+    body.style.top = `-${scrollPosition}px`;
+  };
+
+  // Close menu function
+  const closeMobileMenu = () => {
+    dropdownMenu.classList.remove("active");
+    body.classList.remove("menu-open");
+    body.style.top = '';
+    window.scrollTo(0, scrollPosition);
+  };
+
+  // Event listeners
+  menuToggle.addEventListener("click", (e) => {
+    e.stopPropagation();
+    openMobileMenu();
+  });
+
+  closeMenu.addEventListener("click", closeMobileMenu);
+
+  document.addEventListener("click", (e) => {
+    if (!dropdownMenu.contains(e.target) && e.target !== menuToggle && dropdownMenu.classList.contains("active")) {
+      closeMobileMenu();
+    }
+  });
+
+  // Accordion functionality
+  const accordionLabels = document.querySelectorAll(".accordion-label:not(.login):not(.logout)");
+  const accordionContents = document.querySelectorAll(".accordion-content");
+
+  accordionContents.forEach(content => {
+    content.style.display = "none";
+  });
+
+  accordionLabels.forEach(label => {
+    label.addEventListener("click", (e) => {
+      if (e.target.classList.contains("login") || e.target.classList.contains("logout")) {
+        return;
+      }
+
+      const content = label.nextElementSibling;
+
+      if (content.style.display === "flex") {
+        content.style.display = "none";
+        return;
+      }
+
+      accordionContents.forEach(c => c.style.display = "none");
+      content.style.display = "flex";
+    });
+  });
+});

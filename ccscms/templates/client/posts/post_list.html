@@ -1,0 +1,510 @@
+{% extends 'client/base.html' %}
+
+{% block content %}
+<section id="event-gallery" class="py-5">
+    <div class="container-fluid px-4">
+        <!-- Header -->
+        <div class="event_header">
+            <h1 class="event_title"><span>WMSU-COLLEGE OF COMPUTING STUDIES</span> | POST</h1>
+        </div>
+        <div class="container text-center mb-5">
+            <h2 class="sub-heading text-dark">Important Posts & Information from the College of Computing Studies</h2>
+            <p class="description text-muted">
+                Stay up-to-date with important posts, deadlines, and all essential updates from the College of Computing Studies. Whether it's news on upcoming events, technical workshops, faculty notices, or student resources, you'll find everything you need right here.
+            </p>
+        </div> 
+    </div>
+
+    <div class="separator-container">
+        <div class="modern-separator"></div>
+    </div>
+
+    <div class="gallery-container">
+        <div class="gallery-item tall"><img src="{{ MEDIA_URL }}img/img6.jpg" alt="Gallery image 1"></div>
+        <div class="gallery-item wide"><img src="{{ MEDIA_URL }}img/img8.jpg" alt="Gallery image 2"></div>
+        <div class="gallery-item tall"><img src="{{ MEDIA_URL }}img/img7.jpg" alt="Gallery image 5"></div>
+    </div>   
+</section>
+
+<div class="separator-container">
+    <div class="modern-separator"></div>
+</div>
+
+<section class="announcements-section py-5">
+    <div class="container">
+        <!-- Section Title -->
+        <div class="text-start mb-5">
+            <h2 class="event_section_title">POST</h2>
+        </div>
+    </div>
+</section>
+
+<section class="container py-5">
+    <div class="row g-5 justify-content-center">
+        <!-- Post List -->
+        {% for post in page_obj %}
+        <div class="col-12 col-lg-6">
+            <div class="exam-card position-relative overflow-hidden">
+                <div class="exam-image">
+                    {% if post.images.first %}
+                        <img src="{{ post.images.first.image.url }}" alt="{{ post.title }}" class="img-fluid w-100 h-100">
+                    {% else %}
+                        <div class="exam-placeholder"></div>
+                    {% endif %}
+                </div>
+                <div class="exam-info text-white p-4 d-flex flex-column justify-content-between">
+                    <div>
+                        <p class="exam-date mb-1">{{ post.start_publish_on }}</p>
+                        <h4 class="exam-title m-0">{{ post.title }}</h4>
+                    </div>
+                    <div class="text-end">
+                        <a href="{% url 'posts_detail' post.pk %}" class="read-more">Read More <span>&rarr;</span></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info text-center">No posts found.</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.paginator.num_pages > 1 %}
+    <nav aria-label="Page navigation" class="mt-5">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1">&laquo; First</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+            </li>
+            {% endif %}
+            
+            <li class="page-item disabled">
+                <span class="page-link">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                </span>
+            </li>
+            
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</section>
+
+<!-- Include CSS for the design -->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Baskervville:ital@0;1&family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap');
+
+:root {
+    --college-font: "Crimson Text", serif;
+    --body-font: "Poppins", serif;
+    --second-font: "Baskervville", serif;
+}
+ 
+body {
+    background-color: #f1f1f1;
+    font-family: 'Poppins', sans-serif;
+}
+
+.sub-heading {
+    font-size: 1.8rem;
+    font-family: var(--body-font);
+    font-weight: 700;
+    margin-bottom: 1.2rem;
+    letter-spacing: 0.01em;
+}
+
+.description {
+    font-size: 1.8rem;
+    font-family: var(--body-font);
+    max-width: 900px;
+    margin: 0 auto 1.5rem auto;
+    line-height: 1.6;
+}
+
+.event_header {
+    background-color: #f1f1f1;
+    padding: 1rem 10rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.event_title span {
+    font-family: var(--college-font);
+    color: #1B4332;
+    font-weight: 900;
+}
+
+.event_title {
+    font-family: var(--college-font);
+    font-size: 3.8rem;
+    letter-spacing: 0.04em;
+    text-align: center;
+    margin: 0 auto 0.5rem auto;
+    line-height: 1.1;
+}
+
+/* Modern Separator */
+.separator-container {
+    background-color: #f1f1f1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    position: relative;
+    z-index: 20;
+}
+
+.modern-separator {
+    width: 1300px;
+    height: 5px;
+    background: linear-gradient(to right, #ff416c, #ff4b2b, #ff416c);
+    border-radius: 3px;
+    box-shadow: 0 2px 10px rgba(255, 75, 43, 0.5);
+    z-index: 20;
+}
+
+.gallery-container {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-auto-rows: 200px;
+    gap: 15px;
+    padding: 20px;
+    background: #f1f1f1;
+    box-sizing: border-box;
+    margin-top: 40px;
+}
+
+.gallery-item {
+    font-family: var(--second-font);
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease, filter 0.3s ease;
+    display: block;
+}
+
+.gallery-item.wide img {
+    width: 100%;
+    height: 650px;
+    object-fit: cover;
+    transition: transform 0.4s ease, filter 0.3s ease;
+    display: block;
+}
+
+/* Hover effect: zoom + dark overlay */
+.gallery-item::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 1;
+}
+
+.gallery-item:hover::before {
+    opacity: 1;
+}
+
+.gallery-item:hover img {
+    transform: scale(1.08);
+    filter: brightness(1.1);
+}
+
+/* Custom sizes for layout */
+.gallery-item.large {
+    grid-column: span 2;
+    grid-row: span 2;
+}
+
+.gallery-item.tall {
+    grid-row: span 2;
+}
+
+.gallery-item.wide {
+    grid-column: span 2;
+    grid-row: span 2;
+}
+
+.event_section_title {
+    color: #1B4332;
+    font-size: 4.8rem;
+    font-family: var(--college-font);
+    position: relative;
+    display: block;
+    padding-bottom: 0;
+    font-weight: 400;
+    padding-top: 10px;
+    margin-bottom: 0.5rem;
+    text-align: left;
+}
+
+.event_section_title::after {
+    display: none;
+}
+
+.announcements-section.py-5 {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+
+/* New Post Card Style to match first image */
+.post-card-modern {
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    background: #fff;
+    margin-bottom: 30px;
+    position: relative;
+    transition: box-shadow 0.3s;
+}
+
+.post-card-modern:hover {
+    box-shadow: 0 16px 40px rgba(0,0,0,0.18);
+}
+
+.post-image-modern {
+    position: relative;
+    width: 100%;
+    height: 340px;
+    overflow: hidden;
+    background: #eaeaea;
+}
+
+.post-image-modern img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s;
+}
+
+.post-card-modern:hover .post-image-modern img {
+    transform: scale(1.05);
+}
+
+.post-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(33, 4, 4, 0.85);
+    color: #fff;
+    padding: 24px 28px 18px 28px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    border-bottom-left-radius: 18px;
+    border-bottom-right-radius: 18px;
+}
+
+.post-date-modern {
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 6px;
+    opacity: 0.95;
+}
+
+.post-title-modern {
+    font-size: 1.45rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    line-height: 1.2;
+}
+
+.read-more-modern {
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 500;
+    text-decoration: none;
+    margin-top: 8px;
+    align-self: flex-end;
+    transition: color 0.2s;
+}
+
+.read-more-modern:hover {
+    color: #ff416c;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .event_header {
+        padding: 1rem;
+    }
+    
+    .event_title {
+        font-size: 2.1rem;
+    }
+    
+    .sub-heading {
+        font-size: 1.1rem;
+    }
+    
+    .description {
+        font-size: 0.98rem;
+    }
+    
+    .gallery-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .gallery-item.wide, .gallery-item.tall {
+        grid-column: auto;
+        grid-row: auto;
+    }
+    
+    .gallery-item.wide img {
+        height: 300px;
+    }
+    
+    .post-image-modern {
+        height: 200px;
+    }
+    
+    .post-overlay {
+        padding: 14px 12px 10px 12px;
+    }
+    
+    .post-title-modern {
+        font-size: 1.1rem;
+    }
+    
+    .event_section_title {
+        font-size: 2rem;
+    }
+}
+
+/* AOS animations */
+[data-aos] {
+    opacity: 0;
+    transition-property: opacity, transform;
+}
+
+[data-aos="fade-up"] {
+    transform: translateY(100px);
+}
+
+[data-aos].aos-animate {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.exam-card {
+  height: 420px;
+  border-radius: 0.5rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.4s ease;
+  margin-top: 0;
+}
+.exam-image {
+  height: 340px;
+  background: #eaeaea;
+}
+.exam-image img {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+  transition: opacity 0.4s ease;
+}
+.exam-placeholder {
+  width: 100%;
+  height: 100%;
+  background: #ef4444;
+  display: block;
+}
+.exam-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  transition: all 0.4s ease;
+  height: 120px;
+  z-index: 2;
+  font-size: 1.25rem;
+  padding: 2.2rem 2.2rem 1.5rem 2.2rem;
+}
+.exam-card:hover .exam-info {
+  height: 100%;
+  background-color: #ef4444;
+}
+.exam-card:hover .exam-image img {
+  opacity: 0;
+}
+.exam-card:hover .exam-placeholder {
+  opacity: 0;
+}
+.exam-date {
+  font-weight: 700;
+  font-size: 1.5rem;
+  letter-spacing: 0.01em;
+  margin-bottom: 0.5rem;
+}
+.exam-title {
+  font-size: 2.5rem;
+  font-weight: 900;
+  letter-spacing: 0.01em;
+  line-height: 1.1;
+  margin-bottom: 1.2rem;
+}
+.read-more {
+  margin-top: 1.2rem;
+}
+@media (max-width: 768px) {
+  .exam-card {
+    height: 260px;
+  }
+  .exam-image {
+    height: 140px;
+  }
+  .exam-info {
+    font-size: 1rem;
+    padding: 1rem 0.7rem 0.7rem 0.7rem;
+  }
+  .exam-date {
+    font-size: 1rem;
+  }
+  .exam-title {
+    font-size: 1.2rem;
+    margin-bottom: 0.7rem;
+  }
+  .read-more {
+    margin-top: 0.7rem;
+  }
+}
+</style>
+
+<!-- Include AOS library for animations -->
+<script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet" />
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        AOS.init();
+    });
+</script>
+{% endblock %}

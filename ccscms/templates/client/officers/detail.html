@@ -1,0 +1,50 @@
+<!-- templates/officers/officer_detail.html -->
+{% extends 'client/base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-4">
+            {% if officer.supervisor_img %}
+            <img src="{{ officer.supervisor_img.url }}" class="img-fluid rounded" alt="{{ officer.name }}">
+            {% endif %}
+        </div>
+        <div class="col-md-8">
+            <h1>{{ officer.name }}</h1>
+            <p class="lead">{{ officer.description }}</p>
+            {% if officer.message %}
+            <div class="alert alert-info">
+                <h4>Message from the Officer</h4>
+                <p>{{ officer.message }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="mt-5">
+        <h2>Officer Members</h2>
+        <div class="row">
+            {% for member in members %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    {% if member.profile_img %}
+                    <img src="{{ member.profile_img.url }}" class="card-img-top" alt="{{ member.firstname }} {{ member.lastname }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ member.firstname }} {{ member.lastname }}</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">{{ member.position.name }}</h6>
+                        <p class="card-text">
+                            <strong>Department:</strong> {{ member.department.name }}<br>
+                            <strong>Term:</strong> {{ member.start_term|date:"M d, Y" }} - {{ member.end_term|date:"M d, Y" }}
+                        </p>
+                        {% if member.bio %}
+                        <p class="card-text">{{ member.bio|truncatewords:30 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

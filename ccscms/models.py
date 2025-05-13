@@ -312,6 +312,7 @@ class User(SoftDeleteModel):
     student_number = models.CharField(
         max_length=20,
         unique=True,
+        null=True,
         validators=[RegexValidator(regex='^[0-9-]{8,20}$', message='Student number must be numeric with optional dashes')]
     )
     COR_img = models.ImageField(upload_to=upload_to, null=True, blank=True)
@@ -381,6 +382,10 @@ class Announcement(SoftDeleteModel):
     )
     start_publish_on = models.DateField()
     end_publish_on = models.DateField()
+    landmark = models.CharField(max_length=100, null=True, blank=True)
+    location = models.CharField(max_length=255, null=True, blank=True)
+    date_post = models.DateField(null=True, blank=True)
+    time_post = models.TimeField(null=True, blank=True)
     
     audiences = models.ManyToManyField(Audience, through='AnnouncementAudience')
     

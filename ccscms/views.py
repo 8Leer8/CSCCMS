@@ -91,10 +91,14 @@ class AuthView(View):
                     account_type='user'
                 )
                 
+                # Generate a unique student number (using timestamp to ensure uniqueness)
+                username = email.split('@')[0]
+                student_number = f"ST{timezone.now().strftime('%Y%m%d%H%M%S')}"
+                
                 User.objects.create(
                     account=user,
-                    username=email.split('@')[0],
-                    student_number='',
+                    username=username,
+                    student_number=student_number,
                     COR_img=None
                 )
                 
@@ -812,8 +816,10 @@ def post_list(request):
             search = request.GET.get('search', '')
             page = request.GET.get('page', 1)
             
-            # Start with base queryset
-            posts = Post.objects.filter(is_active=True)
+            # Start with base queryset with select_related for foreign keys
+            posts = Post.objects.filter(is_active=True).select_related(
+                'category', 'admin', 'admin__account'
+            ).prefetch_related('images').order_by('-created_at')
             
             # Apply filters
             if status:
@@ -826,9 +832,9 @@ def post_list(request):
                     Q(content__icontains=search) |
                     Q(context__icontains=search)
                 )
-            
+
             # Pagination
-            paginator = Paginator(posts.order_by('-created_at'), 10)
+            paginator = Paginator(posts, 10)
             page_obj = paginator.get_page(page)
             
             # Prepare data for response
@@ -837,11 +843,14 @@ def post_list(request):
                 posts_data.append({
                     'id': post.id,
                     'title': post.title,
-                    'category': post.category.category if post.category else '',
+                    'category': post.category.category if post.category else 'Uncategorized',
+                    'category_id': post.category.id if post.category else None,
                     'status': post.status,
                     'created_at': post.created_at.strftime('%Y-%m-%d %H:%M'),
-                    'start_publish_on': post.start_publish_on.strftime('%Y-%m-%d') if post.start_publish_on else '',
-                    'end_publish_on': post.end_publish_on.strftime('%Y-%m-%d') if post.end_publish_on else '',
+                    'start_publish_on': post.start_publish_on.strftime('%Y-%m-%d') if post.start_publish_on else None,
+                    'end_publish_on': post.end_publish_on.strftime('%Y-%m-%d') if post.end_publish_on else None,
+                    'author': f"{post.admin.account.firstname} {post.admin.account.lastname}",
+                    'featured_image': post.images.first().image.url if post.images.exists() else None,
                 })
             
             # Get categories for filter dropdown
@@ -855,11 +864,14 @@ def post_list(request):
                 'has_next': page_obj.has_next(),
                 'current_page': page_obj.number,
                 'total_pages': paginator.num_pages,
+                'total_items': paginator.count,
+                'start_index': (page_obj.number - 1) * paginator.per_page + 1,
+                'end_index': min(page_obj.number * paginator.per_page, paginator.count),
             })
         except Exception as e:
+            logger.error(f"Error in post_list: {str(e)}", exc_info=True)
             return JsonResponse({'success': False, 'error': str(e)}, status=500)
     return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
-
 
 
 # Post Create View (AJAX)
@@ -2405,108 +2417,187 @@ class ClientViews:
         return render(request, 'client/Lpage.html', context)
     @staticmethod
     def post_list(request):
-        # Get all active posts with their images
-        posts = Post.objects.filter(is_active=True).prefetch_related('images')
+        # Get all active posts ordered by publish date
+        posts = Post.objects.filter(is_active=True).order_by('-start_publish_on')
+
+        # Get all active categories for filtering
+        categories = Category.objects.filter(is_active=True)
+
+        # Filter by category if specified
+        category_slug = request.GET.get('category')
+        if category_slug:
+            posts = posts.filter(category__category=category_slug)
+
+        # Pagination
+        paginator = Paginator(posts, 10)  # Show 10 posts per page
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
 
         context = {
-            'posts': posts
+            'page_obj': page_obj,
+            'categories': categories,
+            'selected_category': category_slug,
         }
-        return render(request, 'client/posts/posts_list.html', context)
-
+        return render(request, 'client/posts/post_list.html', context)
     @staticmethod
     def post_detail(request, pk):
-        # Get the post or return 404 if not found
-        post = get_object_or_404(Post, pk=pk)
+        # Get the post or return 404
+        post = get_object_or_404(Post, pk=pk, is_active=True)
 
-        # Get all images related to this post
-        images = post.images.all()
+        # Get related images
+        images = PostImage.objects.filter(post=post, is_active=True)
 
-        # The first image will be used as the main image
-        main_image = images.first() if images.exists() else None
+        # Get related posts (same category)
+        related_posts = Post.objects.filter(
+            category=post.category,
+            is_active=True
+        ).exclude(pk=pk).order_by('-start_publish_on')[:4]
 
         context = {
             'post': post,
-            'main_image': main_image,
+            'images': images,
+            'related_posts': related_posts,
         }
-
         return render(request, 'client/posts/posts_detail.html', context)
-
 
     @staticmethod
     def announcement_list(request):
-        return render(request, 'client/announcements/announcement_list.html')
-    
+        announcements = Announcement.objects.filter(is_active=True).order_by('-created_at')
+        return render(request, 'client/announcements/announcement_list.html', {'announcements': announcements})
+    @staticmethod
     def announcement_detail(request, pk):
-        return render(request, 'client/announcements/announcement_detail.html')
+        announcement = Announcement.objects.get(pk=pk, is_active=True)
+        return render(request, 'client/announcements/announcement_detail.html', {'announcement': announcement})
 
     @staticmethod
-    def events_list(request):
-        # Get current date
-        today = timezone.now().date()
+    def event_list(request):
+        # Get all active events (not soft deleted)
+        events = Event.objects.filter(is_active=True)
 
-        events = Event.objects.filter(
-            is_active=True,
-            end_publish_on__gte=today
-        ).order_by('date_event', 'start_at')
+        # Filter by status if provided
+        status = request.GET.get('status')
+        if status in ['active', 'expired', 'scheduled']:
+            events = events.filter(status=status)
+
+        # Filter by date range if provided
+        start_date = request.GET.get('start_date')
+        end_date = request.GET.get('end_date')
+        if start_date and end_date:
+            events = events.filter(date_event__range=[start_date, end_date])
+
+        # Filter by label if provided
+        label = request.GET.get('label')
+        if label:
+            events = events.filter(labels__type__icontains=label)
+
+        # Filter by type if provided
+        event_type = request.GET.get('type')
+        if event_type:
+            events = events.filter(types__type__icontains=event_type)
+
+        # Filter by audience if provided
+        audience = request.GET.get('audience')
+        if audience:
+            # Corrected this line - filter through the EventAudience relationship
+            events = events.filter(eventaudience__audience__type__icontains=audience)
+
+        # Filter by search query if provided
+        search_query = request.GET.get('search')
+        if search_query:
+            events = events.filter(
+                Q(name__icontains=search_query) |
+                Q(context__icontains=search_query) |
+                Q(description__icontains=search_query) |
+                Q(location__icontains=search_query)
+            )
+
+        # Order events by date (upcoming first)
+        events = events.order_by('date_event', 'start_at')
+
+        # Pagination
+        paginator = Paginator(events, 9)  # Show 9 events per page
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+
+        # Get all labels, types, and audiences for filters
+        all_labels = EventLabel.objects.filter(is_active=True)
+        all_types = EventType.objects.filter(is_active=True)
+        all_audiences = Audience.objects.filter(is_active=True)  # Changed to use Audience model
 
         context = {
-            'events': events
+            'page_obj': page_obj,
+            'all_labels': all_labels,
+            'all_types': all_types,
+            'all_audiences': all_audiences,
+            'current_filters': {
+                'status': status,
+                'start_date': start_date,
+                'end_date': end_date,
+                'label': label,
+                'type': event_type,
+                'audience': audience,
+                'search': search_query,
+            }
         }
 
         return render(request, 'client/events/event_list.html', context)
     @staticmethod
-    def event_detail(request, event_id):
-        event = get_object_or_404(
-            Event.objects.select_related('admin').prefetch_related('types', 'audiences'),
-            pk=event_id,
-            is_active=True
-        )
-
-        # Format dates and times
-        formatted_date = event.date_event.strftime("%A, %B %d, %Y")  # e.g. "Monday, January 01, 2023"
-        start_time = event.start_at.strftime("%I:%M %p").lower()  # e.g. "09:00 am"
-        end_time = event.end_at.strftime("%I:%M %p").lower()  # e.g. "05:00 pm"
+    def event_detail(request, pk):
+        event = Event.objects.get(pk=pk, is_active=True)
+        related_events = Event.objects.filter(
+            is_active=True,
+            labels__in=event.labels.all()
+        ).exclude(pk=pk).distinct()[:3]
 
         context = {
             'event': event,
-            'formatted_date': formatted_date,
-            'start_time': start_time,
-            'end_time': end_time,
-            'DEBUG': settings.DEBUG,  # For static files versioning
+            'related_events': related_events
         }
-
         return render(request, 'client/events/event_detail.html', context)
     @staticmethod
-    def achievement_detail(request, pk):
-        """Detail view for a single achievement"""
+    def achievements_list(request):
+        # Get all active achievements with related data
+        achievements = Achievement.objects.filter(is_active=True)\
+            .select_related('category', 'status')\
+            .prefetch_related('images')\
+            .order_by('-awarded_on')
+
+        # Get filter options
+        categories = Category.objects.filter(is_active=True)
+        statuses = Status.objects.filter(is_active=True)
+
+        context = {
+            'achievements': achievements,
+            'categories': categories,
+            'statuses': statuses,
+        }
+        return render(request, 'client/achievements/list.html', context)
+    @staticmethod
+    def achievements_detail(request, pk):
         achievement = get_object_or_404(
-            Achievement,
-            pk=pk,
-            is_active=True
+            Achievement.objects.filter(is_active=True)
+            .select_related('category', 'status')
+            .prefetch_related('images'),
+            pk=pk
         )
-        
-        return render(request, 'client/achievements/detail.html', {
+
+        context = {
             'achievement': achievement,
-        })
+        }
+        return render(request, 'client/achievements/detail.html', context)
 
     @staticmethod
     def officers_list(request):
-        """List current and past officers"""
-        current_officers = OfficerMember.objects.filter(
-            is_active=True,
-            officer__status='present'
-        ).select_related('officer', 'position', 'department').order_by('position')
-        
-        past_officers = OfficerMember.objects.filter(
-            is_active=True,
-            officer__status='past'
-        ).select_related('officer', 'position', 'department').order_by('-end_term')
-        
-        return render(request, 'client/officers/list.html', {
-            'current_officers': current_officers,
-            'past_officers': past_officers,
-        })
-
+        officer_members = OfficerMember.all_objects.select_related('officer', 'position', 'department')
+        print("OfficerMember count:", officer_members.count())
+        members_by_sy = {}
+        for member in officer_members:
+            sy_key = f"{member.start_term.year} - {member.end_term.year}"
+            if sy_key not in members_by_sy:
+                members_by_sy[sy_key] = []
+            members_by_sy[sy_key].append(member)
+        print("Grouped S.Y. keys:", members_by_sy.keys())
+        return render(request, 'client/officers/list.html', {'members_by_sy': members_by_sy})
     @staticmethod
     def about_page(request):
         """About us page"""
@@ -2519,11 +2610,80 @@ class ClientViews:
             'committees': committees,
             'faculties': faculties,
         })
+    # views.py
+    @staticmethod
+    def faculty_list(request):
+        # Get all active faculty members
+        faculty_members = Faculty.objects.filter(is_active=True).select_related(
+            'position', 'college', 'department'
+        ).order_by('lastname', 'firstname')
 
+        # Group faculty by department
+        faculty_by_department = {}
+        for faculty in faculty_members:
+            dept_key = faculty.department.id
+            if dept_key not in faculty_by_department:
+                faculty_by_department[dept_key] = {
+                    'department': faculty.department,
+                    'college': faculty.college,
+                    'members': []
+                }
+            faculty_by_department[dept_key]['members'].append(faculty)
+
+        context = {
+            'faculty_by_department': faculty_by_department,
+        }
+        return render(request, 'client/professors/list.html', context)
+    @staticmethod
+    def faculty_detail(request, faculty_id):
+        faculty = Faculty.objects.select_related(
+            'position', 'college', 'department'
+        ).get(id=faculty_id, is_active=True)
+
+        context = {
+            'faculty': faculty,
+        }
+        return render(request, 'client/professors/detail.html', context)
+    @staticmethod
+    def officer_list(request):
+        # Get all active officers
+        officers = Officer.objects.filter(is_active=True).order_by('-start_in_sy')
+
+        # Group officers by school year
+        officers_by_sy = {}
+        for officer in officers:
+            sy_key = f"{officer.start_in_sy}-{officer.end_in_sy}"
+            if sy_key not in officers_by_sy:
+                officers_by_sy[sy_key] = {
+                    'start_sy': officer.start_in_sy,
+                    'end_sy': officer.end_in_sy,
+                    'officers': []
+                }
+            officers_by_sy[sy_key]['officers'].append(officer)
+
+        context = {
+            'officers_by_sy': officers_by_sy,
+        }
+        return render(request, 'client/officers/list.html', context)
+    @staticmethod
+    def officer_detail(request, officer_id):
+        officer = Officer.objects.get(id=officer_id, is_active=True)
+        members = OfficerMember.objects.filter(officer=officer, is_active=True).select_related('position', 'department')
+
+        context = {
+            'officer': officer,
+            'members': members,
+        }
+        return render(request, 'client/officers/detail.html', context)
+        
     @staticmethod
     def contact_page(request):
         """Contact us page"""
         return render(request, 'client/contact.html')
-
+    @staticmethod
+    def base(request):
+        """Base template for the client"""
+        return render(request, 'client/base.html')
+    
 # Create an instance to use in urls.py
 client_views = ClientViews()

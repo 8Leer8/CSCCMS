@@ -428,107 +428,106 @@
     
     <script>
     // Global variables
-    let currentPage = sessionStorage.getItem('currentPage') || 'dashboard';
-    let currentCategoryType = '';
-    let currentCategoryId = '';
-    let currentEventId = '';
-    let itemToDelete = { type: '', id: '' };
-    let showingDeletedAnnouncements = false;
-    let currentAchievementId = null;
-    let showingDeletedAchievements = false;
-    let currentAnnouncementId = null;
+let currentPage = sessionStorage.getItem('currentPage') || 'dashboard';
+let currentCategoryType = '';
+let currentCategoryId = '';
+let currentEventId = '';
+let itemToDelete = { type: '', id: '' };
+let showingDeletedAnnouncements = false;
+let currentAchievementId = null;
+let showingDeletedAchievements = false;
+let currentAnnouncementId = null;
 
+// Utility functions
+function toggleSidebar() {
+    $('#mobile-sidebar').toggleClass('hidden');
+}
 
-    // Utility functions
-    function toggleSidebar() {
-        $('#mobile-sidebar').toggleClass('hidden');
-    }
+function toggleDropdown(dropdownId) {
+    const dropdown = $('#' + dropdownId);
+    dropdown.toggleClass('hidden');
+    // Rotate the arrow icon
+    dropdown.prev().find('.dropdown-arrow').toggleClass('rotate-180');
+}
+
+function openModal(modalId) {
+    $('#' + modalId).removeClass('hidden');
+}
+
+function closeModal(modalId) {
+    $('#' + modalId).addClass('hidden');
+}
+
+function showLoading() {
+    $('.loading-spinner').addClass('show').removeClass('hidden');
+}
+
+function hideLoading() {
+    $('.loading-spinner').removeClass('show').addClass('hidden');
+}
+
+function showAlert(type, message) {
+    const alertTypes = {
+        'success': 'bg-green-100 border-green-400 text-green-700',
+        'danger': 'bg-red-100 border-red-400 text-red-700',
+        'warning': 'bg-yellow-100 border-yellow-400 text-yellow-700',
+        'info': 'bg-blue-100 border-blue-400 text-blue-700'
+    };
     
-    function toggleDropdown(dropdownId) {
-        const dropdown = $('#' + dropdownId);
-        dropdown.toggleClass('hidden');
-        // Rotate the arrow icon
-        dropdown.prev().find('.dropdown-arrow').toggleClass('rotate-180');
-    }
-    
-    function openModal(modalId) {
-        $('#' + modalId).removeClass('hidden');
-    }
-    
-    function closeModal(modalId) {
-        $('#' + modalId).addClass('hidden');
-    }
-    
-    function showLoading() {
-        $('.loading-spinner').addClass('show').removeClass('hidden');
-    }
-    
-    function hideLoading() {
-        $('.loading-spinner').removeClass('show').addClass('hidden');
-    }
-    
-    function showAlert(type, message) {
-        const alertTypes = {
-            'success': 'bg-green-100 border-green-400 text-green-700',
-            'danger': 'bg-red-100 border-red-400 text-red-700',
-            'warning': 'bg-yellow-100 border-yellow-400 text-yellow-700',
-            'info': 'bg-blue-100 border-blue-400 text-blue-700'
-        };
-        
-        const alertHtml = `
-            <div class="border-l-4 ${alertTypes[type]} p-4 mb-4 rounded">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        ${type === 'success' ? '<i class="fas fa-check-circle text-green-500"></i>' : ''}
-                        ${type === 'danger' ? '<i class="fas fa-exclamation-circle text-red-500"></i>' : ''}
-                        ${type === 'warning' ? '<i class="fas fa-exclamation-triangle text-yellow-500"></i>' : ''}
-                        ${type === 'info' ? '<i class="fas fa-info-circle text-blue-500"></i>' : ''}
-                    </div>
-                    <div class="ml-3">
-                        <p class="text-sm">${message}</p>
-                    </div>
-                    <div class="ml-auto pl-3">
-                        <button type="button" class="text-gray-500 hover:text-gray-700" onclick="$(this).parent().parent().parent().remove()">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
+    const alertHtml = `
+        <div class="border-l-4 ${alertTypes[type]} p-4 mb-4 rounded">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    ${type === 'success' ? '<i class="fas fa-check-circle text-green-500"></i>' : ''}
+                    ${type === 'danger' ? '<i class="fas fa-exclamation-circle text-red-500"></i>' : ''}
+                    ${type === 'warning' ? '<i class="fas fa-exclamation-triangle text-yellow-500"></i>' : ''}
+                    ${type === 'info' ? '<i class="fas fa-info-circle text-blue-500"></i>' : ''}
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm">${message}</p>
+                </div>
+                <div class="ml-auto pl-3">
+                    <button type="button" class="text-gray-500 hover:text-gray-700" onclick="$(this).parent().parent().parent().remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
             </div>
-        `;
-        $('#messages-container').html(alertHtml);
-        
-        setTimeout(() => {
-            $('#messages-container').empty();
-        }, 5000);
-    }
+        </div>
+    `;
+    $('#messages-container').html(alertHtml);
+    
+    setTimeout(() => {
+        $('#messages-container').empty();
+    }, 5000);
+}
 
-    function escapeHtml(text) {
-        if (!text) return '';
-        return text.toString()
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    }
+function escapeHtml(text) {
+    if (!text) return '';
+    return text.toString()
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
 
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
             }
         }
-        return cookieValue;
     }
+    return cookieValue;
+}
 
-    // Load page content
-    function loadPageContent(page) {
+// Load page content
+function loadPageContent(page) {
     showLoading();
     currentPage = page;
     sessionStorage.setItem('currentPage', page);
@@ -565,7 +564,6 @@
             'X-Requested-With': 'XMLHttpRequest'
         },
         success: function(response) {
-            console.log("Response received:", response); // Debug output
             if (response.html) {
                 $('#content-container').html(response.html);
                 
@@ -574,8 +572,6 @@
                 } else if (page === 'events') {
                     initializeEventList();
                     loadEvents();
-                } else if (page === 'posts') {
-                    initializePostList();    
                 } else if (page === 'announcements') {
                     initializeAnnouncementList();
                 } else if (page === 'categories') {
@@ -584,11 +580,10 @@
                     initializeOfficersPage();
                 } else if (page === 'committee') {
                     initializeCommitteePage();
-                }else if (page === 'achievements') {
+                } else if (page === 'achievements') {
                     initializeAchievementsPage();
                 } else if (page === 'accomplishments') {
-                    initializeAccomplishmentList();  // Added this line
-                    console.log("Accomplishments page initialized"); // Debug output
+                    initializeAccomplishmentList();
                 } else if (page === 'volunteers') {
                     initializeVolunteersPage();
                 } else if (page === 'accounts') {
@@ -612,443 +607,413 @@
     });
 }
 
-    // Dashboard functions
-    function initializeDashboard(data) {
-        // Update dashboard cards
-        if (data.total_posts !== undefined) $('#totalPosts').text(data.total_posts);
-        if (data.total_events !== undefined) $('#totalEvents').text(data.total_events);
-        if (data.total_announcements !== undefined) $('#totalAnnouncements').text(data.total_announcements);
-        if (data.pending_complaints !== undefined) $('#pendingComplaints').text(data.pending_complaints);
-        if (data.total_achievements !== undefined) $('#totalAchievements').text(data.total_achievements);
-        if (data.total_volunteers !== undefined) $('#totalVolunteers').text(data.total_volunteers);
+// Dashboard functions
+function initializeDashboard(data) {
+    // Update dashboard cards
+    if (data.total_posts !== undefined) $('#totalPosts').text(data.total_posts);
+    if (data.total_events !== undefined) $('#totalEvents').text(data.total_events);
+    if (data.total_announcements !== undefined) $('#totalAnnouncements').text(data.total_announcements);
+    if (data.pending_complaints !== undefined) $('#pendingComplaints').text(data.pending_complaints);
+    if (data.total_achievements !== undefined) $('#totalAchievements').text(data.total_achievements);
+    if (data.total_volunteers !== undefined) $('#totalVolunteers').text(data.total_volunteers);
 
-        // Initialize charts if data exists
-        if (data.posts_by_category) {
-            initializeChart('postsByCategoryChart', 'bar', 
-                           data.posts_by_category.map(item => item.category__category || 'Unknown'),
-                           data.posts_by_category.map(item => item.count || 0),
-                           'Posts by Category');
-        }
-        
-        if (data.events_by_status) {
-            initializeChart('eventsStatusChart', 'doughnut',
-                           data.events_by_status.map(item => item.status || 'Unknown'),
-                           data.events_by_status.map(item => item.count || 0),
-                           'Events by Status');
-        }
-        
-        if (data.complaints_by_status) {
-            initializeChart('complaintsStatusChart', 'pie',
-                           data.complaints_by_status.map(item => item.remarks || 'Unknown'),
-                           data.complaints_by_status.map(item => item.count || 0),
-                           'Complaints by Status');
-        }
+    // Initialize charts if data exists
+    if (data.posts_by_category) {
+        initializeChart('postsByCategoryChart', 'bar', 
+                       data.posts_by_category.map(item => item.category__category || 'Unknown'),
+                       data.posts_by_category.map(item => item.count || 0),
+                       'Posts by Category');
     }
-
-    function initializeChart(chartId, type, labels, data, label) {
-        const ctx = document.getElementById(chartId).getContext('2d');
-        new Chart(ctx, {
-            type: type,
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: label,
-                    data: data,
-                    backgroundColor: getChartColors(type, data.length),
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    }
-                }
-            }
-        });
-    }
-
-    function getChartColors(type, count) {
-        if (type === 'pie' || type === 'doughnut') {
-            return ['#4BC0C0', '#FF9F40', '#9966FF', '#FFCD56', '#36A2EB', '#FF6384'].slice(0, count);
-        }
-        return ['rgba(54, 162, 235, 0.5)'];
-    }
-
-    // Event management functions
-    function initializeEventList() {
-        // Set up event handlers
-        $(document).on('click', '#addEventBtn', showEventForm);
-        $(document).on('click', '.edit-event-btn', function() {
-            const eventId = $(this).data('id');
-            showEventForm('edit', eventId);
-        });
-        $(document).on('click', '.delete-event-btn', function() {
-            itemToDelete = { type: 'event', id: $(this).data('id') };
-            openModal('deleteModal');
-        });
-
-        // Filter handling
-        $('#statusFilter, #dateFromFilter, #dateToFilter').on('change', loadEvents);
-        $('#searchFilter').on('keyup', function(e) {
-            if (e.key === 'Enter') loadEvents();
-        });
-    }
-
-    function showEventForm(mode = 'create', eventId = null) {
-        showLoading();
-        currentEventId = eventId;
-        
-        $.ajax({
-            url: '/cscadmin/events/form-data/',
-            method: 'GET',
-            success: function(response) {
-                // Load the event form template
-                $.ajax({
-                    url: '/cscadmin/?page=event_form',
-                    method: 'GET',
-                    success: function(html) {
-                        $('#eventModalBody').html(html);
-                        
-                        // Populate select options
-                        populateSelectOptions('#eventLabels', response.event_labels);
-                        populateSelectOptions('#eventTypes', response.event_types);
-                        populateSelectOptions('#eventAudiences', response.audiences);
-                        
-                        // Set modal title
-                        $('#eventModalTitle').text(mode === 'edit' ? 'Edit Event' : 'Create New Event');
-                        
-                        // Update submit button
-                        updateEventSubmitButton(mode);
-                        
-                        // If editing, load the event data
-                        if (mode === 'edit' && eventId) {
-                            loadEventData(eventId);
-                        } else {
-                            hideLoading();
-                        }
-                        
-                        openModal('eventModal');
-                    },
-                    error: function() {
-                        hideLoading();
-                        showAlert('danger', 'Failed to load event form');
-                    }
-                });
-            },
-            error: function() {
-                hideLoading();
-                showAlert('danger', 'Failed to load form data');
-            }
-        });
-    }
-
-    function populateSelectOptions(selector, options) {
-        let html = '';
-        options.forEach(option => {
-            html += `<option value="${option.id}">${option.type || option.category || option.name}</option>`;
-        });
-        $(selector).html(html);
-    }
-
-    function updateEventSubmitButton(mode) {
-        const $btn = $('#eventModalSubmitBtn');
-        if (mode === 'edit') {
-            $('#eventSubmitBtnIcon').removeClass('fa-plus-circle').addClass('fa-save');
-            $('#eventSubmitBtnText').text('Save Changes');
-        } else {
-            $('#eventSubmitBtnIcon').removeClass('fa-save').addClass('fa-plus-circle');
-            $('#eventSubmitBtnText').text('Add Event');
-        }
-    }
-
-    function loadEventData(eventId) {
-        showLoading();
-        
-        $.ajax({
-            url: `/cscadmin/events/${eventId}/update/`,
-            method: 'GET',
-            success: function(response) {
-                // Populate form fields
-                $('#eventId').val(response.id);
-                $('#eventName').val(response.name);
-                $('#eventStatus').val(response.status);
-                $('#eventDate').val(response.date_event);
-                $('#eventStartTime').val(response.start_at);
-                $('#eventEndTime').val(response.end_at);
-                $('#eventLocation').val(response.location);
-                $('#eventLandmark').val(response.landmark);
-                $('#eventPublishStart').val(response.start_publish_on);
-                $('#eventPublishEnd').val(response.end_publish_on);
-                $('#eventContext').val(response.context);
-                $('#eventDescription').val(response.description);
-                
-                // Set selected options for multi-selects
-                setSelectedOptions('#eventLabels', response.selected_labels);
-                setSelectedOptions('#eventTypes', response.selected_types);
-                setSelectedOptions('#eventAudiences', response.selected_audiences);
-                
-                // Show current image if exists
-                if (response.featured_image) {
-                    $('#currentImage').attr('src', response.featured_image);
-                    $('#currentImageContainer').removeClass('hidden');
-                }
-                
-                hideLoading();
-            },
-            error: function() {
-                hideLoading();
-                showAlert('danger', 'Failed to load event data');
-            }
-        });
-    }
-
-    function setSelectedOptions(selector, selectedValues) {
-        $(selector).val(selectedValues);
-    }
-
-    function submitEventForm() {
-        showLoading();
-        
-        const formData = new FormData();
-        formData.append('eventName', $('#eventName').val());
-        formData.append('eventStatus', $('#eventStatus').val());
-        formData.append('eventDate', $('#eventDate').val());
-        formData.append('eventStartTime', $('#eventStartTime').val());
-        formData.append('eventEndTime', $('#eventEndTime').val());
-        formData.append('eventLocation', $('#eventLocation').val());
-        formData.append('eventLandmark', $('#eventLandmark').val());
-        formData.append('eventPublishStart', $('#eventPublishStart').val());
-        formData.append('eventPublishEnd', $('#eventPublishEnd').val());
-        formData.append('eventContext', $('#eventContext').val());
-        formData.append('eventDescription', $('#eventDescription').val());
-        
-        // Append multi-select values
-        $('#eventLabels option:selected').each(function() {
-            formData.append('eventLabels', $(this).val());
-        });
-        $('#eventTypes option:selected').each(function() {
-            formData.append('eventTypes', $(this).val());
-        });
-        $('#eventAudiences option:selected').each(function() {
-            formData.append('eventAudiences', $(this).val());
-        });
-        
-        // Append file if selected
-        const fileInput = $('#eventFeaturedImage')[0];
-        if (fileInput.files.length > 0) {
-            formData.append('eventFeaturedImage', fileInput.files[0]);
-        }
-        
-        // Determine URL based on mode
-        const url = currentEventId ? 
-            `/cscadmin/events/${currentEventId}/update/` : 
-            '/cscadmin/events/create/';
-        
-        $.ajax({
-            url: url,
-            type: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken')
-            },
-            success: function(response) {
-                if (response.success) {
-                    showAlert('success', response.message || 'Event saved successfully');
-                    closeModal('eventModal');
-                    loadEvents();
-                } else {
-                    showAlert('danger', response.error || 'Failed to save event');
-                }
-            },
-            error: function(xhr) {
-                const error = xhr.responseJSON?.error || 'Failed to save event';
-                showAlert('danger', error);
-            },
-            complete: function() {
-                hideLoading();
-            }
-        });
-    }
-
-    function loadEvents(page = 1) {
-        showLoading();
-        
-        const params = {
-            status: $('#statusFilter').val(),
-            date_from: $('#dateFromFilter').val(),
-            date_to: $('#dateToFilter').val(),
-            search: $('#searchFilter').val(),
-            page: page
-        };
-        
-        $.ajax({
-            url: '/cscadmin/events/list/',
-            method: 'GET',
-            data: params,
-            success: function(response) {
-                renderEventsTable(response);
-            },
-            error: function(xhr) {
-                const error = xhr.responseJSON?.error || 'Failed to load events';
-                showAlert('danger', error);
-            },
-            complete: function() {
-                hideLoading();
-            }
-        });
-    }
-
-    function renderEventsTable(data) {
-        if (!data || !data.events || data.events.length === 0) {
-            $('#eventsTableBody').html(`
-                <tr>
-                    <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">
-                        No events found
-                    </td>
-                </tr>
-            `);
-            return;
-        }
-        
-        let tableRows = '';
-        data.events.forEach(event => {
-            const statusClass = {
-                'active': 'bg-green-100 text-green-800',
-                'expired': 'bg-red-100 text-red-800',
-                'scheduled': 'bg-blue-100 text-blue-800'
-            }[event.status] || 'bg-gray-100 text-gray-800';
-            
-            tableRows += `
-                <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${escapeHtml(event.name) || 'N/A'}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${event.date_event || 'N/A'}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${escapeHtml(event.location) || 'N/A'}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
-                            ${(event.status || '').charAt(0).toUpperCase() + (event.status || '').slice(1)}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button class="text-yellow-600 hover:text-yellow-900 edit-event-btn mr-3" data-id="${event.id}">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="text-red-600 hover:text-red-900 delete-event-btn" data-id="${event.id}">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </td>
-                </tr>
-            `;
-        });
-        
-        $('#eventsTableBody').html(tableRows);
-        renderPagination(data);
-    }
-
-    function renderPagination(data) {
-        if (data.total_pages <= 1) {
-            $('#paginationContainer').empty();
-            return;
-        }
-        
-        let paginationHtml = `
-            <nav class="flex items-center justify-between">
-                <div class="flex-1 flex justify-between sm:hidden">
-                    ${data.has_previous ? 
-                        `<a href="#" data-page="${data.previous_page_number}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                            Previous
-                        </a>` : 
-                        `<span class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-300 bg-white cursor-not-allowed">
-                            Previous
-                        </span>`}
-                    ${data.has_next ? 
-                        `<a href="#" data-page="${data.next_page_number}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                            Next
-                        </a>` : 
-                        `<span class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-300 bg-white cursor-not-allowed">
-                            Next
-                        </span>`}
-                </div>
-                <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                    <div class="text-sm text-gray-700">
-                        Showing <span class="font-medium">${data.start_index}</span> to <span class="font-medium">${data.end_index}</span> of <span class="font-medium">${data.total_items}</span> results
-                    </div>
-                    <div>
-                        <ul class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-        `;
-        
-        if (data.has_previous) {
-            paginationHtml += `
-                <li>
-                    <a href="#" data-page="${data.previous_page_number}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                        <span class="sr-only">Previous</span>
-                        <i class="fas fa-chevron-left"></i>
-                    </a>
-                </li>
-            `;
-        }
-        
-        for (let i = 1; i <= data.total_pages; i++) {
-            if (i === data.current_page) {
-                paginationHtml += `
-                    <li>
-                        <a href="#" aria-current="page" class="z-10 bg-blue-50 border-blue-500 text-blue-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                            ${i}
-                        </a>
-                    </li>
-                `;
-            } else if (i > data.current_page - 3 && i < data.current_page + 3) {
-                paginationHtml += `
-                    <li>
-                        <a href="#" data-page="${i}" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                            ${i}
-                        </a>
-                    </li>
-                `;
-            }
-        }
-        
-        if (data.has_next) {
-            paginationHtml += `
-                <li>
-                    <a href="#" data-page="${data.next_page_number}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                        <span class="sr-only">Next</span>
-                        <i class="fas fa-chevron-right"></i>
-                    </a>
-                </li>
-            `;
-        }
-        
-        paginationHtml += `
-                        </ul>
-                    </div>
-                </div>
-            </nav>
-        `;
-        
-        $('#paginationContainer').html(paginationHtml);
-    }
-
-    // Categories management functions
-// Global variable to track current category tab
-let currentCategoryTab = 'labels';
-
-$(document).ready(function() {
-    // Initialize the categories management
-    initializeCategoriesPage();
-});
-
-function initializeCategoriesPage() {
-    // Set default tab (or get from sessionStorage if you want persistence)
-    currentCategoryTab = 'labels';
     
-    // Load the initial tab content
+    if (data.events_by_status) {
+        initializeChart('eventsStatusChart', 'doughnut',
+                       data.events_by_status.map(item => item.status || 'Unknown'),
+                       data.events_by_status.map(item => item.count || 0),
+                       'Events by Status');
+    }
+    
+    if (data.complaints_by_status) {
+        initializeChart('complaintsStatusChart', 'pie',
+                       data.complaints_by_status.map(item => item.remarks || 'Unknown'),
+                       data.complaints_by_status.map(item => item.count || 0),
+                       'Complaints by Status');
+    }
+}
+
+function initializeChart(chartId, type, labels, data, label) {
+    const ctx = document.getElementById(chartId).getContext('2d');
+    new Chart(ctx, {
+        type: type,
+        data: {
+            labels: labels,
+            datasets: [{
+                label: label,
+                data: data,
+                backgroundColor: getChartColors(type, data.length),
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                }
+            }
+        }
+    });
+}
+
+function getChartColors(type, count) {
+    if (type === 'pie' || type === 'doughnut') {
+        return ['#4BC0C0', '#FF9F40', '#9966FF', '#FFCD56', '#36A2EB', '#FF6384'].slice(0, count);
+    }
+    return ['rgba(54, 162, 235, 0.5)'];
+}
+
+// Event management functions
+function initializeEventList() {
+    // Set up event handlers
+    $(document).on('click', '#addEventBtn', showEventForm);
+    $(document).on('click', '.edit-event-btn', function() {
+        const eventId = $(this).data('id');
+        showEventForm('edit', eventId);
+    });
+    $(document).on('click', '.delete-event-btn', function() {
+        itemToDelete = { type: 'event', id: $(this).data('id') };
+        openModal('deleteModal');
+    });
+
+    // Filter handling
+    $('#statusFilter, #dateFromFilter, #dateToFilter').on('change', loadEvents);
+    $('#searchFilter').on('keyup', function(e) {
+        if (e.key === 'Enter') loadEvents();
+    });
+}
+
+function showEventForm(mode = 'create', eventId = null) {
+    showLoading();
+    currentEventId = eventId;
+    
+    $.ajax({
+        url: '/cscadmin/events/form-data/',
+        method: 'GET',
+        success: function(response) {
+            // Load the event form template
+            $.ajax({
+                url: '/cscadmin/?page=event_form',
+                method: 'GET',
+                success: function(html) {
+                    $('#eventModalBody').html(html);
+                    
+                    // Populate select options
+                    populateSelectOptions('#eventLabels', response.event_labels);
+                    populateSelectOptions('#eventTypes', response.event_types);
+                    populateSelectOptions('#eventAudiences', response.audiences);
+                    
+                    // Set modal title
+                    $('#eventModalTitle').text(mode === 'edit' ? 'Edit Event' : 'Create New Event');
+                    
+                    // Update submit button
+                    updateEventSubmitButton(mode);
+                    
+                    // If editing, load the event data
+                    if (mode === 'edit' && eventId) {
+                        loadEventData(eventId);
+                    } else {
+                        hideLoading();
+                    }
+                    
+                    openModal('eventModal');
+                },
+                error: function() {
+                    hideLoading();
+                    showAlert('danger', 'Failed to load event form');
+                }
+            });
+        },
+        error: function() {
+            hideLoading();
+            showAlert('danger', 'Failed to load form data');
+        }
+    });
+}
+
+function populateSelectOptions(selector, options) {
+    let html = '';
+    options.forEach(option => {
+        html += `<option value="${option.id}">${option.type || option.category || option.name}</option>`;
+    });
+    $(selector).html(html);
+}
+
+function updateEventSubmitButton(mode) {
+    const $btn = $('#eventModalSubmitBtn');
+    if (mode === 'edit') {
+        $('#eventSubmitBtnIcon').removeClass('fa-plus-circle').addClass('fa-save');
+        $('#eventSubmitBtnText').text('Save Changes');
+    } else {
+        $('#eventSubmitBtnIcon').removeClass('fa-save').addClass('fa-plus-circle');
+        $('#eventSubmitBtnText').text('Add Event');
+    }
+}
+
+function loadEventData(eventId) {
+    showLoading();
+    
+    $.ajax({
+        url: `/cscadmin/events/${eventId}/update/`,
+        method: 'GET',
+        success: function(response) {
+            // Populate form fields
+            $('#eventId').val(response.id);
+            $('#eventName').val(response.name);
+            $('#eventStatus').val(response.status);
+            $('#eventDate').val(response.date_event);
+            $('#eventStartTime').val(response.start_at);
+            $('#eventEndTime').val(response.end_at);
+            $('#eventLocation').val(response.location);
+            $('#eventLandmark').val(response.landmark);
+            $('#eventPublishStart').val(response.start_publish_on);
+            $('#eventPublishEnd').val(response.end_publish_on);
+            $('#eventContext').val(response.context);
+            $('#eventDescription').val(response.description);
+            
+            // Set selected options for multi-selects
+            setSelectedOptions('#eventLabels', response.selected_labels);
+            setSelectedOptions('#eventTypes', response.selected_types);
+            setSelectedOptions('#eventAudiences', response.selected_audiences);
+            
+            // Show current image if exists
+            if (response.featured_image) {
+                $('#currentImage').attr('src', response.featured_image);
+                $('#currentImageContainer').removeClass('hidden');
+            }
+            
+            hideLoading();
+        },
+        error: function() {
+            hideLoading();
+            showAlert('danger', 'Failed to load event data');
+        }
+    });
+}
+
+function setSelectedOptions(selector, selectedValues) {
+    $(selector).val(selectedValues);
+}
+
+function submitEventForm() {
+    showLoading();
+    
+    const formData = new FormData();
+    formData.append('eventName', $('#eventName').val());
+    formData.append('eventStatus', $('#eventStatus').val());
+    formData.append('eventDate', $('#eventDate').val());
+    formData.append('eventStartTime', $('#eventStartTime').val());
+    formData.append('eventEndTime', $('#eventEndTime').val());
+    formData.append('eventLocation', $('#eventLocation').val());
+    formData.append('eventLandmark', $('#eventLandmark').val());
+    formData.append('eventPublishStart', $('#eventPublishStart').val());
+    formData.append('eventPublishEnd', $('#eventPublishEnd').val());
+    formData.append('eventContext', $('#eventContext').val());
+    formData.append('eventDescription', $('#eventDescription').val());
+    
+    // Append multi-select values
+    $('#eventLabels option:selected').each(function() {
+        formData.append('eventLabels', $(this).val());
+    });
+    $('#eventTypes option:selected').each(function() {
+        formData.append('eventTypes', $(this).val());
+    });
+    $('#eventAudiences option:selected').each(function() {
+        formData.append('eventAudiences', $(this).val());
+    });
+    
+    // Append file if selected
+    const fileInput = $('#eventFeaturedImage')[0];
+    if (fileInput.files.length > 0) {
+        formData.append('eventFeaturedImage', fileInput.files[0]);
+    }
+    
+    // Determine URL based on mode
+    const url = currentEventId ? 
+        `/cscadmin/events/${currentEventId}/update/` : 
+        '/cscadmin/events/create/';
+    
+    $.ajax({
+        url: url,
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        success: function(response) {
+            if (response.success) {
+                showAlert('success', response.message || 'Event saved successfully');
+                closeModal('eventModal');
+                loadEvents();
+            } else {
+                showAlert('danger', response.error || 'Failed to save event');
+            }
+        },
+        error: function(xhr) {
+            const error = xhr.responseJSON?.error || 'Failed to save event';
+            showAlert('danger', error);
+        },
+        complete: function() {
+            hideLoading();
+        }
+    });
+}
+
+function loadEvents(page = 1) {
+    showLoading();
+    
+    const params = {
+        status: $('#statusFilter').val(),
+        date_from: $('#dateFromFilter').val(),
+        date_to: $('#dateToFilter').val(),
+        search: $('#searchFilter').val(),
+        page: page
+    };
+    
+    $.ajax({
+        url: '/cscadmin/events/list/',
+        method: 'GET',
+        data: params,
+        success: function(response) {
+            renderEventsTable(response);
+        },
+        error: function(xhr) {
+            const error = xhr.responseJSON?.error || 'Failed to load events';
+            showAlert('danger', error);
+        },
+        complete: function() {
+            hideLoading();
+        }
+    });
+}
+
+function renderEventsTable(data) {
+    if (!data || !data.events || data.events.length === 0) {
+        $('#eventsTableBody').html(`
+            <tr>
+                <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">
+                    No events found
+                </td>
+            </tr>
+        `);
+        return;
+    }
+    
+    let tableRows = '';
+    data.events.forEach(event => {
+        const statusClass = {
+            'active': 'bg-green-100 text-green-800',
+            'expired': 'bg-red-100 text-red-800',
+            'scheduled': 'bg-blue-100 text-blue-800'
+        }[event.status] || 'bg-gray-100 text-gray-800';
+        
+        tableRows += `
+            <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${escapeHtml(event.name) || 'N/A'}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${event.date_event || 'N/A'}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${escapeHtml(event.location) || 'N/A'}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
+                        ${(event.status || '').charAt(0).toUpperCase() + (event.status || '').slice(1)}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <button class="text-yellow-600 hover:text-yellow-900 edit-event-btn mr-3" data-id="${event.id}">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="text-red-600 hover:text-red-900 delete-event-btn" data-id="${event.id}">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+    
+    $('#eventsTableBody').html(tableRows);
+    renderPagination(data);
+}
+
+function renderPagination(data) {
+    if (data.total_pages <= 1) {
+        $('#paginationContainer').empty();
+        return;
+    }
+    
+    let paginationHtml = `
+        <nav class="flex items-center justify-between">
+            <div class="flex-1 flex justify-between sm:hidden">
+                ${data.has_previous ? 
+                    `<a href="?page=${data.previous_page_number}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        Previous
+                    </a>` : 
+                    `<span class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-300 bg-white cursor-not-allowed">
+                        Previous
+                    </span>`}
+                ${data.has_next ? 
+                    `<a href="?page=${data.next_page_number}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        Next
+                    </a>` : 
+                    `<span class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-300 bg-white cursor-not-allowed">
+                        Next
+                    </span>`}
+            </div>
+            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                <div class="text-sm text-gray-700">
+                    Showing <span class="font-medium">${data.start_index}</span> to <span class="font-medium">${data.end_index}</span> of <span class="font-medium">${data.paginator.count}</span> results
+                </div>
+                <div>
+                    <ul class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                        ${data.has_previous ? 
+                            `<li>
+                                <a href="?page=${data.previous_page_number}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                    <span class="sr-only">Previous</span>
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            </li>` : ''}
+                        
+                        ${Array.from({length: data.paginator.num_pages}, (_, i) => i + 1).map(page => `
+                            <li>
+                                ${page === data.number ? 
+                                    `<span aria-current="page" class="z-10 bg-blue-50 border-blue-500 text-blue-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                        ${page}
+                                    </span>` : 
+                                    `<a href="?page=${page}" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                        ${page}
+                                    </a>`}
+                            </li>
+                        `).join('')}
+                        
+                        ${data.has_next ? 
+                            `<li>
+                                <a href="?page=${data.next_page_number}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                    <span class="sr-only">Next</span>
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>` : ''}
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    `;
+    
+    $('#paginationContainer').html(paginationHtml);
+}
+
+// Categories management functions
+function initializeCategoriesPage() {
+    currentCategoryTab = 'labels';
     loadCategoryTab(currentCategoryTab);
 
-    // Set up tab click handlers
     $('[data-tab]').on('click', function(e) {
         e.preventDefault();
         const tab = $(this).data('tab');
@@ -1106,8 +1071,6 @@ function updateActiveTabStyle(activeTab) {
                                                .addClass('border-primary-dark text-primary-dark');
 }
 
-
-// Modify your loadData function to handle the AJAX loading
 function loadData(categoryType) {
     showLoading();
     
@@ -1140,1083 +1103,198 @@ function loadData(categoryType) {
     });
 }
 
-    function updateTable(categoryType, data) {
-        let tableBody = '';
-        
-        if (data.length === 0) {
-            tableBody = `
+function updateTable(categoryType, data) {
+    let tableBody = '';
+    
+    if (data.length === 0) {
+        tableBody = `
+            <tr>
+                <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">
+                    No items found
+                </td>
+            </tr>
+        `;
+    } else {
+        data.forEach(item => {
+            tableBody += `
                 <tr>
-                    <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">
-                        No items found
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">${escapeHtml(item.type)}</div>
                     </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-500">${escapeHtml(item.description) || 'N/A'}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        ${item.is_active ? 
+                            '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>' : 
+                            '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Inactive</span>'}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button onclick="editCategory('${categoryType}', ${item.id}, '${escapeHtml(item.type)}', '${escapeHtml(item.description || '')}', ${item.is_active})" 
+                                class="text-blue-600 hover:text-blue-900 mr-3">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="confirmDeleteCategory('${categoryType}', ${item.id})" 
+                                class="text-red-600 hover:text-red-900">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        </td>
                 </tr>
             `;
-        } else {
-            data.forEach(item => {
-                tableBody += `
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-medium text-gray-900">${escapeHtml(item.type)}</div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-500">${escapeHtml(item.description) || 'N/A'}</div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            ${item.is_active ? 
-                                '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>' : 
-                                '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Inactive</span>'}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <button onclick="editCategory('${categoryType}', ${item.id}, '${escapeHtml(item.type)}', '${escapeHtml(item.description || '')}', ${item.is_active})" 
-                                    class="text-blue-600 hover:text-blue-900 mr-3">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button onclick="confirmDeleteCategory('${categoryType}', ${item.id})" 
-                                    class="text-red-600 hover:text-red-900">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-        
-        // Update the appropriate table
-        $(`#${categoryType}-table tbody`).html(tableBody);
-    }
-
-    function openAddModal(categoryType) {
-        currentCategoryType = categoryType;
-        currentCategoryId = '';
-        
-        // Set modal title based on category type
-        let title = '';
-        switch(categoryType) {
-            case 'label':
-                title = 'Add New Event Label';
-                break;
-            case 'type':
-                title = 'Add New Event Type';
-                break;
-            case 'audience':
-                title = 'Add New Target Audience';
-                break;
-        }
-        
-        // Reset form
-        $('#modalTitle').text(title);
-        $('#categoryId').val('');
-        $('#categoryType').val(categoryType);
-        $('#categoryName').val('');
-        $('#categoryDescription').val('');
-        $('#categoryStatus').val('true');
-        
-        // Show modal
-        openModal('categoryModal');
-    }
-
-    function editCategory(categoryType, id, name, description, isActive) {
-        currentCategoryType = categoryType;
-        currentCategoryId = id;
-        
-        // Set modal title based on category type
-        let title = '';
-        switch(categoryType) {
-            case 'label':
-                title = 'Edit Event Label';
-                break;
-            case 'type':
-                title = 'Edit Event Type';
-                break;
-            case 'audience':
-                title = 'Edit Target Audience';
-                break;
-        }
-        
-        // Fill form with existing data
-        $('#modalTitle').text(title);
-        $('#categoryId').val(id);
-        $('#categoryType').val(categoryType);
-        $('#categoryName').val(name);
-        $('#categoryDescription').val(description);
-        $('#categoryStatus').val(isActive ? 'true' : 'false');
-        
-        // Show modal
-        openModal('categoryModal');
-    }
-
-    function saveCategory() {
-        showLoading();
-        
-        const id = $('#categoryId').val();
-        const categoryType = $('#categoryType').val();
-        const type = $('#categoryName').val();
-        const description = $('#categoryDescription').val();
-        const is_active = $('#categoryStatus').val() === 'true';
-        
-        const data = {
-            category_type: categoryType,
-            type: type,
-            description: description,
-            is_active: is_active
-        };
-        
-        if (id) {
-            // Update existing item
-            data.id = id;
-            var url = "{% url 'ajax_update_category' %}";
-        } else {
-            // Create new item
-            var url = "{% url 'ajax_create_category' %}";
-        }
-        
-        $.ajax({
-            url: url,
-            type: 'POST',
-            data: JSON.stringify(data),
-            contentType: 'application/json',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken')
-            },
-            success: function(response) {
-                if (response.success) {
-                    showAlert('success', 'Item saved successfully');
-                    closeModal('categoryModal');
-                    loadData(categoryType);
-                } else {
-                    showAlert('danger', response.error || 'Failed to save item');
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('Error saving item:', error);
-                showAlert('danger', 'Failed to save item. Please try again.');
-            },
-            complete: function() {
-                hideLoading();
-            }
         });
     }
-
-    function confirmDeleteCategory(categoryType, id) {
-        currentCategoryType = categoryType;
-        currentCategoryId = id;
-        openModal('deleteModal');
-    }
-
-    function confirmDelete() {
-        if (itemToDelete.type === 'event') {
-            deleteEvent();
-        } else {
-            deleteCategory();
-        }
-    }
-
-    function deleteCategory() {
-        showLoading();
-        
-        const data = {
-            category_type: currentCategoryType,
-            id: currentCategoryId
-        };
-        
-        $.ajax({
-            url: "{% url 'ajax_delete_category' %}",
-            type: 'POST',
-            data: JSON.stringify(data),
-            contentType: 'application/json',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken')
-            },
-            success: function(response) {
-                if (response.success) {
-                    showAlert('success', 'Item deleted successfully');
-                    closeModal('deleteModal');
-                    loadData(currentCategoryType);
-                } else {
-                    showAlert('danger', response.error || 'Failed to delete item');
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('Error deleting item:', error);
-                showAlert('danger', 'Failed to delete item. Please try again.');
-            },
-            complete: function() {
-                hideLoading();
-            }
-        });
-    }
-
-    function deleteEvent() {
-        showLoading();
-        
-        $.ajax({
-            url: `/cscadmin/events/${itemToDelete.id}/delete/`,
-            type: 'POST',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken')
-            },
-            success: function(response) {
-                if (response.success) {
-                    showAlert('success', 'Event deleted successfully');
-                    closeModal('deleteModal');
-                    loadEvents();
-                } else {
-                    showAlert('danger', response.error || 'Failed to delete event');
-                }
-            },
-            error: function(xhr) {
-                const error = xhr.responseJSON?.error || 'Failed to delete event';
-                showAlert('danger', error);
-            },
-            complete: function() {
-                hideLoading();
-            }
-        });
-    }
-
-    // Initialize dashboard on first load
-    loadPageContent(currentPage);
     
-    // Handle navigation
-    $(document).on('click', '.nav-link[data-page]', function(e) {
-        e.preventDefault();
-        const page = $(this).data('page');
-        loadPageContent(page);
-        toggleSidebar(); // Close mobile sidebar if open
-    });
-    
-    // Handle pagination clicks
-    $(document).on('click', '[data-page]', function(e) {
-        e.preventDefault();
-        const page = $(this).data('page');
-        if (page) {
-            if (currentPage === 'events') {
-                loadEvents(page);
-            }
-            // Add other page types if needed
-        }
-    });
-    
-
-    //post
-
-    // Post Management Functions
-    function initializePostList() {
-    // Set up event handlers
-    $(document).on('click', '#addPostBtn', function() {
-        showPostForm('create');
-    });
-    
-    $(document).on('click', '.edit-post-btn', function() {
-        const postId = $(this).data('id');
-        showPostForm('edit', postId);
-    });
-    
-    $(document).on('click', '.delete-post-btn', function() {
-        itemToDelete = { type: 'post', id: $(this).data('id') };
-        openModal('deleteModal');
-    });
-
-    // Filter handling
-    $('#statusFilter, #categoryFilter').on('change', function() {
-        loadPosts(1); // Reset to first page when filters change
-    });
-    
-    $('#searchFilter').on('keyup', function(e) {
-        if (e.key === 'Enter') {
-            loadPosts(1); // Reset to first page when searching
-        }
-    });
-    
-    // Initial load
-    loadPosts();
+    $(`#${categoryType}-table tbody`).html(tableBody);
 }
 
-function showPostForm(mode = 'create', postId = null) {
-    showLoading();
-    currentPostId = postId;
+function openAddModal(categoryType) {
+    currentCategoryType = categoryType;
+    currentCategoryId = '';
     
-    // Clear form and previews
-    $('#postForm')[0].reset();
-    $('#uploadedImages').empty();
-    $('#existingImages').empty().addClass('hidden');
-    
-    // Get form data (categories, status choices)
-    $.ajax({
-        url: '/cscadmin/posts/form-data/',
-        method: 'GET',
-        success: function(response) {
-            if (response.success) {
-                // Populate category dropdown
-                let categoryOptions = '<option value="">Select Category</option>';
-                response.categories.forEach(category => {
-                    categoryOptions += `<option value="${category.id}">${category.category}</option>`;
-                });
-                $('#postCategory').html(categoryOptions);
-                
-                // Populate status dropdown
-                let statusOptions = '';
-                response.status_choices.forEach(status => {
-                    statusOptions += `<option value="${status.value}">${status.label}</option>`;
-                });
-                $('#postStatus').html(statusOptions);
-                
-                // Set modal title and button based on mode
-                if (mode === 'edit') {
-                    $('#postModalTitle').text('Edit Post');
-                    $('#postSubmitBtnIcon').removeClass('fa-plus-circle').addClass('fa-save');
-                    $('#postSubmitBtnText').text('Save Changes');
-                    $('#existingImages').removeClass('hidden');
-                    
-                    // Load post data if editing
-                    if (postId) {
-                        loadPostData(postId);
-                    } else {
-                        hideLoading();
-                        openModal('postModal');
-                    }
-                } else {
-                    $('#postModalTitle').text('Add New Post');
-                    $('#postSubmitBtnIcon').removeClass('fa-save').addClass('fa-plus-circle');
-                    $('#postSubmitBtnText').text('Add Post');
-                    hideLoading();
-                    openModal('postModal');
-                }
-            } else {
-                showAlert('danger', 'Failed to load form data');
-                hideLoading();
-            }
-        },
-        error: function() {
-            showAlert('danger', 'Failed to load form data');
-            hideLoading();
-        }
-    });
-    
-    // Handle image previews for new uploads
-    $('#postImages').off('change').on('change', function() {
-        $('#uploadedImages').empty();
-        Array.from(this.files).forEach(file => {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                $('#uploadedImages').append(`
-                    <div class="relative">
-                        <img src="${e.target.result}" class="h-32 w-full object-cover rounded">
-                        <button type="button" onclick="$(this).parent().remove()" class="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center">
-                            <i class="fas fa-times text-xs"></i>
-                        </button>
-                    </div>
-                `);
-            };
-            reader.readAsDataURL(file);
-        });
-    });
-}
-
-
-function submitPostForm() {
-    showLoading();
-    
-    const formData = new FormData();
-    formData.append('id', $('#postId').val());
-    formData.append('title', $('#postTitle').val());
-    formData.append('content', $('#postContent').val());
-    formData.append('context', $('#postContext').val());
-    formData.append('category', $('#postCategory').val());
-    formData.append('status', $('#postStatus').val());
-    formData.append('start_publish_on', $('#postPublishStart').val());
-    formData.append('end_publish_on', $('#postPublishEnd').val());
-    
-    // Append new images
-    const fileInput = $('#postImages')[0];
-    if (fileInput.files.length > 0) {
-        for (let i = 0; i < fileInput.files.length; i++) {
-            formData.append('images', fileInput.files[i]);
-        }
+    let title = '';
+    switch(categoryType) {
+        case 'label':
+            title = 'Add New Event Label';
+            break;
+        case 'type':
+            title = 'Add New Event Type';
+            break;
+        case 'audience':
+            title = 'Add New Target Audience';
+            break;
     }
     
-    // Determine URL based on mode
-    const url = currentPostId ? 
-        `/cscadmin/posts/${currentPostId}/update/` : 
-        '/cscadmin/posts/create/';
+    $('#modalTitle').text(title);
+    $('#categoryId').val('');
+    $('#categoryType').val(categoryType);
+    $('#categoryName').val('');
+    $('#categoryDescription').val('');
+    $('#categoryStatus').val('true');
+    
+    openModal('categoryModal');
+}
+
+function editCategory(categoryType, id, name, description, isActive) {
+    currentCategoryType = categoryType;
+    currentCategoryId = id;
+    
+    let title = '';
+    switch(categoryType) {
+        case 'label':
+            title = 'Edit Event Label';
+            break;
+        case 'type':
+            title = 'Edit Event Type';
+            break;
+        case 'audience':
+            title = 'Edit Target Audience';
+            break;
+    }
+    
+    $('#modalTitle').text(title);
+    $('#categoryId').val(id);
+    $('#categoryType').val(categoryType);
+    $('#categoryName').val(name);
+    $('#categoryDescription').val(description);
+    $('#categoryStatus').val(isActive ? 'true' : 'false');
+    
+    openModal('categoryModal');
+}
+
+function saveCategory() {
+    showLoading();
+    
+    const id = $('#categoryId').val();
+    const categoryType = $('#categoryType').val();
+    const type = $('#categoryName').val();
+    const description = $('#categoryDescription').val();
+    const is_active = $('#categoryStatus').val() === 'true';
+    
+    const data = {
+        category_type: categoryType,
+        type: type,
+        description: description,
+        is_active: is_active
+    };
+    
+    if (id) {
+        data.id = id;
+        var url = "{% url 'ajax_update_category' %}";
+    } else {
+        var url = "{% url 'ajax_create_category' %}";
+    }
     
     $.ajax({
         url: url,
         type: 'POST',
-        data: formData,
-        processData: false,
-        contentType: false,
+        data: JSON.stringify(data),
+        contentType: 'application/json',
         headers: {
             'X-CSRFToken': getCookie('csrftoken')
         },
         success: function(response) {
             if (response.success) {
-                showAlert('success', response.message || 'Post saved successfully');
-                closeModal('postModal');
-                loadPosts(); // Refresh the posts list
+                showAlert('success', 'Item saved successfully');
+                closeModal('categoryModal');
+                loadData(categoryType);
             } else {
-                showAlert('danger', response.error || 'Failed to save post');
-            }
-        },
-        error: function(xhr) {
-            let error = 'Failed to save post';
-            try {
-                const response = JSON.parse(xhr.responseText);
-                error = response.error || error;
-            } catch (e) {
-                error = xhr.responseText || error;
-            }
-            showAlert('danger', error);
-        },
-        complete: function() {
-            hideLoading();
-        }
-    });
-}
-function loadPosts(page = 1) {
-    showLoading();
-    
-    const params = {
-        status: $('#statusFilter').val(),
-        category: $('#categoryFilter').val(),
-        search: $('#searchFilter').val(),
-        page: 'posts',
-        post_page: page  // This is the pagination parameter
-    };
-    
-    $.ajax({
-        url: '/cscadmin/',
-        method: 'GET',  
-        data: params,
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-        },
-        success: function(response) {
-            if (response.html) {
-                $('#content-container').html(response.html);
-                renderPostsTable(response.data);  // Make sure to pass response.data
-            } else {
-                showAlert('danger', 'Failed to load posts');
-            }            
-        },
-        error: function(xhr) {
-            const error = xhr.responseJSON?.error || 'Failed to load posts';
-            showAlert('danger', error);
-        },
-        complete: function() {
-            hideLoading();
-        }
-    });
-}
-
-function renderPostsTable(data) {
-    if (!data || !data.posts || data.posts.length === 0) {
-        $('#postsTableBody').html(`
-            <tr>
-                <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">
-                    No posts found
-                </td>
-            </tr>
-        `);
-        return;
-    }
-    
-    let tableRows = '';
-    data.posts.forEach(post => {
-        const statusClass = {
-            'published': 'bg-green-100 text-green-800',
-            'draft': 'bg-yellow-100 text-yellow-800',
-            'archived': 'bg-gray-100 text-gray-800'
-        }[post.status] || 'bg-gray-100 text-gray-800';
-        
-        tableRows += `
-            <tr class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="flex items-center">
-                        ${post.featured_image ? 
-                            `<div class="flex-shrink-0 h-10 w-10">
-                                <img class="h-10 w-10 rounded-full" src="${post.featured_image}" alt="">
-                            </div>` : ''}
-                        <div class="ml-4">
-                            <div class="text-sm font-medium text-gray-900">${escapeHtml(post.title) || 'Untitled Post'}</div>
-                            <div class="text-sm text-gray-500">${post.category || 'Uncategorized'}</div>
-                        </div>
-                    </div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900">${post.author || 'Unknown'}</div>
-                    <div class="text-sm text-gray-500">${post.created_at || 'N/A'}</div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
-                        ${(post.status || '').charAt(0).toUpperCase() + (post.status || '').slice(1)}
-                    </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    ${post.start_publish_on || 'N/A'}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    ${post.end_publish_on || 'N/A'}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button class="text-yellow-600 hover:text-yellow-900 edit-post-btn mr-3" data-id="${post.id}">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="text-red-600 hover:text-red-900 delete-post-btn" data-id="${post.id}">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </td>
-            </tr>
-        `;
-    });
-    
-    $('#postsTableBody').html(tableRows);
-    renderPostPagination(data);
-}
-
-function renderPostPagination(data) {
-    if (data.total_pages <= 1) {
-        $('#paginationContainer').empty();
-        return;
-    }
-    
-    let paginationHtml = `
-        <nav class="flex items-center justify-between">
-            <div class="flex-1 flex justify-between sm:hidden">
-                ${data.has_previous ? 
-                    `<a href="#" onclick="loadPosts(${data.previous_page_number}); return false;" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                        Previous
-                    </a>` : 
-                    `<span class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-300 bg-white cursor-not-allowed">
-                        Previous
-                    </span>`}
-                ${data.has_next ? 
-                    `<a href="#" onclick="loadPosts(${data.next_page_number}); return false;" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                        Next
-                    </a>` : 
-                    `<span class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-300 bg-white cursor-not-allowed">
-                        Next
-                    </span>`}
-            </div>
-            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                <div class="text-sm text-gray-700">
-                    Showing <span class="font-medium">${(data.current_page - 1) * 10 + 1}</span> to 
-                    <span class="font-medium">${Math.min(data.current_page * 10, data.total_items)}</span> of 
-                    <span class="font-medium">${data.total_items}</span> results
-                </div>
-                <div>
-                    <ul class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-    `;
-    
-    if (data.has_previous) {
-        paginationHtml += `
-            <li>
-                <a href="#" onclick="loadPosts(${data.previous_page_number}); return false;" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                    <span class="sr-only">Previous</span>
-                    <i class="fas fa-chevron-left"></i>
-                </a>
-            </li>
-        `;
-    }
-    
-    // Show page numbers
-    const startPage = Math.max(1, data.current_page - 2);
-    const endPage = Math.min(data.total_pages, data.current_page + 2);
-    
-    for (let i = startPage; i <= endPage; i++) {
-        if (i === data.current_page) {
-            paginationHtml += `
-                <li>
-                    <span aria-current="page" class="z-10 bg-blue-50 border-blue-500 text-blue-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                        ${i}
-                    </span>
-                </li>
-            `;
-        } else {
-            paginationHtml += `
-                <li>
-                    <a href="#" onclick="loadPosts(${i}); return false;" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                        ${i}
-                    </a>
-                </li>
-            `;
-        }
-    }
-    
-    if (data.has_next) {
-        paginationHtml += `
-            <li>
-                <a href="#" onclick="loadPosts(${data.next_page_number}); return false;" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                    <span class="sr-only">Next</span>
-                    <i class="fas fa-chevron-right"></i>
-                </a>
-            </li>
-        `;
-    }
-    
-    paginationHtml += `
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    `;
-    
-    $('#paginationContainer').html(paginationHtml);
-}
-
-function confirmPostDelete() {
-    if (itemToDelete.type === 'post') {
-        deletePost();
-    }
-}
-
-function deletePost() {
-    showLoading();
-    
-    $.ajax({
-        url: `/cscadmin/posts/${itemToDelete.id}/delete/`,
-        type: 'POST',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        success: function(response) {
-            if (response.success) {
-                showAlert('success', 'Post deleted successfully');
-                closeModal('deletePostModal');
-                loadPosts();
-            } else {
-                showAlert('danger', response.error || 'Failed to delete post');
-            }
-        },
-        error: function(xhr) {
-            const error = xhr.responseJSON?.error || 'Failed to delete post';
-            showAlert('danger', error);
-        },
-        complete: function() {
-            hideLoading();
-        }
-    });
-}
-
-function deletePostImage(imageId, postId) {
-    if (!confirm('Are you sure you want to delete this image?')) return;
-    
-    showLoading();
-    
-    $.ajax({
-        url: `/cscadmin/post-images/${imageId}/delete/`,
-        type: 'POST',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        success: function(response) {
-            if (response.success) {
-                showAlert('success', 'Image deleted successfully');
-                loadPostData(postId); // Reload the post data to update the images list
-            } else {
-                showAlert('danger', response.error || 'Failed to delete image');
-            }
-        },
-        error: function(xhr) {
-            const error = xhr.responseJSON?.error || 'Failed to delete image';
-            showAlert('danger', error);
-        },
-        complete: function() {
-            hideLoading();
-        }
-    });
-}
-function loadPostData(postId) {
-    showLoading();
-    
-    $.ajax({
-        url: `/cscadmin/posts/${postId}/detail/`,
-        method: 'GET',
-        success: function(response) {
-            if (response.success) {
-                // Populate form fields
-                $('#postId').val(response.post.id);
-                $('#postTitle').val(response.post.title);
-                $('#postContent').val(response.post.content);
-                $('#postContext').val(response.post.context);
-                $('#postCategory').val(response.post.category_id);
-                $('#postStatus').val(response.post.status);
-                
-                // Format dates for display
-                if (response.post.start_publish_on) {
-                    $('#postPublishStart').val(response.post.start_publish_on);
-                }
-                if (response.post.end_publish_on) {
-                    $('#postPublishEnd').val(response.post.end_publish_on);
-                }
-                
-                // Display existing images
-                const existingImages = $('#existingImages');
-                existingImages.empty();
-                
-                if (response.post.images && response.post.images.length > 0) {
-                    response.post.images.forEach(image => {
-                        existingImages.append(`
-                            <div class="relative inline-block m-2">
-                                <img src="${image.url}" class="h-32 w-32 object-cover rounded">
-                                <button onclick="deletePostImage(${image.id}, ${response.post.id})" 
-                                        class="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center">
-                                    <i class="fas fa-times text-xs"></i>
-                                </button>
-                            </div>
-                        `);
-                    });
-                    existingImages.removeClass('hidden');
-                }
-                
-                hideLoading();
-                openModal('postModal');
-            } else {
-                showAlert('danger', response.error || 'Failed to load post data');
-                hideLoading();
-            }
-        },
-        error: function(xhr) {
-            const error = xhr.responseJSON?.error || 'Failed to load post data';
-            showAlert('danger', error);
-            hideLoading();
-        }
-    });
-}
-
-
-
-//announcement
-function initializeAnnouncementList() {
-    // Set up event handlers
-    $(document).on('click', '#addAnnouncementBtn', showAnnouncementForm);
-    $(document).on('click', '.edit-announcement-btn', function() {
-        const announcementId = $(this).data('id');
-        showAnnouncementForm('edit', announcementId);
-    });
-    $(document).on('click', '.delete-announcement-btn', function() {
-        itemToDelete = { type: 'announcement', id: $(this).data('id') };
-        openModal('deleteModal');
-    });
-
-    // Filter handling
-    $('#statusFilter, #categoryFilter').on('change', loadAnnouncements);
-    $('#searchFilter').on('keyup', function(e) {
-        if (e.key === 'Enter') loadAnnouncements();
-    });
-
-    // Initial load
-    loadAnnouncements();
-}
-
-function loadAnnouncements(page = 1) {
-    showLoading();
-    
-    const params = {
-        status: $('#statusFilter').val(),
-        category: $('#categoryFilter').val(),
-        search: $('#searchFilter').val(),
-        page: page,
-        show_deleted: showingDeletedAnnouncements
-    };
-    
-    $.ajax({
-        url: '/cscadmin/announcements/list/',
-        method: 'GET',
-        data: params,
-        success: function(response) {
-            if (response.success) {
-                renderAnnouncementsTable(response);
-                // Populate category filter dropdown
-                if (response.categories) {
-                    let options = '<option value="">All Categories</option>';
-                    response.categories.forEach(category => {
-                        options += `<option value="${category.id}">${category.category}</option>`;
-                    });
-                    $('#categoryFilter').html(options);
-                }
-            } else {
-                showAlert('danger', response.error || 'Failed to load announcements');
-            }
-        },
-        error: function(xhr) {
-            const error = xhr.responseJSON?.error || 'Failed to load announcements';
-            showAlert('danger', error);
-        },
-        complete: function() {
-            hideLoading();
-        }
-    });
-}
-
-function showAnnouncementForm(mode = 'create', announcementId = null) {
-    showLoading();
-    currentAnnouncementId = announcementId;
-    
-    $.ajax({
-        url: '/cscadmin/announcements/form-data/',
-        method: 'GET',
-        success: function(response) {
-            // Load the announcement form template
-            $.ajax({
-                url: '/cscadmin/?page=announcement_form',
-                method: 'GET',
-                success: function(html) {
-                    $('#announcementModalBody').html(html);
-                    
-                    // Populate select options
-                    populateSelectOptions('#announcementCategory', response.categories);
-                    populateSelectOptions('#announcementAudiences', response.audiences);
-                    populateSelectOptions('#announcementStatus', response.status_choices);
-                    
-                    // Set modal title
-                    $('#announcementModalTitle').text(mode === 'edit' ? 'Edit Announcement' : 'Create New Announcement');
-                    
-                    // Update submit button
-                    updateAnnouncementSubmitButton(mode);
-                    
-                    // If editing, load the announcement data
-                    if (mode === 'edit' && announcementId) {
-                        loadAnnouncementData(announcementId);
-                    } else {
-                        hideLoading();
-                    }
-                    
-                    openModal('announcementModal');
-                },
-                error: function() {
-                    hideLoading();
-                    showAlert('danger', 'Failed to load announcement form');
-                }
-            });
-        },
-        error: function() {
-            hideLoading();
-            showAlert('danger', 'Failed to load form data');
-        }
-    });
-}
-
-//accomplishments
-
-// Initialize accomplishment management
-function initializeAccomplishmentList() {
-    // Set up event handlers
-    $(document).on('click', '#addAccomplishmentBtn', showAccomplishmentForm);
-    $(document).on('click', '.edit-accomplishment-btn', function() {
-        const accomplishmentId = $(this).data('id');
-        showAccomplishmentForm('edit', accomplishmentId);
-    });
-    $(document).on('click', '.delete-accomplishment-btn', function() {
-        itemToDelete = { type: 'accomplishment', id: $(this).data('id') };
-        openModal('deleteModal');
-    });
-    $(document).on('click', '.image-preview-btn', function() {
-        const imgSrc = $(this).data('src');
-        $('#largeAccomplishmentImage').attr('src', imgSrc);
-        $('#imagePreviewModal').removeClass('hidden');
-    });
-
-    // Filter handling
-    $('#statusFilter, #categoryFilter, #dateFromFilter').on('change', loadAccomplishments);
-    $('#searchFilter').on('keyup', function(e) {
-        if (e.key === 'Enter') loadAccomplishments();
-    });
-
-    // Initial load
-    loadAccomplishments();
-}
-
-//account
-
-// Account Management Functions
-function initializeAccountList() {
-    // Set up event handlers
-    $(document).on('click', '#addAccountBtn', function() {
-        showAccountForm('create');
-    });
-    
-    $(document).on('click', '.edit-account-btn', function() {
-        const accountId = $(this).data('id');
-        showAccountForm('edit', accountId);
-    });
-    
-    $(document).on('click', '.delete-account-btn', function() {
-        itemToDelete = { type: 'account', id: $(this).data('id') };
-        openModal('deleteModal');
-    });
-
-    // Filter handling
-    $('#accountTypeFilter, #accountStatusFilter').on('change', loadAccounts);
-    $('#accountSearchFilter').on('keyup', function(e) {
-        if (e.key === 'Enter') loadAccounts();
-    });
-    
-    // Initial load
-    loadAccounts();
-}
-
-function showAccountForm(mode = 'create', accountId = null) {
-    console.log('showAccountForm called'); // Debug
-    showLoading();
-    currentAccountId = accountId;
-    
-    console.log('Fetching form data...'); // Debug
-    $.ajax({
-        url: '/cscadmin/accounts/form-data/',
-        method: 'GET',
-        success: function(response) {
-            console.log('Form data received:', response); // Debug
-            if (response.success) {
-                console.log('Loading form template...'); // Debug
-                $.ajax({
-                    url: '/cscadmin/?page=account_form',
-                    method: 'GET',
-                    success: function(html) {
-                        $('#accountModalBody').html(html);
-                        
-                        // Populate account type dropdown
-                        let typeOptions = '<option value="">Select Type</option>';
-                        response.account_types.forEach(type => {
-                            typeOptions += `<option value="${type.value}">${type.label}</option>`;
-                        });
-                        $('#accountType').html(typeOptions);
-                        
-                        // Set modal title and button based on mode
-                        if (mode === 'edit') {
-                            $('#accountModalTitle').text('Edit Account');
-                            $('#accountSubmitBtnText').text('Save Changes');
-                            
-                            // Load account data if editing
-                            if (accountId) {
-                                loadAccountData(accountId);
-                            } else {
-                                hideLoading();
-                                openModal('accountModal');
-                            }
-                        } else {
-                            $('#accountModalTitle').text('Add New Account');
-                            $('#accountSubmitBtnText').text('Add Account');
-                            hideLoading();
-                            openModal('accountModal');
-                        }
-                        
-                        // Handle image preview
-                        $('#accountProfileImg').off('change').on('change', function() {
-                            const file = this.files[0];
-                            if (file) {
-                                const reader = new FileReader();
-                                reader.onload = function(e) {
-                                    $('#accountPreview').attr('src', e.target.result).removeClass('hidden');
-                                    $('#accountNoPreview').addClass('hidden');
-                                };
-                                reader.readAsDataURL(file);
-                            }
-                        });
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Error loading form template:', error); // Debug
-                        hideLoading();
-                        showAlert('danger', 'Failed to load account form');
-                    }
-                });
-            } else {
-                console.error('Form data error:', response.error); // Debug
-                showAlert('danger', 'Failed to load form data');
-                hideLoading();
+                showAlert('danger', response.error || 'Failed to save item');
             }
         },
         error: function(xhr, status, error) {
-            console.error('Error fetching form data:', error); // Debug
-            showAlert('danger', 'Failed to load form data');
-            hideLoading();
-        }
-    });
-}
-
-function submitAccountForm() {
-    showLoading();
-    
-    const formData = new FormData();
-    formData.append('id', $('#accountId').val());
-    formData.append('email', $('#accountEmail').val());
-    formData.append('firstname', $('#accountFirstname').val());
-    formData.append('lastname', $('#accountLastname').val());
-    formData.append('middlename', $('#accountMiddlename').val());
-    formData.append('contact_number', $('#accountContact').val());
-    formData.append('account_type', $('#accountType').val());
-    formData.append('is_active', $('#accountStatus').val() === 'true' ? 'true' : 'false');
-    
-    // Append password only if creating new account or password field is not empty
-    const password = $('#accountPassword').val();
-    if (password || !currentAccountId) {
-        formData.append('password', password);
-    }
-    
-    // Append file if selected
-    const fileInput = $('#accountProfileImg')[0];
-    if (fileInput && fileInput.files.length > 0) {
-        formData.append('profile_img', fileInput.files[0]);
-    }
-    
-    // Determine URL based on mode
-    const url = currentAccountId ? 
-        `/cscadmin/accounts/${currentAccountId}/update/` : 
-        '/cscadmin/accounts/create/';
-    
-    $.ajax({
-        url: url,
-        type: 'POST',
-        data: formData,
-        processData: false,
-        contentType: false,
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        success: function(response) {
-            if (response.success) {
-                showAlert('success', response.message || 'Account saved successfully');
-                closeModal('accountModal');
-                loadAccounts();
-            } else {
-                showAlert('danger', response.error || 'Failed to save account');
-            }
-        },
-        error: function(xhr) {
-            let error = 'Failed to save account';
-            try {
-                const response = JSON.parse(xhr.responseText);
-                error = response.error || error;
-            } catch (e) {
-                error = xhr.responseText || error;
-            }
-            showAlert('danger', error);
+            console.error('Error saving item:', error);
+            showAlert('danger', 'Failed to save item. Please try again.');
         },
         complete: function() {
             hideLoading();
         }
     });
 }
-function loadAccounts(page = 1) {
+
+function confirmDeleteCategory(categoryType, id) {
+    currentCategoryType = categoryType;
+    currentCategoryId = id;
+    openModal('deleteModal');
+}
+
+function confirmDelete() {
+    if (itemToDelete.type === 'event') {
+        deleteEvent();
+    } else if (itemToDelete.type === 'category') {
+        deleteCategory();
+    } else if (itemToDelete.type === 'account') {
+        deleteAccount();
+    }
+}
+
+function deleteCategory() {
     showLoading();
     
-    const params = {
-        account_type: $('#accountTypeFilter').val(),
-        is_active: $('#accountStatusFilter').val(),
-        search: $('#accountSearchFilter').val(),
-        page: page
+    const data = {
+        category_type: currentCategoryType,
+        id: currentCategoryId
     };
     
     $.ajax({
-        url: '/cscadmin/accounts/list/',
-        method: 'GET',
-        data: params,
-        success: function(response) {
-            renderAccountsTable(response);
+        url: "{% url 'ajax_delete_category' %}",
+        type: 'POST',
+        data: JSON.stringify(data),
+        contentType: 'application/json',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
         },
-        error: function(xhr) {
-            const error = xhr.responseJSON?.error || 'Failed to load accounts';
-            showAlert('danger', error);
+        success: function(response) {
+            if (response.success) {
+                showAlert('success', 'Item deleted successfully');
+                closeModal('deleteModal');
+                loadData(currentCategoryType);
+            } else {
+                showAlert('danger', response.error || 'Failed to delete item');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Error deleting item:', error);
+            showAlert('danger', 'Failed to delete item. Please try again.');
         },
         complete: function() {
             hideLoading();
@@ -2224,227 +1302,26 @@ function loadAccounts(page = 1) {
     });
 }
 
-function renderAccountsTable(data) {
-    if (!data || !data.accounts || data.accounts.length === 0) {
-        $('#accountsTableBody').html(`
-            <tr>
-                <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">
-                    No accounts found
-                </td>
-            </tr>
-        `);
-        return;
-    }
-    
-    let tableRows = '';
-    data.accounts.forEach(account => {
-        const statusClass = account.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
-        const typeClass = account.account_type === 'admin' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800';
-        
-        tableRows += `
-            <tr class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="flex items-center">
-                        ${account.profile_img ? 
-                            `<div class="flex-shrink-0 h-10 w-10">
-                                <img class="h-10 w-10 rounded-full" src="${account.profile_img}" alt="${account.firstname} ${account.lastname}">
-                            </div>` : 
-                            `<div class="flex-shrink-0 h-10 w-10 bg-gray-200 rounded-full flex items-center justify-center">
-                                <i class="fas fa-user text-gray-400"></i>
-                            </div>`}
-                        <div class="ml-4">
-                            <div class="text-sm font-medium text-gray-900">${account.firstname} ${account.lastname}</div>
-                            <div class="text-sm text-gray-500">${account.email}</div>
-                        </div>
-                    </div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-500">${account.contact_number || 'N/A'}</div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${typeClass}">
-                        ${account.account_type === 'admin' ? 'Admin' : 'User'}
-                    </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
-                        ${account.is_active ? 'Active' : 'Inactive'}
-                    </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    ${account.created_at}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    ${account.last_login || 'Never'}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button class="text-yellow-600 hover:text-yellow-900 edit-account-btn mr-3" data-id="${account.id}">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="text-red-600 hover:text-red-900 delete-account-btn" data-id="${account.id}">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </td>
-            </tr>
-        `;
-    });
-    
-    $('#accountsTableBody').html(tableRows);
-    renderAccountPagination(data);
-}
-
-function renderAccountPagination(data) {
-    if (data.total_pages <= 1) {
-        $('#paginationContainer').empty();
-        return;
-    }
-    
-    let paginationHtml = `
-        <nav class="flex items-center justify-between">
-            <div class="flex-1 flex justify-between sm:hidden">
-                ${data.has_previous ? 
-                    `<a href="#" onclick="loadAccounts(${data.previous_page_number}); return false;" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                        Previous
-                    </a>` : 
-                    `<span class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-300 bg-white cursor-not-allowed">
-                        Previous
-                    </span>`}
-                ${data.has_next ? 
-                    `<a href="#" onclick="loadAccounts(${data.next_page_number}); return false;" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                        Next
-                    </a>` : 
-                    `<span class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-300 bg-white cursor-not-allowed">
-                        Next
-                    </span>`}
-            </div>
-            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                <div class="text-sm text-gray-700">
-                    Showing <span class="font-medium">${(data.current_page - 1) * 10 + 1}</span> to 
-                    <span class="font-medium">${Math.min(data.current_page * 10, data.total_items)}</span> of 
-                    <span class="font-medium">${data.total_items}</span> results
-                </div>
-                <div>
-                    <ul class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-    `;
-    
-    if (data.has_previous) {
-        paginationHtml += `
-            <li>
-                <a href="#" onclick="loadAccounts(${data.previous_page_number}); return false;" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                    <span class="sr-only">Previous</span>
-                    <i class="fas fa-chevron-left"></i>
-                </a>
-            </li>
-        `;
-    }
-    
-    // Show page numbers
-    const startPage = Math.max(1, data.current_page - 2);
-    const endPage = Math.min(data.total_pages, data.current_page + 2);
-    
-    for (let i = startPage; i <= endPage; i++) {
-        if (i === data.current_page) {
-            paginationHtml += `
-                <li>
-                    <span aria-current="page" class="z-10 bg-blue-50 border-blue-500 text-blue-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                        ${i}
-                    </span>
-                </li>
-            `;
-        } else {
-            paginationHtml += `
-                <li>
-                    <a href="#" onclick="loadAccounts(${i}); return false;" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                        ${i}
-                    </a>
-                </li>
-            `;
-        }
-    }
-    
-    if (data.has_next) {
-        paginationHtml += `
-            <li>
-                <a href="#" onclick="loadAccounts(${data.next_page_number}); return false;" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                    <span class="sr-only">Next</span>
-                    <i class="fas fa-chevron-right"></i>
-                </a>
-            </li>
-        `;
-    }
-    
-    paginationHtml += `
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    `;
-    
-    $('#paginationContainer').html(paginationHtml);
-}
-
-function loadAccountData(accountId) {
+function deleteEvent() {
     showLoading();
     
     $.ajax({
-        url: `/cscadmin/accounts/${accountId}/detail/`,
-        method: 'GET',
-        success: function(response) {
-            if (response.success) {
-                // Populate form fields
-                $('#accountId').val(response.account.id);
-                $('#accountEmail').val(response.account.email);
-                $('#accountFirstname').val(response.account.firstname);
-                $('#accountLastname').val(response.account.lastname);
-                $('#accountMiddlename').val(response.account.middlename || '');
-                $('#accountContact').val(response.account.contact_number);
-                $('#accountType').val(response.account.account_type);
-                $('#accountStatus').val(response.account.is_active ? 'true' : 'false');
-                
-                // Show current profile image if exists
-                if (response.account.profile_img) {
-                    $('#accountPreview').attr('src', response.account.profile_img).removeClass('hidden');
-                    $('#accountNoPreview').addClass('hidden');
-                } else {
-                    $('#accountPreview').attr('src', '').addClass('hidden');
-                    $('#accountNoPreview').removeClass('hidden');
-                }
-                
-                hideLoading();
-                openModal('accountModal');
-            } else {
-                showAlert('danger', response.error || 'Failed to load account data');
-                hideLoading();
-            }
-        },
-        error: function(xhr) {
-            const error = xhr.responseJSON?.error || 'Failed to load account data';
-            showAlert('danger', error);
-            hideLoading();
-        }
-    });
-}
-
-function deleteAccount() {
-    showLoading();
-    
-    $.ajax({
-        url: `/cscadmin/accounts/${itemToDelete.id}/delete/`,
+        url: `/cscadmin/events/${itemToDelete.id}/delete/`,
         type: 'POST',
         headers: {
             'X-CSRFToken': getCookie('csrftoken')
         },
         success: function(response) {
             if (response.success) {
-                showAlert('success', 'Account deleted successfully');
+                showAlert('success', 'Event deleted successfully');
                 closeModal('deleteModal');
-                loadAccounts();
+                loadEvents();
             } else {
-                showAlert('danger', response.error || 'Failed to delete account');
+                showAlert('danger', response.error || 'Failed to delete event');
             }
         },
         error: function(xhr) {
-            const error = xhr.responseJSON?.error || 'Failed to delete account';
+            const error = xhr.responseJSON?.error || 'Failed to delete event';
             showAlert('danger', error);
         },
         complete: function() {
@@ -2453,31 +1330,35 @@ function deleteAccount() {
     });
 }
 
-// Initialize account management when the page loads
-if (currentPage === 'accounts') {
-    initializeAccountList();
-}
-// Initialize post management when the page loads
-if (currentPage === 'posts') {
-    initializePostList();
-}
+// Initialize dashboard on first load
+loadPageContent(currentPage);
 
-// Initialize officers management when the page loads
-if (currentPage === 'officers') {
-    initializeOfficersPage();
-}
+// Handle navigation
+$(document).on('click', '.nav-link[data-page]', function(e) {
+    e.preventDefault();
+    const page = $(this).data('page');
+    loadPageContent(page);
+    toggleSidebar(); // Close mobile sidebar if open
+});
 
-// Initialize committee management when the page loads
-if (currentPage === 'committee') {
-    initializeCommitteePage();
-}
+// Handle pagination clicks
+$(document).on('click', '[data-page]', function(e) {
+    e.preventDefault();
+    const page = $(this).data('page');
+    if (page) {
+        if (currentPage === 'events') {
+            loadEvents(page);
+        }
+        // Add other page types if needed
+    }
+});
 
-    // Handle logout
-    $(document).on('click', 'a[href="{% url "logout" %}"]', function(e) {
-        e.preventDefault();
-        sessionStorage.removeItem('currentPage');
-        window.location.href = $(this).attr('href');
-    });
+// Handle logout
+$(document).on('click', 'a[href="{% url "logout" %}"]', function(e) {
+    e.preventDefault();
+    sessionStorage.removeItem('currentPage');
+    window.location.href = $(this).attr('href');
+});
     </script>
 </body>
 </html>

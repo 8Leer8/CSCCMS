@@ -1,4 +1,8 @@
 {% extends 'client/base.html' %}
+{% load static %}
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'events/event_CSC.css' %}">
+{% endblock %}
 
 {% block content %}
 <section id="event-gallery" class="py-5">
@@ -14,6 +18,17 @@
         </p>
       </div> 
     </div>
+
+    <div class="separator-container">
+        <div class="modern-separator"></div>
+    </div>
+
+    <div class="gallery-container">
+        <div class="gallery-item"><img src="{% static 'events/img/img5.jpg' %}" alt="Gallery image 1"></div>
+        <div class="gallery-item"><img src="{% static 'events/img/img1.jpg' %}" alt="Gallery image 2"></div>
+        <div class="gallery-item"><img src="{% static 'events/img/img3.jpg' %}" alt="Gallery image 3"></div>
+        <div class="gallery-item"><img src="{% static 'events/img/img2.jpg' %}" alt="Gallery image 4"></div>
+    </div>   
 </section>
 
 <div class="separator-container">
@@ -21,864 +36,100 @@
 </div>
 
 <section class="event_section">
-     <!-- Section Title Wrapper -->
-     <div class="event_section_header">
+    <!-- Section Title Wrapper -->
+    <div class="event_section_header">
         <h2 class="event_section_title fw-bold">EVENTS</h2>
+    </div>
+    
+    <!-- Filter Form -->
+    <div class="filter-container mb-4">
+        <form method="get" class="filter-form">
+            <div class="filter-item">
+                <label for="status">Status:</label>
+                <select id="status" name="status">
+                    <option value="">All Statuses</option>
+                    <option value="active" {% if current_filters.status == 'active' %}selected{% endif %}>Active</option>
+                    <option value="scheduled" {% if current_filters.status == 'scheduled' %}selected{% endif %}>Scheduled</option>
+                    <option value="expired" {% if current_filters.status == 'expired' %}selected{% endif %}>Expired</option>
+                </select>
+            </div>
+            
+            <div class="filter-item">
+                <label for="label">Label:</label>
+                <select id="label" name="label">
+                    <option value="">All Labels</option>
+                    {% for label in all_labels %}
+                    <option value="{{ label.type }}" {% if current_filters.label == label.type %}selected{% endif %}>{{ label.type }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="filter-item search-item">
+                <label for="search">Search:</label>
+                <input type="text" id="search" name="search" value="{{ current_filters.search|default:'' }}">
+            </div>
+            
+            <div class="filter-buttons">
+                <button type="submit" class="filter-btn">Filter</button>
+                <a href="{% url 'events_list' %}" class="reset-btn">Reset</a>
+            </div>
+        </form>
     </div>
   
     <div class="event_list">
-      {% for event in events %}
-      <div class="event_item" data-aos="fade-up" data-aos-duration="1000">
-        <div class="event_img_con">
-          {% if event.event_img %}
-            <img src="{{ event.event_img.url }}" alt="{{ event.name }}" class="event_img">
-          {% else %}
-            <img src="img/img5.jpg" alt="Default event image" class="event_img">
-          {% endif %}
-        </div>
-        <div class="event_description">
-          <p class="category">
-            {% for type in event.types.all %}{{ type.type }}{% if not forloop.last %}, {% endif %}{% endfor %}
-          </p>
-          <a href="{% url 'event_detail' event.id %}" class="event_item_title">{{ event.name }}</a>
-          <div class="event_date_con">
-            <span class="material-symbols-outlined">calendar_month</span>
-            <p class="event_date">{{ event.date_event|date:"D, M j, Y" }} {{ event.start_at|time:"g:iA"|lower }} to {{ event.end_at|time:"g:iA"|lower }}</p>
-          </div>
-          <div class="event_loc_con">
-            <span class="material-symbols-outlined">location_on</span>
-            <p class="event_location">{{ event.location }}</p>
-          </div>
-        </div>
-      </div>
-      {% endfor %}
+        {% if page_obj %}
+            {% for event in page_obj %}
+            <div class="event_item" data-aos="fade-up" data-aos-duration="1000">
+                <div class="event_img_con">
+                    {% if event.event_img %}
+                    <img src="{{ event.event_img.url }}" alt="{{ event.name }}" class="event_img">
+                    {% else %}
+                    <img src="{% static 'events/img/img5.jpg' %}" alt="" class="event_img">
+                    {% endif %}
+                </div>
+                <div class="event_description">
+                    <p class="category">
+                        {% for label in event.labels.all %}
+                            {{ label.type }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </p>
+                    <a href="{% url 'event_detail' event.pk %}" class="event_item_title">{{ event.name }}</a>
+                    <div class="event_date_con">
+                        <span class="material-symbols-outlined">calendar_month</span>
+                        <p class="event_date">{{ event.date_event|date:"D, M d, Y" }} {{ event.start_at|time:"g:iA" }} to {{ event.end_at|time:"g:iA" }}</p>
+                    </div>
+                    <div class="event_loc_con">
+                        <span class="material-symbols-outlined">location_on</span>
+                        <p class="event_location">{{ event.location }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="text-center py-5">
+                <p>No events found.</p>
+            </div>
+        {% endif %}
     </div>
+    
+    <!-- Pagination -->
+    {% if page_obj.has_previous or page_obj.has_next %}
+    <div class="pagination-container">
+        <div class="pagination-nav">
+            {% if page_obj.has_previous %}
+                <a href="?page=1{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="pagination-link">First</a>
+                <a href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="pagination-link">Previous</a>
+            {% endif %}
+            
+            <span class="pagination-current">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+            
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="pagination-link">Next</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="pagination-link">Last</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
 </section>
 
-<!-- Include AOS animation library -->
-<script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
-<link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet" />
-<script>
-  AOS.init();
-</script>
-
-<style>
-
-@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Baskervville:ital@0;1&family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap');
-
-:root {
-    /*========== Colors ==========*/
-    /*Color mode HSL(hue, saturation, lightness)*/
-  
-    /*========== Font and typography ==========*/
-    /*.5rem = 8px | 1rem = 16px ...*/
-    --college-font: "Crimson Text", serif;
-    --body-font: "Poppins", serif;
-    --second-font: "Baskervville", serif;
-  
-    /*========== Font weight ==========*/
-   
-  
-    /*========== z index ==========*/
-    
-}
-
-body {
-    background-color: #f1f1f1;
-  }
-  
-
-.header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    background: #1B4332; /* Dark Green Background */
-    color: white;
-    padding: 15px 20px;
-    font-size: 18px;
-    font-weight: bold;
-    z-index: 1000; /* Ensures it stays above other content */
-    display: flex;
-    align-items: center; /* Align vertically */
-    justify-content: flex-start; /* Align text to the left */
-}
-
-.header .college {
-    margin-left: -900px; /* Adds spacing from the left edge */
-}
-
-.header a {
-    text-decoration: none;
-    font-family: var(--college-font);
-    color: #f1f1f1;
-    font-size: 1.2rem;
-    transition: color 0.3s ease;
-}
-
-/* Hover effect for better interaction */
-.header a:hover {
-    color: #d4d4d4;
-}
-
-/* Adds space below header so content isn't hidden behind it */
-body {
-    padding-top: 60px; /* Matches header height to prevent overlap */
-}
-
-/* Responsive Adjustments */
-@media (max-width: 768px) {
-    .header {
-        font-size: 16px;
-        padding: 10px 15px;
-        height: 50px;
-    }
-
-    .header a {
-        font-size: 1rem;
-    }
-
-    body {
-        padding-top: 50px; /* Adjust padding for smaller screens */
-    }
-}
-
-/* Nav Section */
-.event_header {
-    background-color: #fff;
-    padding: 1rem 10rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.event_title span {
-    font-family: var(--college-font);
-    color: #1B4332;
-    font-weight: 900;
-    font-style: normal;
-}
-
-.event_title {
-    font-family: var(--second-font);
-    font-size: 4rem;
-    font-weight: lighter;
-}
-
-/* Fixed Bottom Navigation Bar */
-.bottom-nav {
-    background-color: #f1f1f1;
-    padding: 15px 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 2rem;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); /* Softer shadow */
-    border-bottom: 2px solid rgba(0, 0, 0, 0.1); /* Lighter border */
-    height: 60px;
-    position: fixed; /* Makes it stay on scroll */
-    top: 60px; /* Adjusted so it doesn't overlap the header */
-    left: 0;
-    width: 100%;
-    z-index: 999; /* Ensures it stays above other content but below the header */
-}
-
-/* Ensures body doesn't get covered by the fixed navbar */
-body {
-    padding-top: 120px; /* Adjusted to avoid overlap with header and nav */
-}
-
-/* Navigation Links */
-.bottom-nav .nav-link {
-    color: black;
-    text-decoration: none;
-    font-family: 'Poppins', sans-serif;
-    font-size: 1rem;
-    font-weight: 500;
-    position: relative;
-    padding: 5px 0;
-    transition: color 0.3s ease-in-out;
-    display: flex;
-    align-items: center;
-}
-
-/* Navigation Links */
-.bottom-nav .nav-link {
-    color: black;
-    text-decoration: none;
-    font-family: 'Poppins', sans-serif;
-    font-size: 1rem;
-    font-weight: 500;
-    position: relative;
-    padding: 5px 0;
-    transition: color 0.3s ease-in-out;
-    display: flex;
-    align-items: center;
-}
-
-/* Hover Effect - Change Text Color */
-.bottom-nav .nav-link:hover,
-.bottom-nav .dropdown-content a:hover {
-    color: #1B4332;
-}
-
-/* Hover Effect - Underline Animation */
-.bottom-nav .nav-link::after {
-    content: "";
-    position: absolute;
-    left: 50%;
-    bottom: -5px;
-    width: 0%;
-    height: 3px;
-    background-color: #006400;
-    transition: width 0.3s ease-in-out, left 0.3s ease-in-out;
-    transform: translateX(-50%);
-}
-
-.bottom-nav .nav-link:hover::after {
-    width: 100%;
-}
-
-/* Dropdown Styling */
-.dropdown {
-    position: relative;
-    display: inline-block;
-}
-
-.dropdown-content {
-    display: none;
-    position: absolute;
-    background-color: white;
-    min-width: 160px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-    z-index: 1000;
-    border-radius: 5px;
-}
-
-.dropdown-content a {
-    color: black;
-    padding: 10px;
-    text-decoration: none;
-    display: block;
-    transition: color 0.3s ease-in-out;
-}
-
-/* Show dropdown on hover */
-.dropdown:hover .dropdown-content {
-    display: block;
-}
-
-
-
-/* Ensure header remains fixed at the top */
-.header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-   background: #2D6A4F;
-    filter: brightness(0.88);
-    color: white;
-    padding: 15px 20px;
-    text-align: center;
-    font-size: 18px;
-    font-weight: bold;
-    z-index: 1000; /* Higher than navbar to stay on top */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 60px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-}
-
-/* Ensures header text is centered properly */
-.header .college {
-    display: flex;
-    align-items: center;
-}
-
-/* Styling for the link inside header */
-.header a {
-    text-decoration: none;
-    font-family: var(--college-font);
-    color: #f1f1f1;
-    font-size: 1.2rem;
-    transition: color 0.3s ease;
-}
-
-/* Hover effect for better interaction */
-.header a:hover {
-    color: #d4d4d4;
-}
-
-/* Responsive Adjustments */
-@media (max-width: 768px) {
-    .bottom-nav {
-        flex-direction: column;
-        gap: 1rem;
-        height: auto;
-        padding: 10px 0;
-    }
-
-    .bottom-nav .nav-link {
-        font-size: 0.9rem;
-    }
-
-    .header {
-        font-size: 16px;
-        padding: 10px 15px;
-        height: 50px;
-    }
-
-    .header a {
-        font-size: 1rem;
-    }
-
-    body {
-        padding-top: 110px;
-    }
-}
-
-/* Reset default margin and padding */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Poppins', sans-serif;
-}
-
-/* Dropdown Container */
-.dropdown {
-    position: relative;
-    display: inline-block;
-}
-
-/* Dropdown Content (Hidden by Default) */
-.dropdown-content {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    background-color: white;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-    border-radius: 5px;
-    min-width: 150px;
-    z-index: 1000;
-    margin-top: 5px;
-}
-
-/* Dropdown Links */
-.dropdown-content a {
-    color: black;
-    padding: 10px 15px;
-    display: block;
-    text-decoration: none;
-    font-family: 'Poppins', sans-serif;
-    transition: background 0.3s ease;
-}
-
-/* Hover effect on dropdown links */
-.dropdown-content a:hover {
-    background-color: #f0f0f0;
-}
-
-/* Show dropdown menu on hover */
-.dropdown:hover .dropdown-content {
-    display: block;
-}
-
-.sub-heading {
-    font-size: 1.5rem;
-    font-family: var(--body-font);
-    font-weight: 600;
-    margin-bottom: 1rem;
-  }
-  
-  .description {
-    font-size: 1rem;
-    font-family: var(--body-font);
-    max-width: 800px;
-    margin: 0 auto;
-}
-
-.event_header {
-    background-color: #f1f1f1;
-    padding: 1rem 10rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .event_title span {
-    font-family: var(--college-font);
-    color: #1B4332;
-    font-weight: 900;
-  }
-  
-  .event_title {
-    font-family: var(--second-font);
-    font-size: 45px;
-    font-weight: lighter;
-}
-
-/* Modern Separator */
-.separator-container {
-    background-color: #f1f1f1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 0;
-    position: relative;
-    z-index: 20;
-}
-
-.modern-separator {
-    width: 1300px;
-    height: 5px;
-    background: linear-gradient(to right, #ff416c, #ff4b2b, #ff416c);
-    border-radius: 3px;
-    box-shadow: 0 2px 10px rgba(255, 75, 43, 0.5);
-    z-index: 20;
-}
-
-.gallery-container {
-    width: 100%;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    grid-auto-rows: 200px;
-    gap: 15px;
-    padding: 20px;
-    background: #f1f1f1;
-    box-sizing: border-box;
-    margin-top: 40px;
-  }
-  
-  .gallery-item {
-    font-family: var(--second-font);
-    position: relative;
-    overflow: hidden;
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-  }
-  
-  .gallery-item img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.4s ease, filter 0.3s ease;
-    display: block;
-  }
-  
-  /* Hover effect: zoom + dark overlay */
-  .gallery-item::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.15);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: 1;
-  }
-  
-  .gallery-item:hover::before {
-    opacity: 1;
-  }
-  
-  .gallery-item:hover img {
-    transform: scale(1.08);
-    filter: brightness(1.1);
-  }
-  
-  /* Custom sizes for layout */
-  .gallery-item.large {
-    grid-column: span 2;
-    grid-row: span 2;
-  }
-  
-  .gallery-item.tall {
-    grid-row: span 2;
-  }
-  
-  .gallery-item.wide {
-    grid-column: span 2;
- }
-  
-  
-  /* Tablet */
-  @media (max-width: 768px) {
-    .gallery-container {
-      grid-template-columns: repeat(2, 1fr);
-      grid-template-rows: repeat(2, 1fr);
-    }
-  
-    .gallery-item:nth-child(1) {
-      grid-column: 1 / span 1;
-      grid-row: 1 / span 1;
-    }
-  
-    .gallery-item:nth-child(2) {
-      grid-column: 2 / span 1;
-      grid-row: 1 / span 1;
-    }
-  
-    .gallery-item:nth-child(3) {
-      grid-column: 1 / span 2;
-      grid-row: 2 / span 1;
-    }
-  }
-  
-  /* Mobile */
-  @media (max-width: 480px) {
-    .gallery-container {
-      grid-template-columns: 1fr;
-      grid-template-rows: repeat(3, 1fr);
-      height: 800px;
-    }
-  
-    .gallery-item:nth-child(n) {
-      grid-column: 1;
-      grid-row: auto;
-    }
-}
-
-
-.event_section {
-    margin-top: 2rem;
-    padding: .5rem 15rem;
-    background-color: #f1f1f1;
-  }
-  
-  .event_section_title {
-    font-family: var(--second-font);
-    color:#1B4332;
-    font-size: 3rem;
-    font-weight: 900;
-    font-style: normal;
-    letter-spacing: .2rem;
-  }
-  
-  .event_list{
-    margin-top: 3rem;
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-  }
-  
-  .event_img_con {
-    height: 200px;
-    width: 200px;
-    overflow: hidden;
-  }
-  
-  
-  .event_img {
-    height: 100%;
-    width: 100%;
-    object-fit: cover;
-    object-position: center;
-    transition: all ease .4s;
-  }
-  
-  .event_img:hover {
-    transform: scale(1.1) !important;
-  }
-  
-  .event_item {
-    width: 100%;
-    padding: 1rem;
-    display: flex;
-    gap: 1rem;
-    background-color: #f8f9fa;
-    box-shadow: 0px 0px 5px 0px rgba(179, 179, 179, 0.75);
-    transition: all ease 0.4s;
-  }
-  
-  .event_item:hover {
-    transform: translateY(-10px) !important;
-    box-shadow: 0px 10px 20px 8px rgba(212, 212, 212, 0.75);
-  }
-  
-  .event_description {
-    padding: 1rem 0;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-  
-  .event_description .category {
-    font-family: var(--body-font);
-    color: rgb(152, 0, 30);
-    font-weight: 600;
-    font-style: normal;
-    font-size: 1.2rem;
-  }
-  
-  
-  .event_description .event_item_title {
-    font-family: var(--body-font);
-    text-decoration: none;
-    font-size: 2rem;
-    font-weight: 700;
-    font-style: normal;
-    color: black;
-  }
-  
-  .event_item_title:hover {
-    text-decoration:underline;
-    color: rgb(152, 0, 30);
-  }
-  
-  
-  .event_description .event_date_con {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-    line-height: 1; /* ensures tighter alignment */
-  }
-  
-  .event_description .event_date {
-    margin: 0; /* remove default p tag margin */
-    padding: 0;
-    color: rgb(100, 100, 100);
-    font-family: var(--body-font);
-    font-size: 0.95rem;
-    line-height: 1.2;
-  }
-  
-  .event_description .event_loc_con {
-    display: flex;
-    gap: .5rem;
-    align-items: center;
-    line-height: 1; /* ensures tighter alignment */
-  }
-  
-  .event_description .event_location {
-    margin: 0; /* remove default p tag margin */
-    color: rgb(100, 100, 100);
-    font-family: var(--body-font);
-  }
-  
-  .material-symbols-outlined {
-    color: rgb(100, 100, 100);
-  }
-  .event_section {
-    margin-top: 2rem;
-    padding: 2rem 5%;
-    background-color: #f1f1f1;
-    border-radius: 12px;
-  }
-  
-  .event_section_title {
-    font-family: var(--second-font);
-    color: #1B4332;
-    font-size: 2.8rem;
-    font-weight: 800;
-    letter-spacing: .1rem;
-    display: inline-block;
-    padding-bottom: 0.5rem;
-  }
-  
-  .event_list {
-    margin-top: 3rem;
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-  }
-  
-  .event_item {
-    width: 100%;
-    padding: 1.5rem;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    background-color: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
-    transition: all ease 0.3s;
-  }
-
-  .event_item {
-    width: 100%;
-    padding: 1.5rem;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    background-color: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
-    transition: all ease 0.3s;
-  }
-  
-  .event_item:hover {
-    transform: translateY(-6px);
-    box-shadow: 0px 12px 24px rgba(0, 0, 0, 0.12);
-  }
-
-  .event_item1 {
-    width: 100%;
-    padding: 1.5rem;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    background-color: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
-    transition: all ease 0.3s;
-    margin-bottom: 40px;
-  }
-
-  .event_item1 {
-    width: 100%;
-    padding: 1.5rem;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    background-color: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
-    transition: all ease 0.3s;
-  }
-  
-  .event_item1:hover {
-    transform: translateY(-6px) !important;
-    box-shadow: 0px 12px 24px rgba(0, 0, 0, 0.12);
-  }
-  
-  .event_img_con {
-    height: 200px;
-    width: 200px;
-    flex-shrink: 0;
-    border-radius: 8px;
-    overflow: hidden;
-  }
-  
-  .event_img {
-    height: 100%;
-    width: 100%;
-    object-fit: cover;
-    transition: transform 0.4s ease;
-  }
-  
-  .event_img:hover {
-    transform: scale(1.1) !important;
-  }
-  
-  .event_description {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 1rem;
-  }
-  
-  .event_description .category {
-    font-family: var(--body-font);
-    color: #B00020;
-    font-weight: 600;
-    font-size: 1rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05rem;
-  }
-  
-  .event_description .event_item_title {
-    font-family: var(--body-font);
-    text-decoration: none;
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: #212529;
-    transition: color 0.3s ease;
-  }
-  
-  .event_item_title:hover {
-    text-decoration: underline;
-    color: #B00020;
-  }
-  
-  .event_date_con,
-  .event_loc_con {
-    display: flex;
-    gap: .5rem;
-    align-items: center;
-    color: #6c757d;
-    font-size: 0.95rem;
-  }
-  
-  .material-symbols-outlined {
-    color: #6c757d;
-    font-size: 20px;
-  }
-  
-
-
-
-
-
-
-
-
-
-/* Footer Section */
-.footer {
-    background: #2D6A4F;
-    filter: brightness(0.88);
-    color: #ffffff;
-    padding: 2rem 0;
-    text-align: center;
-    position: relative;
-    z-index: 20;
-}
-
-.footer p {
-    margin-top: 1.5rem;
-    font-size: 1rem;
-    color: #ffffff;
-}
-
-.footer-logos img {
-    max-width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    border: 3px solid #ffffff;
-    object-fit: cover;
-    margin: 10px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.footer-logos img:hover {
-    transform: scale(1.1);
-    box-shadow: 0 4px 8px rgba(255, 255, 255, 0.6);
-}
-
-.footer-logos {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 1rem;
-}
-
-@media (max-width: 768px) {
-    .footer-logos img {
-        max-width: 60px;
-        height: 60px;
-    }
-
-    .footer p {
-        font-size: 0.9rem;
-    }
-}
-
-@media (max-width: 576px) {
-    .footer-logos img {
-        max-width: 50px;
-        height: 50px;
-    }
-
-    .footer p {
-        font-size: 0.85rem;
-    }
-}
-
-</style>
 {% endblock %}

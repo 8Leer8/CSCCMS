@@ -1,0 +1,218 @@
+/* Header Styles */
+.event_header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.event_title {
+    font-size: 3.5rem;
+    font-weight: bold;
+    color: #23402A;
+    font-family: 'Times New Roman', Times, serif;
+}
+
+.event_title span {
+    color: #23402A;
+}
+
+.sub-heading {
+    font-size: 2.4rem;
+    margin-bottom: 1rem;
+    font-weight: bold;
+    color: #222;
+}
+
+.description {
+    font-size: 1.8rem;
+    max-width: 900px;
+    margin: 0 auto;
+    color: #444;
+}
+
+/* Separator */
+.separator-container {
+    width: 100%;
+    padding: 2rem 0 1.5rem 0;
+}
+
+.modern-separator {
+    height: 6px;
+    background: linear-gradient(90deg, #ff5e62 0%, #ff9966 100%);
+    width: 85%;
+    margin: 0 auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(255,94,98,0.2);
+}
+
+/* Section Styles */
+.event_section {
+    padding: 2rem 0;
+}
+
+.event_section_header {
+    text-align: left;
+    margin-bottom: 2.5rem;
+    margin-left: 7vw;
+}
+
+.event_section_title {
+    font-size: 2.7rem;
+    color: #23402A;
+    font-family: 'Times New Roman', Times, serif;
+    font-weight: bold;
+    letter-spacing: 2px;
+    position: relative;
+    display: inline-block;
+}
+
+.event_section_title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 4px;
+    background-color: #ff5e62;
+    border-radius: 2px;
+}
+
+/* Filter Form Styles */
+.filter-form {
+    background-color: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    margin-bottom: 2rem;
+}
+
+.form-select {
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 0.7rem;
+    font-size: 1.1rem;
+}
+
+/* Achievement Item Styles */
+.all-history-sections {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.history-section {
+    margin-bottom: 3.5rem;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.history-box {
+    background-color: #fff;
+    border-radius: 18px;
+    box-shadow: 0 8px 32px rgba(255,94,98,0.10), 0 1.5px 6px rgba(0,0,0,0.07);
+    padding: 2.8rem 2.5rem;
+    max-width: 950px;
+    width: 100%;
+    transition: transform 0.3s cubic-bezier(.4,2,.6,1);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.history-box:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 12px 40px rgba(255,94,98,0.18), 0 2px 8px rgba(0,0,0,0.10);
+}
+
+.image-container {
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(255,94,98,0.10);
+}
+
+.history-image {
+    width: 100%;
+    height: 340px;
+    object-fit: cover;
+    transition: transform 0.3s cubic-bezier(.4,2,.6,1);
+    border-radius: 12px;
+}
+
+.history-image:hover {
+    transform: scale(1.04);
+}
+
+.year {
+    color: #ff5e62;
+    font-size: 1.5rem;
+    margin-bottom: 0.7rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.title {
+    font-size: 2.2rem;
+    color: #222;
+    margin-bottom: 1.2rem;
+    font-weight: bold;
+    font-family: 'Times New Roman', Times, serif;
+}
+
+/* Explore Button Styles */
+.explore-button {
+    display: inline-block;
+    padding: 1rem 2.1rem;
+    background: linear-gradient(90deg, #ff5e62 0%, #ff9966 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: 7px;
+    transition: background 0.3s, box-shadow 0.3s;
+    font-weight: 700;
+    font-size: 1.15rem;
+    box-shadow: 0 2px 8px rgba(255,94,98,0.10);
+    letter-spacing: 1px;
+}
+
+.explore-button:hover {
+    background: linear-gradient(90deg, #ff9966 0%, #ff5e62 100%);
+    color: white;
+    text-decoration: none;
+    box-shadow: 0 4px 16px rgba(255,94,98,0.18);
+}
+
+.explore-button i {
+    margin-left: 0.7rem;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1100px) {
+    .history-box {
+        max-width: 98vw;
+        padding: 2rem 1rem;
+    }
+    .event_section_header {
+        margin-left: 3vw;
+    }
+}
+@media (max-width: 768px) {
+    .event_title {
+        font-size: 2rem;
+    }
+    .sub-heading {
+        font-size: 1.3rem;
+    }
+    .history-box {
+        padding: 1.2rem 0.5rem;
+    }
+    .title {
+        font-size: 1.2rem;
+    }
+    .history-image {
+        height: 180px;
+        margin-bottom: 1rem;
+    }
+    .event_section_title {
+        font-size: 1.5rem;
+    }
+} 

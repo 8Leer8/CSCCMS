@@ -1,0 +1,202 @@
+<!-- templates/faculty/faculty_list.html -->
+{% extends 'client/base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header Section -->
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold">WMSU-COLLEGE OF COMPUTING STUDIES | PROFESSORS</h1>
+        <h2 class="h3 mb-4">Meet Our Professors | Pioneers in Innovation and Education</h2>
+        <p class="lead text-muted" style="max-width: 800px; margin: 0 auto;">
+            Explore the inspiring contributions, expertise, and dedication of our faculty members at the College of Computing Studies. Discover how they shape the future of computing through teaching, mentorship, and innovation. 
+        </p>
+    </div>
+
+    <!-- Department Filter -->
+    <div class="row mb-4">
+        <div class="col-md-6 offset-md-3">
+            <select id="departmentFilter" class="form-select form-select-lg">
+                <option value="all">All Departments</option>
+                {% for dept_id, data in faculty_by_department.items %}
+                    <option value="dept-{{ dept_id }}">{{ data.department.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    {% for dept_id, data in faculty_by_department.items %}
+    <div class="card mb-5 border-0 faculty-dept-group dept-{{ dept_id }}" style="background: transparent;">
+        <div class="card-header bg-success text-white py-3 rounded-top-3" style="font-weight: 600; font-size: 1.15rem;">
+            {{ data.college.name }} - {{ data.department.name }}
+        </div>
+        <div class="card-body p-4" style="background: transparent;">
+            <div class="row justify-content-center">
+                {% for faculty in data.members %}
+                <div class="col-12 col-sm-10 col-md-6 col-lg-4 mb-4 d-flex justify-content-center">
+                    <div class="card faculty-card border-0 shadow-sm">
+                        <div class="position-relative">
+                            {% if faculty.faculty_img %}
+                            <img src="{{ faculty.faculty_img.url }}" class="card-img-top h-100 w-100" style="object-fit: cover;" alt="{{ faculty.firstname }} {{ faculty.lastname }}">
+                            {% else %}
+                            <img src="https://placehold.co/420x300/e9ecef/495057?text=No+Image+Available" class="card-img-top h-100 w-100" style="object-fit: cover;" alt="No Image Available">
+                            {% endif %}
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold mb-1">{{ faculty.firstname }} {{ faculty.lastname }}</h5>
+                            <div class="card-subtitle mb-2 text-success">{{ faculty.position.name }}</div>
+                            <ul class="list-unstyled mb-3">
+                                <li><i class="fas fa-graduation-cap me-2"></i><strong>Designation:</strong> {{ faculty.designation }}</li>
+                                <li><i class="fas fa-award me-2"></i><strong>Degree:</strong> {{ faculty.degree }}</li>
+                                <li><i class="fas fa-star me-2"></i><strong>Specialty:</strong> {{ faculty.specialty }}</li>
+                            </ul>
+                            <button 
+                                type="button"
+                                class="btn btn-success w-100 view-profile-btn"
+                                data-bs-toggle="modal"
+                                data-bs-target="#facultyModal"
+                                data-faculty='{
+                                    "img": "{% if faculty.faculty_img %}{{ faculty.faculty_img.url }}{% else %}https://placehold.co/420x300/e9ecef/495057?text=No+Image+Available{% endif %}",
+                                    "name": "{{ faculty.firstname }} {{ faculty.lastname }}",
+                                    "position": "{{ faculty.position.name }}",
+                                    "college": "{{ faculty.college.name }}",
+                                    "department": "{{ faculty.department.name }}",
+                                    "designation": "{{ faculty.designation }}",
+                                    "degree": "{{ faculty.degree }}",
+                                    "specialty": "{{ faculty.specialty }}",
+                                    "office_location": "{{ faculty.office_location }}",
+                                    "contact_number": "{{ faculty.contact_number }}",
+                                    "email": "{{ faculty.email }}"
+                                }'
+                            >
+                                <i class="fas fa-user me-2"></i>View Profile
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Faculty Modal -->
+<div class="modal fade" id="facultyModal" tabindex="-1" aria-labelledby="facultyModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title" id="facultyModalLabel">Faculty Profile</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div class="row">
+          <div class="col-md-4 text-center mb-3 mb-md-0">
+            <img id="modalFacultyImg" src="" class="img-fluid rounded shadow" style="max-height: 220px; object-fit: cover;" alt="Faculty Image">
+          </div>
+          <div class="col-md-8">
+            <h3 id="modalFacultyName" class="fw-bold mb-1" style="font-size: 1.3rem;"></h3>
+            <h5 id="modalFacultyPosition" class="text-success mb-3" style="font-size: 1.05rem;"></h5>
+            <ul class="list-group list-group-flush mb-3" style="font-size: 0.97rem;">
+              <li class="list-group-item"><strong>College:</strong> <span id="modalFacultyCollege"></span></li>
+              <li class="list-group-item"><strong>Department:</strong> <span id="modalFacultyDepartment"></span></li>
+              <li class="list-group-item"><strong>Designation:</strong> <span id="modalFacultyDesignation"></span></li>
+              <li class="list-group-item"><strong>Degree:</strong> <span id="modalFacultyDegree"></span></li>
+              <li class="list-group-item"><strong>Specialty:</strong> <span id="modalFacultySpecialty"></span></li>
+              <li class="list-group-item"><strong>Office Location:</strong> <span id="modalFacultyOffice"></span></li>
+              <li class="list-group-item"><strong>Contact Number:</strong> <span id="modalFacultyContact"></span></li>
+              <li class="list-group-item"><strong>Email:</strong> <span id="modalFacultyEmail"></span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer bg-light">
+        <button type="button" class="btn btn-success" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+    .faculty-card {
+        background: #fff;
+        border-radius: 1.25rem;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+        border: none;
+        transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .faculty-card:hover {
+        box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+        transform: translateY(-4px) scale(1.02);
+    }
+    .card-header.bg-success {
+        background-color: #1B4332 !important;
+        font-size: 1.1rem;
+        border-radius: 1.25rem 1.25rem 0 0;
+        border: none;
+    }
+    .btn-success {
+        background-color: #1B4332;
+        border-color: #1B4332;
+    }
+    .btn-success:hover {
+        background-color: #14532d;
+        border-color: #14532d;
+    }
+    .modal-header.bg-success {
+        background-color: #1B4332 !important;
+    }
+    .modal-content {
+        border-radius: 1rem;
+        border: none;
+    }
+    .list-group-item {
+        border-color: rgba(0,0,0,0.05);
+    }
+    .list-group-item strong {
+        color: #1B4332;
+    }
+    @media (max-width: 768px) {
+        .faculty-card {
+            max-width: 100%;
+        }
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Department filter
+    const filter = document.getElementById('departmentFilter');
+    filter.addEventListener('change', function() {
+        const val = this.value;
+        document.querySelectorAll('.faculty-dept-group').forEach(function(card) {
+            if (val === 'all' || card.classList.contains(val)) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+
+    // Modal population
+    document.querySelectorAll('.view-profile-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const data = JSON.parse(this.getAttribute('data-faculty').replace(/&quot;/g,'"'));
+            document.getElementById('modalFacultyImg').src = data.img;
+            document.getElementById('modalFacultyName').textContent = data.name;
+            document.getElementById('modalFacultyPosition').textContent = data.position;
+            document.getElementById('modalFacultyCollege').textContent = data.college;
+            document.getElementById('modalFacultyDepartment').textContent = data.department;
+            document.getElementById('modalFacultyDesignation').textContent = data.designation;
+            document.getElementById('modalFacultyDegree').textContent = data.degree;
+            document.getElementById('modalFacultySpecialty').textContent = data.specialty;
+            document.getElementById('modalFacultyOffice').textContent = data.office_location;
+            document.getElementById('modalFacultyContact').textContent = data.contact_number;
+            document.getElementById('modalFacultyEmail').textContent = data.email;
+        });
+    });
+});
+</script>
+{% endblock %}

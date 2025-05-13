@@ -20,6 +20,7 @@ from .views import (
 
 urlpatterns = [
     # Public routes
+    path('base/', client_views.base, name='base'),
     path('', client_views.landing_page, name='landing_page'),
     path('auth/', AuthView.as_view(), name='auth'),
     path('logout/', logout_view, name='logout'),
@@ -28,10 +29,13 @@ urlpatterns = [
     path('posts/<int:pk>/', client_views.post_detail, name='posts_detail'),
     path('announcements/', client_views.announcement_list, name='announcements_list'),
     path('announcements/<int:pk>/', client_views.announcement_detail, name='announcement_detail'),
-    path('events/', client_views.events_list, name='events_list'),
-    path('events/<int:event_id>/', client_views.event_detail, name='event_detail'),
-    path('achievements/<int:pk>/', client_views.achievement_detail, name='achievement_detail'),
+    path('events/', client_views.event_list, name='events_list'),
+    path('events/<int:pk>/', client_views.event_detail, name='event_detail'),
+    path('achievements/', client_views.achievements_list, name='achievements_list'),
+    path('achievements/<int:pk>/', client_views.achievements_detail, name='achievements_detail'),
     path('officers/', client_views.officers_list, name='officers_list'),
+    path('faculty/', client_views.faculty_list, name='faculties_list'),
+    path('faculty/<int:faculty_id>/', client_views.faculty_detail, name='faculties_detail'),
     path('about/', client_views.about_page, name='about_page'),
     path('contact/', client_views.contact_page, name='contact_page'),
     path('contact/', client_views.contact_page, name='feedback'),#testing
@@ -86,7 +90,7 @@ urlpatterns = [
     path('cscadmin/posts/<int:pk>/detail/', post_detail, name='post_detail'),
     
     # Announcement management URLs
-    path('cscadmin/announcements/list/', announcement_list, name='announcement_list'),
+    path('cscadmin/announcements/list/', announcement_list, name='announcement_list_admin'),
     path('cscadmin/announcements/create/', announcement_create, name='announcement_create'),
     path('cscadmin/announcements/<int:pk>/update/', announcement_update, name='announcement_update'),
     path('cscadmin/announcements/<int:pk>/detail/', announcement_detail_admin, name='announcement_detail_admin'),
