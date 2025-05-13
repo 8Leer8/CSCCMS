@@ -16,6 +16,7 @@ from .views import (
     accomplishment_delete, accomplishment_detail, accomplishment_form_data,
     accomplishment_image_delete, account_list, account_create, account_update,
     account_delete, account_detail, account_form_data,
+    ClientViews,
 )
 
 urlpatterns = [
@@ -36,6 +37,8 @@ urlpatterns = [
     path('officers/', client_views.officers_list, name='officers_list'),
     path('faculty/', client_views.faculty_list, name='faculties_list'),
     path('faculty/<int:faculty_id>/', client_views.faculty_detail, name='faculties_detail'),
+    path('committees/', ClientViews.committees_list, name='committees_list'),
+    path('committees/<int:committee_id>/', ClientViews.committee_detail, name='committee_detail'),
     path('about/', client_views.about_page, name='about_page'),
     path('contact/', client_views.contact_page, name='contact_page'),
     path('contact/', client_views.contact_page, name='feedback'),#testing
@@ -126,4 +129,5 @@ urlpatterns = [
     path('cscadmin/accounts/form-data/', account_form_data, name='account_form_data'),
     # Legacy client page (redirects to landing page)
     path('client/lpage/', client_lpage, name='client_lpage'),
+    
 ]

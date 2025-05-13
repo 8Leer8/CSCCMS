@@ -2675,7 +2675,30 @@ class ClientViews:
             'members': members,
         }
         return render(request, 'client/officers/detail.html', context)
-        
+    @staticmethod
+    def committees_list(request):
+        # Get all active committee members with related data
+        committee_members = CommitteeMember.all_objects.select_related('committee')
+
+        # Group members by committee
+        members_by_committee = {}
+        for member in committee_members:
+            if member.committee.name not in members_by_committee:
+                members_by_committee[member.committee.name] = []
+            members_by_committee[member.committee.name].append(member)
+
+        return render(request, 'client/committees/list.html', {'members_by_committee': members_by_committee})
+
+    @staticmethod
+    def committee_detail(request, committee_id):
+        committee = Committee.objects.get(id=committee_id, is_active=True)
+        members = CommitteeMember.objects.filter(committee=committee, is_active=True)
+
+        context = {
+            'committee': committee,
+            'members': members,
+        }
+        return render(request, 'client/committees/detail.html', context)
     @staticmethod
     def contact_page(request):
         """Contact us page"""

@@ -1,0 +1,36 @@
+{% extends 'client/base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-8">
+            <h1>{{ committee.name }}</h1>
+            <p class="lead">{{ committee.description }}</p>
+        </div>
+    </div>
+
+    <div class="mt-5">
+        <h2>Committee Members</h2>
+        <div class="row">
+            {% for member in members %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    {% if member.profile_img %}
+                    <img src="{{ member.profile_img.url }}" class="card-img-top" alt="{{ member.firstname }} {{ member.lastname }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ member.firstname }} {{ member.lastname }}</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">{{ member.role }}</h6>
+                        <p class="card-text">
+                            <strong>Email:</strong> {{ member.email }}<br>
+                            <strong>Contact:</strong> {{ member.contact_number }}<br>
+                            <strong>Joined:</strong> {{ member.joined_at|date:"M d, Y" }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

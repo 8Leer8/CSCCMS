@@ -1,0 +1,220 @@
+{% extends 'client/base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header Section -->
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold">WMSU-COLLEGE OF COMPUTING STUDIES | COMMITTEES</h1>
+        <h2 class="h3 mb-4">Committee Members by Committee</h2>
+        <p class="lead text-muted" style="max-width: 800px; margin: 0 auto;">
+            Meet the committee members of the College of Computing Studies, grouped by their respective committees. Discover their roles and contributions in shaping the future of computing education.
+        </p>
+    </div>
+
+    <!-- Committee Filter -->
+    <div class="row mb-4">
+        <div class="col-md-6 offset-md-3">
+            <select id="committeeFilter" class="form-select form-select-lg">
+                <option value="all">All Committees</option>
+                {% for committee in members_by_committee.keys %}
+                    <option value="committee-{{ forloop.counter0 }}">{{ committee }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    {% for committee, members in members_by_committee.items %}
+    <div class="card mb-5 border-0 committee-group committee-{{ forloop.counter0 }}" style="background: transparent;">
+        <div class="card-header bg-success text-white py-3 rounded-top-3" style="font-weight: 600; font-size: 1.15rem;">
+            Committee: {{ committee }}
+        </div>
+        <div class="card-body p-4" style="background: transparent;">
+            <div class="row justify-content-center">
+                {% for member in members %}
+                <div class="col-12 col-sm-10 col-md-6 col-lg-4 mb-4 d-flex justify-content-center">
+                    <div class="card committee-card border-0 shadow-sm" style="max-width: 420px; width: 100%; border-radius: 1.5rem;">
+                        <div class="position-relative" style="height: 300px; overflow: hidden; border-radius: 1.5rem 1.5rem 0 0;">
+                            {% if member.profile_img %}
+                            <img src="{{ member.profile_img.url }}" class="card-img-top h-100 w-100" style="object-fit: cover;" alt="{{ member.firstname }} {{ member.lastname }}">
+                            {% else %}
+                            <img src="https://placehold.co/420x300/e9ecef/495057?text=No+Image+Available" class="card-img-top h-100 w-100" style="object-fit: cover;" alt="No Image Available">
+                            {% endif %}
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold mb-1">{{ member.firstname }} {{ member.lastname }}</h5>
+                            <div class="card-subtitle mb-2 text-success">{{ member.role }}</div>
+                            <ul class="list-unstyled mb-3">
+                                <li><i class="fas fa-envelope me-2"></i><strong>Email:</strong> {{ member.email }}</li>
+                                <li><i class="fas fa-phone me-2"></i><strong>Contact:</strong> {{ member.contact_number }}</li>
+                                <li><i class="fas fa-calendar me-2"></i><strong>Joined:</strong> {{ member.joined_at|date:"Y-m-d" }}</li>
+                            </ul>
+                            <button 
+                                type="button"
+                                class="btn btn-success w-100 view-committee-btn"
+                                data-bs-toggle="modal"
+                                data-bs-target="#committeeModal"
+                                data-member='{
+                                    "img": "{% if member.profile_img %}{{ member.profile_img.url }}{% else %}https://placehold.co/420x300/e9ecef/495057?text=No+Image+Available{% endif %}",
+                                    "name": "{{ member.firstname }} {{ member.lastname }}",
+                                    "role": "{{ member.role }}",
+                                    "email": "{{ member.email }}",
+                                    "contact": "{{ member.contact_number }}",
+                                    "joined": "{{ member.joined_at|date:"Y-m-d" }}"
+                                }'
+                            >
+                                <i class="fas fa-user me-2"></i>View Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Committee Member Modal -->
+<div class="modal fade" id="committeeModal" tabindex="-1" aria-labelledby="committeeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title" id="committeeModalLabel">Committee Member Details</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div class="row">
+          <div class="col-md-4 text-center mb-3 mb-md-0">
+            <img id="modalCommitteeImg" src="" class="img-fluid rounded shadow" style="max-height: 220px; object-fit: cover;" alt="Committee Member Image">
+          </div>
+          <div class="col-md-8">
+            <h3 id="modalCommitteeName" class="fw-bold mb-1" style="font-size: 1.3rem;"></h3>
+            <h5 id="modalCommitteeRole" class="text-success mb-3" style="font-size: 1.05rem;"></h5>
+            <ul class="list-group list-group-flush mb-3" style="font-size: 0.97rem;">
+              <li class="list-group-item"><strong>Email:</strong> <span id="modalCommitteeEmail"></span></li>
+              <li class="list-group-item"><strong>Contact:</strong> <span id="modalCommitteeContact"></span></li>
+              <li class="list-group-item"><strong>Joined:</strong> <span id="modalCommitteeJoined"></span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer bg-light">
+        <button type="button" class="btn btn-success" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+    .committee-card {
+        background: #fff;
+        border-radius: 1.5rem;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+        border: none;
+        transition: box-shadow 0.2s, transform 0.2s;
+        max-width: 420px;
+        width: 100%;
+        min-height: 520px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .committee-card:hover {
+        box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+        transform: translateY(-6px) scale(1.03);
+    }
+    .card-header.bg-success {
+        background-color: #1B4332 !important;
+        font-size: 1.25rem;
+        border-radius: 1.5rem 1.5rem 0 0;
+        border: none;
+        padding: 1.25rem 1.5rem;
+    }
+    .btn-success {
+        background-color: #1B4332;
+        border-color: #1B4332;
+        font-size: 1.1rem;
+        padding: 0.75rem 0;
+        border-radius: 0.75rem;
+    }
+    .btn-success:hover {
+        background-color: #14532d;
+        border-color: #14532d;
+    }
+    .modal-header.bg-success {
+        background-color: #1B4332 !important;
+    }
+    .modal-content {
+        border-radius: 1rem;
+        border: none;
+    }
+    .list-group-item {
+        border-color: rgba(0,0,0,0.05);
+        font-size: 1.08rem;
+    }
+    .list-group-item strong {
+        color: #1B4332;
+    }
+    .committee-card .card-title {
+        font-size: 1.35rem;
+    }
+    .committee-card .card-subtitle {
+        font-size: 1.08rem;
+    }
+    .committee-card ul {
+        font-size: 1.08rem;
+    }
+    .committee-card .card-body {
+        padding: 2rem 1.5rem 1.5rem 1.5rem;
+    }
+    .committee-card .position-relative {
+        height: 300px;
+        border-radius: 1.5rem 1.5rem 0 0;
+    }
+    .committee-card .card-img-top {
+        border-radius: 1.5rem 1.5rem 0 0;
+    }
+    @media (max-width: 768px) {
+        .committee-card {
+            max-width: 100%;
+            min-height: 0;
+        }
+        .committee-card .position-relative {
+            height: 200px;
+        }
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Committee filter
+    const filter = document.getElementById('committeeFilter');
+    filter.addEventListener('change', function() {
+        const val = this.value;
+        document.querySelectorAll('.committee-group').forEach(function(card) {
+            if (val === 'all' || card.classList.contains(val)) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+
+    // Modal population
+    document.querySelectorAll('.view-committee-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const data = JSON.parse(this.getAttribute('data-member').replace(/&quot;/g,'"'));
+            document.getElementById('modalCommitteeImg').src = data.img;
+            document.getElementById('modalCommitteeName').textContent = data.name;
+            document.getElementById('modalCommitteeRole').textContent = data.role;
+            document.getElementById('modalCommitteeEmail').textContent = data.email;
+            document.getElementById('modalCommitteeContact').textContent = data.contact;
+            document.getElementById('modalCommitteeJoined').textContent = data.joined;
+        });
+    });
+});
+</script>
+{% endblock %}
