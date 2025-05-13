@@ -39,6 +39,7 @@ urlpatterns = [
     path('faculty/<int:faculty_id>/', client_views.faculty_detail, name='faculties_detail'),
     path('committees/', ClientViews.committees_list, name='committees_list'),
     path('committees/<int:committee_id>/', ClientViews.committee_detail, name='committee_detail'),
+    path('accomplishments/', client_views.accomplishments_list, name='accomplishments_list'),
     path('about/', client_views.about_page, name='about_page'),
     path('contact/', client_views.contact_page, name='contact_page'),
     path('contact/', client_views.contact_page, name='feedback'),#testing

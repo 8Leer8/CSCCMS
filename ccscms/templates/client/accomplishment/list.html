@@ -1,0 +1,330 @@
+{% extends 'client/base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Section Title Wrapper -->
+<div class="professor-title-container">
+    <h2 class="section-title fw-bold">AWARDS AND RECOGNITION</h2>
+</div>
+
+<section class="awards-section" data-aos="fade-up" data-aos-duration="1000">
+    <div class="container">
+        <h1 class="main-heading">Recent Awards and Recognition</h1>
+        <h2 class="sub-heading">Celebrating the Excellence of the College of Computing Studies</h2>
+        <p class="description">
+            We take pride in acknowledging the achievements and milestones of our college. These recognitions highlight the commitment to excellence, innovation, and the collective efforts of our community in shaping the future of computing and technology.
+        </p>
+    </div>
+</section>
+
+<div class="separator-container" data-aos="fade-up" data-aos-duration="1000">
+    <div class="modern-separator"></div>
+</div>
+
+<div class="accomplishment-filter-container" data-aos="fade-up" data-aos-duration="1000">
+    <form method="get" id="categoryFilterForm" class="accomplishment-filter-form">
+        <label for="categoryFilter" class="form-label mb-0 me-2 fw-bold filter-label">Filter by Category:</label>
+        <select name="category" id="categoryFilter" class="form-select filter-select" onchange="this.form.submit();">
+            <option value="">All Categories</option>
+            {% for cat in categories %}
+                <option value="{{ cat.id }}" {% if cat.id|stringformat:"s" == selected_category|stringformat:"s" %}selected{% endif %}>{{ cat.category }}</option>
+            {% endfor %}
+        </select>
+    </form>
+</div>
+
+{% for accomplishment in accomplishments %}
+<section class="award-section" data-aos="fade-up" data-aos-duration="1000">
+    <div class="award-wrapper">
+        <div class="award-card-custom">
+            <div class="award-image-custom">
+                <div class="award-image-inner">
+                    {% if accomplishment.images.exists %}
+                        <img src="{{ accomplishment.images.first.image.url }}" alt="{{ accomplishment.title }}">
+                    {% else %}
+                        <img src="https://placehold.co/350x260?text=No+Image" alt="No image available">
+                    {% endif %}
+                </div>
+            </div>
+            <div class="award-content-custom">
+                <h2 class="accomplishment-title">{{ accomplishment.title }}</h2>
+                <p class="accomplishment-content">{{ accomplishment.content }}</p>
+                {% if accomplishment.impact %}
+                <p class="impact"><strong>Impact:</strong> {{ accomplishment.impact }}</p>
+                {% endif %}
+                {% if accomplishment.recognition %}
+                <p class="recognition"><strong>Recognition:</strong> {{ accomplishment.recognition }}</p>
+                {% endif %}
+                <p class="date"><small>Accomplished on: {{ accomplishment.accomplish_on|date:"F d, Y" }}</small></p>
+            </div>
+        </div>
+    </div>
+</section>
+{% empty %}
+<section class="award-section" data-aos="fade-up" data-aos-duration="1000">
+    <div class="award-wrapper">
+        <div class="award-card-custom">
+            <div class="award-content-custom">
+                <p class="text-center">No accomplishments available at the moment.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endfor %}
+
+{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+<style>
+    body {
+        background: linear-gradient(120deg, #f8fafc 0%, #e6f0ea 100%);
+    }
+    .professor-title-container {
+        text-align: center;
+        padding: 2rem 0 0.5rem 0;
+    }
+    .section-title {
+        font-size: 3.2rem;
+        color: #1a3d2f;
+        font-weight: 800;
+        letter-spacing: 2px;
+    }
+    .awards-section {
+        padding: 1rem 0 0.5rem 0;
+        text-align: center;
+    }
+    .main-heading {
+        font-size: 3rem;
+        color: #1a3d2f;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+    }
+    .sub-heading {
+        font-size: 2rem;
+        color: #2e5d43;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+    .description {
+        max-width: 800px;
+        margin: 0 auto;
+        color: #666;
+        font-size: 1.3rem;
+    }
+    .modern-separator {
+        width: 100%;
+        max-width: 1100px;
+        height: 4px;
+        background: #ff4e6a;
+        margin: 2rem auto 1.5rem auto;
+        border-radius: 2px;
+        box-shadow: 0 0 8px #ff4e6a80;
+        transition: width 0.3s;
+        display: block;
+    }
+    @media (max-width: 1200px) {
+        .modern-separator {
+            max-width: 95vw;
+        }
+    }
+    .award-section {
+        padding: 2rem 0;
+    }
+    .award-wrapper {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+    .award-card-custom {
+        display: flex;
+        background: rgba(255,255,255,0.95);
+        border-radius: 22px;
+        overflow: hidden;
+        box-shadow:
+            0 8px 32px 0 rgba(60, 60, 60, 0.18),
+            0 1.5px 6px 0 rgba(26, 61, 47, 0.10);
+        border: none;
+        min-height: 420px;
+        align-items: stretch;
+        transition: box-shadow 0.3s, transform 0.3s;
+        margin-bottom: 2.5rem;
+        position: relative;
+    }
+    .award-card-custom:hover {
+        box-shadow:
+            0 16px 48px 0 rgba(60, 60, 60, 0.22),
+            0 3px 12px 0 rgba(26, 61, 47, 0.13);
+        transform: translateY(-4px) scale(1.012);
+    }
+    .award-image-custom {
+        flex: 1 1 0;
+        background: linear-gradient(135deg, #6b866f 60%, #b7c9b7 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 420px;
+        min-width: 0;
+    }
+    .award-image-inner {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 2px 12px rgba(26, 61, 47, 0.13);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 95%;
+        height: 380px;
+        overflow: hidden;
+        border: 1.5px solid #e6f0ea;
+        margin: 2rem 0;
+        padding: 0;
+    }
+    .award-image-inner img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 16px;
+        background: #f4f4f4;
+        display: block;
+    }
+    .award-content-custom {
+        flex: 1 1 0;
+        padding: 4rem 3.5rem;
+        background: transparent;
+        border-radius: 0 22px 22px 0;
+        min-height: 420px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-width: 0;
+    }
+    .accomplishment-title {
+        font-size: 2.8rem;
+        font-weight: 600;
+        color: #1a3d2f;
+        margin-bottom: 1.5rem;
+        text-align: left;
+        line-height: 1.2;
+        letter-spacing: 0.5px;
+        word-break: break-word;
+    }
+    .accomplishment-content {
+        color: #333;
+        font-size: 1.7rem;
+        margin-bottom: 1.5rem;
+        text-align: left;
+        line-height: 1.8;
+        font-weight: 400;
+        word-break: break-word;
+    }
+    .impact, .recognition {
+        font-style: italic;
+        color: #2e5d43;
+        margin-bottom: 1.2rem;
+        text-align: left;
+        font-size: 1.3rem;
+        font-weight: 400;
+        word-break: break-word;
+    }
+    .date {
+        color: #999;
+        font-size: 1.25rem;
+        text-align: left;
+        font-weight: 400;
+    }
+    @media (max-width: 900px) {
+        .award-card-custom {
+            flex-direction: column;
+            min-height: unset;
+        }
+        .award-image-custom,
+        .award-content-custom {
+            min-height: unset;
+        }
+        .award-image-inner {
+            width: 90vw;
+            max-width: 340px;
+            height: 180px;
+            margin: 1.5rem auto;
+        }
+        .award-content-custom {
+            border-radius: 0 0 22px 22px;
+            padding: 2rem 1rem;
+        }
+        .accomplishment-title {
+            font-size: 1.5rem;
+        }
+        .accomplishment-content {
+            font-size: 1.1rem;
+        }
+    }
+    #categoryFilterForm {
+        margin-bottom: 1.5rem;
+    }
+    @media (max-width: 768px) {
+        #categoryFilterForm {
+            width: 100%;
+        }
+    }
+    .accomplishment-filter-container {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        margin: 2rem 0 1.5rem 0;
+        padding-left: 2.5vw;
+    }
+    .accomplishment-filter-form {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 2px 12px rgba(26, 61, 47, 0.10);
+        padding: 0.8rem 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+    }
+    .filter-label {
+        font-size: 1.15rem;
+        color: #1a3d2f;
+        font-weight: 600;
+        margin-bottom: 0;
+        margin-right: 0.5rem;
+        letter-spacing: 0.5px;
+    }
+    .filter-select {
+        min-width: 170px;
+        max-width: 240px;
+        font-size: 1.1rem;
+        border-radius: 8px;
+        border: 1.5px solid #b7c9b7;
+        background: #f8fafc;
+        color: #1a3d2f;
+        padding: 0.4rem 1rem;
+        transition: border 0.2s;
+    }
+    .filter-select:focus {
+        border: 1.5px solid #6b866f;
+        outline: none;
+        box-shadow: 0 0 0 2px #b7c9b733;
+    }
+    @media (max-width: 900px) {
+        .accomplishment-filter-container {
+            padding-left: 0;
+            justify-content: center;
+        }
+        .accomplishment-filter-form {
+            width: 100%;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+<script>
+    AOS.init();
+</script>
+{% endblock %}

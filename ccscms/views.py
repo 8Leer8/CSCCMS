@@ -2700,6 +2700,19 @@ class ClientViews:
         }
         return render(request, 'client/committees/detail.html', context)
     @staticmethod
+    def accomplishments_list(request):
+        selected_category = request.GET.get('category', '')
+        accomplishments = Accomplishment.objects.filter(is_active=True)
+        if selected_category:
+            accomplishments = accomplishments.filter(category_id=selected_category)
+        accomplishments = accomplishments.select_related('category').prefetch_related('images').order_by('-accomplish_on')
+        categories = Category.objects.filter(is_active=True)
+        return render(request, 'client/accomplishment/list.html', {
+            'accomplishments': accomplishments,
+            'categories': categories,
+            'selected_category': selected_category,
+        })
+    @staticmethod
     def contact_page(request):
         """Contact us page"""
         return render(request, 'client/contact.html')
