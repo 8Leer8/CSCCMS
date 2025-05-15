@@ -17,6 +17,7 @@ from .views import (
     account_delete, account_detail, account_form_data,
     ClientViews, accomplishment_restore, accomplishment_delete,
     export_data, achievement_detail_admin, achievement_restore,
+    announcement_form,
 )
 
 urlpatterns = [
@@ -106,6 +107,7 @@ urlpatterns = [
     path('cscadmin/announcements/<int:pk>/restore/', announcement_restore, name='announcement_restore'),
     path('cscadmin/announcements/<int:pk>/permanent-delete/', announcement_permanent_delete, name='announcement_permanent_delete'),
     path('cscadmin/announcements/form-data/', announcement_form_data, name='announcement_form_data'),
+    path('cscadmin/announcements/form/', announcement_form, name='announcement_form'),
     
     # Achievement URLs
     path('cscadmin/achievements/list/', achievement_list, name='achievement_list'),

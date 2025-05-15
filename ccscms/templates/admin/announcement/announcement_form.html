@@ -1,56 +1,154 @@
-<div class="space-y-4">
-    <input type="hidden" id="announcementId">
-    
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div>
-            <label for="announcementTitle" class="block text-sm font-medium text-gray-700">Title *</label>
-            <input type="text" id="announcementTitle" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm" required>
+<form id="announcementForm">
+    <input type="hidden" id="announcementId" name="id">
+
+    <!-- Basic Information -->
+    <div class="mb-6 rounded-lg shadow-md bg-white border border-gray-200">
+        <div class="flex items-center mb-2 pt-4 px-4">
+            <i class="fas fa-info-circle text-blue-500 bg-blue-50 rounded-full p-2 shadow mr-2"></i>
+            <h4 class="text-md font-semibold text-gray-800">Basic Information</h4>
         </div>
-        
-        <div>
-            <label for="announcementCategory" class="block text-sm font-medium text-gray-700">Category *</label>
-            <select id="announcementCategory" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm" required>
-                <option value="">Select Category</option>
-                <!-- Categories will be loaded via JS -->
-            </select>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 px-4 pb-4">
+            <div>
+                <label for="announcementTitle" class="block text-sm font-medium text-gray-700"><i class="fas fa-bullhorn mr-1 text-blue-400"></i>Title*</label>
+                <input type="text" id="announcementTitle" name="title" required class="mt-1 block w-full h-12 border border-gray-300 rounded-lg shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 sm:text-sm transition-all duration-150">
+            </div>
+            <div>
+                <label for="announcementCategory" class="block text-sm font-medium text-gray-700"><i class="fas fa-folder-open mr-1 text-blue-400"></i>Category*</label>
+                <select id="announcementCategory" name="category" required class="mt-1 block w-full h-12 border border-gray-300 rounded-lg shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 sm:text-sm transition-all duration-150">
+                    {% for cat in categories %}
+                        <option value="{{ cat.id }}">{{ cat.category }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div id="statusFieldContainer" style="display:none;">
+                <label for="announcementStatus" class="block text-sm font-medium text-gray-700"><i class="fas fa-info-circle mr-1 text-yellow-400"></i>Status*</label>
+                <select id="announcementStatus" name="status" class="mt-1 block w-full h-12 border border-gray-300 rounded-lg shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 sm:text-sm transition-all duration-150">
+                    <option value="active">Active</option>
+                    <option value="expired">Expired</option>
+                    <option value="scheduled">Scheduled</option>
+                </select>
+            </div>
+            <div>
+                <label for="announcementImage" class="block text-sm font-medium text-gray-700">
+                    <i class="fas fa-image mr-1 text-green-400"></i>Image
+                </label>
+                <input type="file" id="announcementImage" name="image" accept="image/*" class="block w-full h-12 text-sm text-gray-500">
+                <p class="mt-1 text-sm text-gray-500">Optional. Upload an image for this announcement.</p>
+            </div>
         </div>
     </div>
-    
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div>
-            <label for="announcementPublishStart" class="block text-sm font-medium text-gray-700">Publish Start Date</label>
-            <input type="date" id="announcementPublishStart" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
+
+    <!-- Section Divider -->
+    <div class="w-full border-t border-gray-200 my-6"></div>
+
+    <!-- Schedule & Location -->
+    <div class="mb-6 rounded-lg shadow-md bg-white border border-gray-200">
+        <div class="flex items-center mb-2 pt-4 px-4">
+            <i class="fas fa-calendar-alt text-purple-500 bg-purple-50 rounded-full p-2 shadow mr-2"></i>
+            <h4 class="text-md font-semibold text-gray-800">Schedule & Location</h4>
         </div>
-        
-        <div>
-            <label for="announcementPublishEnd" class="block text-sm font-medium text-gray-700">Publish End Date</label>
-            <input type="date" id="announcementPublishEnd" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 px-4 pb-4">
+            <div>
+                <label for="announcementPublishStart" class="block text-sm font-medium text-gray-700"><i class="fas fa-calendar-alt mr-1 text-purple-400"></i>Publish Start Date</label>
+                <input type="date" id="announcementPublishStart" name="start_publish_on" class="mt-1 block w-full h-12 border border-gray-300 rounded-lg shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-purple-400 sm:text-sm transition-all duration-150">
+            </div>
+            <div>
+                <label for="announcementPublishEnd" class="block text-sm font-medium text-gray-700"><i class="fas fa-calendar-check mr-1 text-purple-400"></i>Publish End Date</label>
+                <input type="date" id="announcementPublishEnd" name="end_publish_on" class="mt-1 block w-full h-12 border border-gray-300 rounded-lg shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-purple-400 sm:text-sm transition-all duration-150">
+            </div>
+            <div>
+                <label for="announcementDatePost" class="block text-sm font-medium text-gray-700"><i class="fas fa-calendar-day mr-1 text-blue-400"></i>Date Post</label>
+                <input type="date" id="announcementDatePost" name="date_post" class="mt-1 block w-full h-12 border border-gray-300 rounded-lg shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 sm:text-sm transition-all duration-150">
+            </div>
+            <div>
+                <label for="announcementTimePost" class="block text-sm font-medium text-gray-700"><i class="fas fa-clock mr-1 text-blue-400"></i>Time Post</label>
+                <input type="time" id="announcementTimePost" name="time_post" class="mt-1 block w-full h-12 border border-gray-300 rounded-lg shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 sm:text-sm transition-all duration-150">
+            </div>
+            <div>
+                <label for="announcementLandmark" class="block text-sm font-medium text-gray-700"><i class="fas fa-map-marker-alt mr-1 text-pink-400"></i>Landmark</label>
+                <input type="text" id="announcementLandmark" name="landmark" class="mt-1 block w-full h-12 border border-gray-300 rounded-lg shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-pink-400 sm:text-sm transition-all duration-150">
+            </div>
+            <div>
+                <label for="announcementLocation" class="block text-sm font-medium text-gray-700"><i class="fas fa-location-arrow mr-1 text-indigo-400"></i>Location</label>
+                <select id="announcementLocation" name="location" class="mt-1 block w-full h-12 border border-gray-300 rounded-lg shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 sm:text-sm transition-all duration-150">
+                    <option value="">Select a city...</option>
+                </select>
+            </div>
         </div>
     </div>
-    
-    <div>
-        <label for="announcementStatus" class="block text-sm font-medium text-gray-700">Status *</label>
-        <select id="announcementStatus" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm" required>
-            <!-- Status options will be loaded via JS -->
-        </select>
+
+    <!-- Section Divider -->
+    <div class="w-full border-t border-gray-200 my-6"></div>
+
+    <!-- Target Audiences -->
+    <div class="mb-6 rounded-lg shadow-md bg-white border border-gray-200">
+        <div class="flex items-center mb-2 pt-4 px-4">
+            <i class="fas fa-users text-pink-500 bg-pink-50 rounded-full p-2 shadow mr-2"></i>
+            <h4 class="text-md font-semibold text-gray-800">Target Audiences</h4>
+        </div>
+        <div class="px-4 pb-4">
+            <div id="announcementAudiencesCheckboxes" class="flex flex-col gap-2 border border-gray-200 rounded-md p-2" style="max-height: 160px; overflow-y: auto;">
+                {% for aud in audiences %}
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" name="audiences" value="{{ aud.id }}"{% if selected_audiences and aud.id in selected_audiences %} checked{% endif %}>
+                        <span class="ml-2">{{ aud.type }}</span>
+                    </label>
+                {% endfor %}
+            </div>
+            <p class="mt-1 text-sm text-gray-500">Select one or more audiences</p>
+        </div>
     </div>
-    
-    <div>
-        <label for="announcementAudiences" class="block text-sm font-medium text-gray-700">Target Audiences</label>
-        <select id="announcementAudiences" multiple class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
-            <!-- Audiences will be loaded via JS -->
-        </select>
-        <p class="mt-1 text-sm text-gray-500">Select multiple audiences (hold Ctrl/Cmd to select multiple)</p>
+
+    <!-- Section Divider -->
+    <div class="w-full border-t border-gray-200 my-6"></div>
+
+    <!-- Description & Content -->
+    <div class="mb-6 rounded-lg shadow-md bg-white border border-gray-200">
+        <div class="flex items-center mb-2 pt-4 px-4">
+            <i class="fas fa-align-left text-indigo-500 bg-indigo-50 rounded-full p-2 shadow mr-2"></i>
+            <h4 class="text-md font-semibold text-gray-800">Description & Content</h4>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 px-4 pb-4">
+            <div>
+                <label for="announcementContext" class="block text-sm font-medium text-gray-700"><i class="fas fa-align-left mr-1 text-indigo-400"></i>Short Description*</label>
+                <textarea id="announcementContext" name="context" rows="3" required class="mt-1 block w-full h-12 border border-gray-300 rounded-lg shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 sm:text-sm transition-all duration-150 resize-none"></textarea>
+                <p class="mt-1 text-sm text-gray-500">A brief summary that will be displayed in lists</p>
+            </div>
+            <div>
+                <label for="announcementContent" class="block text-sm font-medium text-gray-700"><i class="fas fa-file-alt mr-1 text-indigo-400"></i>Content*</label>
+                <textarea id="announcementContent" name="content" rows="10" required class="mt-1 block w-full h-12 border border-gray-300 rounded-lg shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 sm:text-sm transition-all duration-150 resize-none"></textarea>
+            </div>
+        </div>
     </div>
-    
-    <div>
-        <label for="announcementContext" class="block text-sm font-medium text-gray-700">Short Description *</label>
-        <textarea id="announcementContext" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm" required></textarea>
-        <p class="mt-1 text-sm text-gray-500">A brief summary that will be displayed in lists</p>
-    </div>
-    
-    <div>
-        <label for="announcementContent" class="block text-sm font-medium text-gray-700">Content *</label>
-        <textarea id="announcementContent" rows="10" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm" required></textarea>
-    </div>
-</div>
+</form>
+
+<script>
+function initializeAnnouncementLocationDropdown() {
+    $.getJSON('/static/data/cities.json', function(data) {
+        // Extract all unique city/municipality names, appending ' City' if city: true
+        let locations = data.map(item => item.city === true ? item.name + ' City' : item.name);
+        locations = [...new Set(locations)].sort();
+
+        // Clear and populate the select
+        const $select = $('#announcementLocation');
+        $select.empty();
+        $select.append('<option value="">Select a city...</option>');
+        locations.forEach(function(city) {
+            $select.append('<option value="' + city + '">' + city + '</option>');
+        });
+
+        // Initialize Select2 (make sure select2 is loaded in your project)
+        $select.select2({
+            placeholder: 'Search for a city...',
+            allowClear: true,
+            width: '100%'
+        });
+    });
+}
+
+$(document).ready(function() {
+    if ($('#announcementLocation').length) {
+        initializeAnnouncementLocationDropdown();
+    }
+});
+</script>

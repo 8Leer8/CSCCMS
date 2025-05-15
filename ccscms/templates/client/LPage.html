@@ -363,7 +363,7 @@
                         <h2 class="fw-bold">{{ achievement.title }}</h2>
                         <p>{{ achievement.context|truncatechars:200 }}</p>
                         <div class="text-center mt-3">
-                            <a href="{% url 'achievement_detail' achievement.id %}" class="btn btn-primary">See More Details</a>
+                            <a href="{% url 'achievement_detail_admin' achievement.id %}" class="btn btn-primary">See More Details</a>
                         </div>
                     </div>
                 </div>

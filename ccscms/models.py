@@ -407,6 +407,7 @@ class Announcement(SoftDeleteModel):
     location = models.CharField(max_length=255, null=True, blank=True)
     date_post = models.DateField(null=True, blank=True)
     time_post = models.TimeField(null=True, blank=True)
+    image = models.ImageField(upload_to='announcements/', null=True, blank=True)
     
     audiences = models.ManyToManyField(Audience, through='AnnouncementAudience')
     

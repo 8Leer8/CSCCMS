@@ -1125,6 +1125,8 @@ def announcement_list(request):
                 announcements = announcements.filter(status=status)
             if category:
                 announcements = announcements.filter(category_id=category)
+            else:
+                announcements = announcements.filter(category__scope_id__in=[1, 7])
             if search:
                 announcements = announcements.filter(
                     Q(title__icontains=search) |
@@ -1146,11 +1148,14 @@ def announcement_list(request):
                     'start_publish_on': announcement.start_publish_on.strftime('%Y-%m-%d') if announcement.start_publish_on else '',
                     'end_publish_on': announcement.end_publish_on.strftime('%Y-%m-%d') if announcement.end_publish_on else '',
                     'created_at': announcement.created_at.strftime('%Y-%m-%d %H:%M'),
-                    'is_active': announcement.is_active
+                    'is_active': announcement.is_active,
+                    'image': announcement.image.url if announcement.image else None
                 })
             
-            # Get categories for filter dropdown
-            categories = list(Category.objects.filter(is_active=True).values('id', 'category'))
+            # Get categories for filter dropdown (only scope_id 1 or 7)
+            categories = list(Category.objects.filter(is_active=True, scope_id__in=[1, 7]).values('id', 'category'))
+            # Insert 'All Categories' at the start
+            categories.insert(0, {'id': '', 'category': 'All Categories'})
             
             return JsonResponse({
                 'success': True,
@@ -1163,11 +1168,17 @@ def announcement_list(request):
                 'total_items': paginator.count,
                 'start_index': (page_obj.number - 1) * paginator.per_page + 1,
                 'end_index': min(page_obj.number * paginator.per_page, paginator.count),
+                'previous_page_number': page_obj.previous_page_number() if page_obj.has_previous() else None,
+                'next_page_number': page_obj.next_page_number() if page_obj.has_next() else None,
             })
         except Exception as e:
             logger.error(f"Error in announcement_list: {str(e)}", exc_info=True)
             return JsonResponse({'success': False, 'error': str(e)}, status=500)
-    return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
+    # For non-AJAX requests, render the template with categories context
+    categories = Category.objects.filter(is_active=True, scope_id__in=[1, 7])
+    return render(request, 'admin/announcement/announcement_list.html', {
+        'categories': categories
+    })
 
 # Announcement Create View (AJAX)
 @csrf_exempt
@@ -1177,7 +1188,8 @@ def announcement_create(request):
     if request.method == 'POST':
         try:
             data = request.POST.dict()
-            
+            image = request.FILES.get('image')
+
             # Validate required fields
             required_fields = ['title', 'content', 'context', 'category']
             for field in required_fields:
@@ -1195,9 +1207,18 @@ def announcement_create(request):
                     return datetime.strptime(date_str, '%Y-%m-%d').date()
                 except ValueError:
                     return None
+            def parse_time(time_str):
+                if not time_str:
+                    return None
+                try:
+                    return datetime.strptime(time_str, '%H:%M').time()
+                except ValueError:
+                    return None
 
             start_publish = parse_date(data.get('start_publish_on'))
             end_publish = parse_date(data.get('end_publish_on'))
+            date_post = parse_date(data.get('date_post'))
+            time_post = parse_time(data.get('time_post'))
 
             # Create the announcement
             announcement = Announcement.objects.create(
@@ -1205,10 +1226,15 @@ def announcement_create(request):
                 content=data['content'],
                 context=data['context'],
                 category_id=data['category'],
-                status=data.get('status', 'draft'),
+                status=data.get('status', 'active'),  # Default to active
                 admin=request.user.admin,
                 start_publish_on=start_publish,  # Can be None
-                end_publish_on=end_publish       # Can be None
+                end_publish_on=end_publish,      # Can be None
+                date_post=date_post,             # Can be None
+                time_post=time_post,             # Can be None
+                landmark=data.get('landmark'),   # Can be None
+                location=data.get('location'),   # Can be None
+                image=image
             )
 
             # Handle audiences
@@ -1245,6 +1271,7 @@ def announcement_update(request, pk):
         try:
             announcement = get_object_or_404(Announcement, pk=pk, is_active=True)
             data = request.POST.dict()
+            image = request.FILES.get('image')
 
             # Parse dates safely
             def parse_date(date_str):
@@ -1254,9 +1281,18 @@ def announcement_update(request, pk):
                     return datetime.strptime(date_str, '%Y-%m-%d').date()
                 except ValueError:
                     return None
+            def parse_time(time_str):
+                if not time_str:
+                    return None
+                try:
+                    return datetime.strptime(time_str, '%H:%M').time()
+                except ValueError:
+                    return None
 
             start_publish = parse_date(data.get('start_publish_on'))
             end_publish = parse_date(data.get('end_publish_on'))
+            date_post = parse_date(data.get('date_post'))
+            time_post = parse_time(data.get('time_post'))
 
             # Validate publish dates if provided
             if start_publish and end_publish and start_publish > end_publish:
@@ -1273,7 +1309,13 @@ def announcement_update(request, pk):
             announcement.status = data.get('status', announcement.status)
             announcement.start_publish_on = start_publish
             announcement.end_publish_on = end_publish
-            
+            announcement.date_post = date_post
+            announcement.time_post = time_post
+            announcement.landmark = data.get('landmark')
+            announcement.location = data.get('location')
+            if image:
+                announcement.image = image
+
             # Update audiences
             if 'audiences' in request.POST:
                 # Clear existing audiences
@@ -1287,7 +1329,7 @@ def announcement_update(request, pk):
                         )
 
             announcement.save()
-            
+
             return JsonResponse({
                 'success': True,
                 'message': 'Announcement updated successfully'
@@ -1326,6 +1368,10 @@ def announcement_detail_admin(request, pk):
                     'status': announcement.status,
                     'start_publish_on': announcement.start_publish_on.strftime('%Y-%m-%d') if announcement.start_publish_on else None,
                     'end_publish_on': announcement.end_publish_on.strftime('%Y-%m-%d') if announcement.end_publish_on else None,
+                    'date_post': announcement.date_post.strftime('%Y-%m-%d') if announcement.date_post else None,
+                    'time_post': announcement.time_post.strftime('%H:%M') if announcement.time_post else None,
+                    'landmark': announcement.landmark,
+                    'location': announcement.location,
                     'created_at': announcement.created_at.strftime('%Y-%m-%d %H:%M'),
                     'updated_at': announcement.updated_at.strftime('%Y-%m-%d %H:%M'),
                     'selected_audiences': selected_audiences
@@ -1356,10 +1402,15 @@ def announcement_delete(request, pk):
 def announcement_restore(request, pk):
     if request.method == 'POST':
         try:
-            announcement = get_object_or_404(Announcement, pk=pk, is_active=False)
+            # Use all_objects to include soft-deleted announcements
+            announcement = Announcement.all_objects.get(pk=pk)
+            if announcement.is_active:
+                return JsonResponse({'success': True, 'message': 'Announcement already active'})
             announcement.is_active = True
             announcement.save()
             return JsonResponse({'success': True, 'message': 'Announcement restored successfully'})
+        except Announcement.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'No Announcement matches the given query.'}, status=404)
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)}, status=500)
     return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=400)
@@ -1384,7 +1435,7 @@ def announcement_permanent_delete(request, pk):
 def announcement_form_data(request):
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         try:
-            categories = list(Category.objects.filter(is_active=True).values('id', 'category'))
+            categories = list(Category.objects.filter(is_active=True, scope_id__in=[1,7]).values('id', 'category'))
             audiences = list(Audience.objects.filter(is_active=True).values('id', 'type'))
             status_choices = [{'value': val, 'label': label} for val, label in Announcement._meta.get_field('status').choices]
             
@@ -2821,6 +2872,7 @@ def export_data(request):
         'accomplishment': (Accomplishment, ['title', 'category', 'context', 'content', 'impact', 'recognition', 'accomplish_on']),
         'post': (Post, ['title', 'category', 'context', 'content', 'created_at']),
         'achievement': (Achievement, ['title', 'category', 'context', 'content', 'awarded_by', 'awarded_on']),
+        'announcement': (Announcement, ['title', 'category', 'context', 'content', 'created_at', 'start_publish_on', 'end_publish_on', 'status', 'landmark', 'location', 'date_post', 'time_post']),
         # Add more as needed
     }
     if model_name not in model_map:
@@ -2912,3 +2964,17 @@ def achievement_restore(request, pk):
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)}, status=500)
     return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=400)
+
+# Announcement Form View (for modal)
+@login_required
+@user_passes_test(is_admin)
+def announcement_form(request, pk=None):
+    audiences = Audience.objects.all()
+    selected_audiences = []
+    if pk:
+        announcement = Announcement.objects.get(pk=pk)
+        selected_audiences = list(announcement.audiences.values_list('id', flat=True))
+    return render(request, 'admin/announcement/announcement_form.html', {
+        'audiences': audiences,
+        'selected_audiences': selected_audiences
+    })

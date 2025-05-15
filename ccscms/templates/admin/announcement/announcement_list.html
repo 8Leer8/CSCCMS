@@ -8,6 +8,20 @@
             <button id="showDeletedBtn" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors flex items-center justify-center text-sm font-medium">
                 <i class="fas fa-trash-alt mr-2"></i> Show Deleted
             </button>
+            <div class="relative inline-block text-left">
+                <button id="exportDropdownBtn" type="button" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors flex items-center justify-center text-sm font-medium" aria-haspopup="true" aria-expanded="true">
+                    <i class="fas fa-file-export mr-2"></i> Export
+                    <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.293l3.71-4.06a.75.75 0 111.08 1.04l-4.25 4.65a.75.75 0 01-1.08 0l-4.25-4.65a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+                <div id="exportDropdownMenu" class="origin-top-right absolute right-0 mt-2 w-36 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 hidden z-10">
+                    <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="exportDropdownBtn">
+                        <a href="/cscadmin/export/?model=announcement&format=excel" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem"><i class="fas fa-file-excel mr-2 text-green-600"></i>Export to Excel</a>
+                        <a href="/cscadmin/export/?model=announcement&format=pdf" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem"><i class="fas fa-file-pdf mr-2 text-red-600"></i>Export to PDF</a>
+                    </div>
+                </div>
+            </div>
             <button id="addAnnouncementBtn" class="px-4 py-2 bg-primary-dark text-white rounded-md hover:bg-primary-darker transition-colors flex items-center justify-center text-sm font-medium">
                 <i class="fas fa-plus mr-2"></i> Add Announcement
             </button>
@@ -28,9 +42,13 @@
             </div>
             <div>
                 <label for="categoryFilter" class="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Category</label>
-                <select id="categoryFilter" class="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-primary-dark focus:border-primary-dark text-sm">
+                <select id="categoryFilter" name="category" class="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-primary-dark focus:border-primary-dark text-sm">
                     <option value="">All Categories</option>
-                    <!-- Categories will be loaded via JS -->
+                    {% for category in categories %}
+                        {% if category.category != "All Categories" %}
+                            <option value="{{ category.id }}">{{ category.category }}</option>
+                        {% endif %}
+                    {% endfor %}
                 </select>
             </div>
             <div>
@@ -50,6 +68,7 @@
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
                 <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Image</th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Title</th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Category</th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
@@ -101,43 +120,22 @@
 </div>
 
 <!-- Deleted Announcements Modal -->
-<div class="fixed inset-0 z-50 hidden" id="deletedAnnouncementsModal">
-    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
-        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-6xl sm:w-full">
-            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <div class="sm:flex sm:items-start">
-                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                        <h3 class="text-lg leading-6 font-medium text-gray-900">Deleted Announcements</h3>
-                        <div class="mt-4">
-                            <div class="overflow-x-auto">
-                                <table class="min-w-full divide-y divide-gray-200">
-                                    <thead class="bg-gray-50">
-                                        <tr>
-                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="bg-white divide-y divide-gray-200" id="deletedAnnouncementsTableBody">
-                                        <!-- Deleted announcements will be loaded here -->
-                                    </tbody>
-                                </table>
-                            </div>
-                            
-                            <!-- Pagination -->
-                            <div class="px-4 py-3 bg-gray-50 border-t border-gray-200" id="deletedAnnouncementsPagination">
-                                <!-- Pagination will be loaded here -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" id="closeDeletedAnnouncementsModal">
-                    Close
+<div class="fixed inset-0 z-50 hidden flex items-center justify-center" id="deletedAnnouncementsModal">
+    <div class="fixed inset-0 bg-gray-900 bg-opacity-60 transition-opacity" aria-hidden="true"></div>
+    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+    <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl w-full">
+        <div class="bg-white px-6 pt-6 pb-4">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">
+                    <i class="fas fa-trash-alt text-red-500 mr-2"></i>
+                    Recently Deleted Announcements
+                </h3>
+                <button onclick="closeModal('deletedAnnouncementsModal')" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
                 </button>
+            </div>
+            <div id="deletedAnnouncementsList" class="max-h-96 overflow-y-auto custom-scrollbar">
+                <!-- Deleted announcements will be loaded here -->
             </div>
         </div>
     </div>
@@ -177,17 +175,26 @@
 </div>
 
 <script>
+// Debounce function to limit how often a function can fire
+function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+        const context = this;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(context, args), wait);
+    };
+}
+
 // Global variables for announcement management
 currentAnnouncementId = null;
 
-
-
-function populateSelectOptions(selector, options) {
-    let html = '';
+function populateSelectOptions(selector, options, selectedValue = '') {
+    let html = '<option value="">All Categories</option>';
     options.forEach(option => {
-        html += `<option value="${option.id}">${option.type || option.category || option.label}</option>`;
+        html += `<option value="${option.id}"${selectedValue == option.id ? ' selected' : ''}>${option.category}</option>`;
     });
     $(selector).html(html);
+    $(selector).val(selectedValue);
 }
 
 function updateAnnouncementSubmitButton(mode) {
@@ -224,6 +231,18 @@ function loadAnnouncementData(announcementId) {
                 if (response.announcement.end_publish_on) {
                     $('#announcementPublishEnd').val(response.announcement.end_publish_on);
                 }
+                if (response.announcement.date_post) {
+                    $('#announcementDatePost').val(response.announcement.date_post);
+                }
+                if (response.announcement.time_post) {
+                    $('#announcementTimePost').val(response.announcement.time_post);
+                }
+                if (response.announcement.landmark) {
+                    $('#announcementLandmark').val(response.announcement.landmark);
+                }
+                if (response.announcement.location) {
+                    $('#announcementLocation').val(response.announcement.location);
+                }
                 
                 // Set selected options for multi-selects
                 setSelectedOptions('#announcementAudiences', response.announcement.selected_audiences);
@@ -248,42 +267,102 @@ function setSelectedOptions(selector, selectedValues) {
     }
 }
 
+// Helper to render checkboxes for audiences
+function renderAudienceCheckboxes(audiences, selected) {
+    let html = '';
+    audiences.forEach(aud => {
+        const checked = selected && selected.includes(aud.id) ? 'checked' : '';
+        html += `<label class='inline-flex items-center mr-4 mb-2'><input type='checkbox' class='audience-checkbox' value='${aud.id}' ${checked}> <span class='ml-2'>${aud.type}</span></label>`;
+    });
+    return html;
+}
+
+function populateAnnouncementForm(mode, data) {
+    // Fetch form data (categories, audiences, status choices)
+    $.ajax({
+        url: '/cscadmin/announcements/form-data/',
+        method: 'GET',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        success: function(response) {
+            if (response.success) {
+                // Populate categories
+                populateSelectOptions('#announcementCategory', response.categories, data && data.category_id);
+                // Populate audiences as checkboxes
+                const selectedAudiences = data && data.selected_audiences ? data.selected_audiences : [];
+                $('#announcementAudiencesCheckboxes').html(renderAudienceCheckboxes(response.audiences, selectedAudiences));
+                // Populate status
+                let statusOptions = '';
+                response.status_choices.forEach(opt => {
+                    statusOptions += `<option value="${opt.value}">${opt.label}</option>`;
+                });
+                $('#announcementStatus').html(statusOptions);
+
+                if (mode === 'add') {
+                    // Hide status field, set status to active
+                    $('#statusFieldContainer').hide();
+                    $('#announcementStatus').val('active');
+                } else {
+                    // Show status field and set value
+                    $('#statusFieldContainer').show();
+                    if (data && data.status) {
+                        $('#announcementStatus').val(data.status);
+                    }
+                }
+            }
+        }
+    });
+}
+
 function submitAnnouncementForm() {
     showLoading();
-    
     // Validate required fields
-    const requiredFields = ['title', 'content', 'context', 'category', 'status'];
+    const requiredFields = ['title', 'content', 'context', 'category'];
     const missingFields = [];
-    
     requiredFields.forEach(field => {
         if (!$(`#announcement${field.charAt(0).toUpperCase() + field.slice(1)}`).val()) {
             missingFields.push(field);
         }
     });
-    
+    if ($('#statusFieldContainer').is(':visible') && !$('#announcementStatus').val()) {
+        missingFields.push('status');
+    }
     if (missingFields.length > 0) {
         hideLoading();
         showAlert('danger', `Missing required fields: ${missingFields.join(', ')}`);
         return;
     }
-
     const formData = new FormData();
     formData.append('id', $('#announcementId').val());
     formData.append('title', $('#announcementTitle').val());
     formData.append('content', $('#announcementContent').val());
     formData.append('context', $('#announcementContext').val());
     formData.append('category', $('#announcementCategory').val());
-    formData.append('status', $('#announcementStatus').val());
-    
+    // Status: only append if visible (edit mode), else default to active
+    if ($('#statusFieldContainer').is(':visible')) {
+        formData.append('status', $('#announcementStatus').val());
+    } else {
+        formData.append('status', 'active');
+    }
     // Only add dates if they have values
     const startDate = $('#announcementPublishStart').val();
     const endDate = $('#announcementPublishEnd').val();
-    
     if (startDate) formData.append('start_publish_on', startDate);
     if (endDate) formData.append('end_publish_on', endDate);
     
-    // Append multi-select values
-    $('#announcementAudiences option:selected').each(function() {
+    // Add date_post, time_post, landmark, and location
+    const datePost = $('#announcementDatePost').val();
+    const timePost = $('#announcementTimePost').val();
+    const landmark = $('#announcementLandmark').val();
+    const location = $('#announcementLocation').val();
+    const imageFile = $('#announcementImage')[0].files[0];
+    if (imageFile) formData.append('image', imageFile); 
+    if (datePost) formData.append('date_post', datePost);
+    if (timePost) formData.append('time_post', timePost);
+    if (landmark) formData.append('landmark', landmark);
+    if (location) formData.append('location', location);
+    
+    // Append checked audiences
+    $('#announcementAudiencesCheckboxes input:checked').each(function() {
         formData.append('audiences', $(this).val());
     });
     
@@ -291,7 +370,6 @@ function submitAnnouncementForm() {
     const url = currentAnnouncementId ? 
         `/cscadmin/announcements/${currentAnnouncementId}/update/` : 
         '/cscadmin/announcements/create/';
-    
     $.ajax({
         url: url,
         type: 'POST',
@@ -320,12 +398,11 @@ function submitAnnouncementForm() {
     });
 }
 
-
 function renderAnnouncementsTable(data) {
     if (!data || !data.announcements || data.announcements.length === 0) {
         $('#announcementsTableBody').html(`
             <tr>
-                <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">
+                <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">
                     No announcements found
                 </td>
             </tr>
@@ -347,6 +424,9 @@ function renderAnnouncementsTable(data) {
         
         tableRows += `
             <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap">
+                    ${announcement.image ? `<img src="${announcement.image}" alt="Announcement Image" class="h-12 w-12 object-cover rounded">` : '<span class="text-gray-400">No Image</span>'}
+                </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                     <div class="text-sm font-medium text-gray-900">${escapeHtml(announcement.title) || 'Untitled Announcement'}</div>
                     <div class="text-sm text-gray-500">${escapeHtml(announcement.context ? announcement.context.substring(0, 50) + (announcement.context.length > 50 ? '...' : '') : '')}</div>
@@ -499,45 +579,44 @@ function loadDeletedAnnouncements(page = 1) {
 
 function renderDeletedAnnouncementsTable(data) {
     if (!data || !data.announcements || data.announcements.length === 0) {
-        $('#deletedAnnouncementsTableBody').html(`
-            <tr>
-                <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">
-                    No deleted announcements found
-                </td>
-            </tr>
+        $('#deletedAnnouncementsList').html(`
+            <div class="text-center py-8 text-gray-500">
+                <i class="fas fa-trash-alt text-4xl mb-3"></i>
+                <p>No deleted announcements found</p>
+            </div>
         `);
         return;
     }
     
-    let tableRows = '';
+    let html = '';
     data.announcements.forEach(announcement => {
-        tableRows += `
-            <tr class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm font-medium text-gray-900">${escapeHtml(announcement.title) || 'Untitled Announcement'}</div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    ${announcement.category || 'N/A'}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-200 text-gray-800">
-                        Deleted
-                    </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button class="text-green-600 hover:text-green-900 restore-announcement-btn mr-3" data-id="${announcement.id}">
-                        <i class="fas fa-trash-restore"></i> Restore
-                    </button>
-                    <button class="text-red-600 hover:text-red-900 permanent-delete-announcement-btn" data-id="${announcement.id}">
-                        <i class="fas fa-trash-alt"></i> Delete
-                    </button>
-                </td>
-            </tr>
+        html += `
+            <div class="border-b border-gray-200 last:border-b-0">
+                <div class="p-4 hover:bg-gray-50">
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1">
+                            <h4 class="text-sm font-medium text-gray-900">${escapeHtml(announcement.title) || 'Untitled Announcement'}</h4>
+                            <p class="text-sm text-gray-500 mt-1">${escapeHtml(announcement.context ? announcement.context.substring(0, 100) + (announcement.context.length > 100 ? '...' : '') : '')}</p>
+                            <div class="mt-2 flex items-center text-xs text-gray-500">
+                                <span class="mr-4"><i class="fas fa-layer-group mr-1"></i>${announcement.category || 'N/A'}</span>
+                                <span><i class="fas fa-clock mr-1"></i>Deleted ${formatDate(announcement.deleted_at)}</span>
+                            </div>
+                        </div>
+                        <div class="ml-4 flex-shrink-0 flex space-x-2">
+                            <button class="text-green-600 hover:text-green-900 restore-announcement-btn" data-id="${announcement.id}" title="Restore">
+                                <i class="fas fa-trash-restore"></i>
+                            </button>
+                            <button class="text-red-600 hover:text-red-900 permanent-delete-announcement-btn" data-id="${announcement.id}" title="Delete Permanently">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         `;
     });
     
-    $('#deletedAnnouncementsTableBody').html(tableRows);
-    renderDeletedAnnouncementsPagination(data);
+    $('#deletedAnnouncementsList').html(html);
     
     // Attach event handlers
     $('.restore-announcement-btn').click(function() {
@@ -553,94 +632,15 @@ function renderDeletedAnnouncementsTable(data) {
     });
 }
 
-function renderDeletedAnnouncementsPagination(data) {
-    if (data.total_pages <= 1) {
-        $('#deletedAnnouncementsPagination').empty();
-        return;
-    }
-    
-    let paginationHtml = `
-        <nav class="flex items-center justify-between">
-            <div class="flex-1 flex justify-between sm:hidden">
-                ${data.has_previous ? 
-                    `<a href="#" data-page="${data.previous_page_number}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                        Previous
-                    </a>` : 
-                    `<span class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-300 bg-white cursor-not-allowed">
-                        Previous
-                    </span>`}
-                ${data.has_next ? 
-                    `<a href="#" data-page="${data.next_page_number}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                        Next
-                    </a>` : 
-                    `<span class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-300 bg-white cursor-not-allowed">
-                        Next
-                    </span>`}
-            </div>
-            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                <div class="text-sm text-gray-700">
-                    Showing <span class="font-medium">${data.start_index}</span> to <span class="font-medium">${data.end_index}</span> of <span class="font-medium">${data.total_items}</span> results
-                </div>
-                <div>
-                    <ul class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-    `;
-    
-    if (data.has_previous) {
-        paginationHtml += `
-            <li>
-                <a href="#" data-page="${data.previous_page_number}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                    <span class="sr-only">Previous</span>
-                    <i class="fas fa-chevron-left"></i>
-                </a>
-            </li>
-        `;
-    }
-    
-    for (let i = 1; i <= data.total_pages; i++) {
-        if (i === data.current_page) {
-            paginationHtml += `
-                <li>
-                    <a href="#" aria-current="page" class="z-10 bg-blue-50 border-blue-500 text-blue-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                        ${i}
-                    </a>
-                </li>
-            `;
-        } else if (i > data.current_page - 3 && i < data.current_page + 3) {
-            paginationHtml += `
-                <li>
-                    <a href="#" data-page="${i}" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                        ${i}
-                    </a>
-                </li>
-            `;
-        }
-    }
-    
-    if (data.has_next) {
-        paginationHtml += `
-            <li>
-                <a href="#" data-page="${data.next_page_number}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                    <span class="sr-only">Next</span>
-                    <i class="fas fa-chevron-right"></i>
-                </a>
-            </li>
-        `;
-    }
-    
-    paginationHtml += `
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    `;
-    
-    $('#deletedAnnouncementsPagination').html(paginationHtml);
-    
-    // Attach click handlers to pagination links
-    $('#deletedAnnouncementsPagination a[data-page]').click(function(e) {
-        e.preventDefault();
-        const page = $(this).data('page');
-        loadDeletedAnnouncements(page);
+function formatDate(dateString) {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
     });
 }
 
@@ -655,8 +655,14 @@ function restoreAnnouncement(announcementId) {
         },
         success: function(response) {
             if (response.success) {
-                showAlert('success', 'Announcement restored successfully');
-                loadDeletedAnnouncements();
+                showAlert('success', response.message || 'Announcement restored successfully');
+                // Close the deleted modal
+                $('#deletedAnnouncementsModal').addClass('hidden');
+                // Reset filters
+                $('#statusFilter').val('');
+                $('#categoryFilter').val('');
+                $('#searchFilter').val('');
+                // Reload main list to show restored item
                 loadAnnouncements();
             } else {
                 showAlert('danger', response.error || 'Failed to restore announcement');
@@ -733,21 +739,166 @@ function deleteAnnouncement() {
     });
 }
 
+function initializeAnnouncementList() {
+    // Load initial data
+    loadAnnouncements();
+    
+    // Set up filter event listeners
+    $('#statusFilter, #categoryFilter').change(function() {
+        loadAnnouncements();
+    });
+    
+    $('#searchFilter').on('input', debounce(function() {
+        loadAnnouncements();
+    }, 500));
+    
+    // Add announcement button click handler
+    $('#addAnnouncementBtn').click(function() {
+        currentAnnouncementId = null;
+        updateAnnouncementSubmitButton('add');
+        $('#announcementModalTitle').text('Add New Announcement');
+        $('#announcementModalBody').html('<div class="flex justify-center items-center h-32"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-dark"></div></div>');
+        $('#announcementModal').removeClass('hidden');
+        // Load form then populate
+        $.ajax({
+            url: '/cscadmin/announcements/form/',
+            method: 'GET',
+            success: function(response) {
+                $('#announcementModalBody').html(response);
+                populateAnnouncementForm('add');
+            },
+            error: function() {
+                showAlert('danger', 'Failed to load announcement form');
+                closeModal('announcementModal');
+            }
+        });
+    });
+    
+    // Add click handler for edit buttons
+    $(document).on('click', '.edit-announcement-btn', function() {
+        const announcementId = $(this).data('id');
+        currentAnnouncementId = announcementId;
+        updateAnnouncementSubmitButton('edit');
+        $('#announcementModalTitle').text('Edit Announcement');
+        $('#announcementModalBody').html('<div class="flex justify-center items-center h-32"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-dark"></div></div>');
+        $('#announcementModal').removeClass('hidden');
+        $.ajax({
+            url: '/cscadmin/announcements/form/',
+            method: 'GET',
+            success: function(response) {
+                $('#announcementModalBody').html(response);
+                // Load announcement data then populate form fields
+                $.ajax({
+                    url: `/cscadmin/announcements/${announcementId}/detail/`,
+                    method: 'GET',
+                    success: function(res) {
+                        if (res.success) {
+                            // Populate form dropdowns and checkboxes first
+                            populateAnnouncementForm('edit', res.announcement);
+
+                            // Now set all fields, including the ones that may be reset
+                            $('#announcementId').val(res.announcement.id);
+                            $('#announcementTitle').val(res.announcement.title);
+                            $('#announcementContent').val(res.announcement.content);
+                            $('#announcementContext').val(res.announcement.context);
+                            $('#announcementCategory').val(res.announcement.category_id);
+                            $('#announcementPublishStart').val(res.announcement.start_publish_on);
+                            $('#announcementPublishEnd').val(res.announcement.end_publish_on);
+                            $('#announcementDatePost').val(res.announcement.date_post);
+                            $('#announcementTimePost').val(res.announcement.time_post);
+                            $('#announcementLandmark').val(res.announcement.landmark);
+                            $('#announcementLocation').val(res.announcement.location);
+                        } else {
+                            showAlert('danger', res.error || 'Failed to load announcement data');
+                            closeModal('announcementModal');
+                        }
+                    },
+                    error: function() {
+                        showAlert('danger', 'Failed to load announcement data');
+                        closeModal('announcementModal');
+                    }
+                });
+            },
+            error: function() {
+                showAlert('danger', 'Failed to load announcement form');
+                closeModal('announcementModal');
+            }
+        });
+    });
+    
+    // Add click handler for delete buttons
+    $(document).on('click', '.delete-announcement-btn', function() {
+        const announcementId = $(this).data('id');
+        itemToDelete = {
+            type: 'announcement',
+            id: announcementId
+        };
+        $('#deleteModal').removeClass('hidden');
+    });
+}
+
+function loadAnnouncements(page = 1) {
+    showLoading();
+    
+    const filters = {
+        status: $('#statusFilter').val(),
+        category: $('#categoryFilter').val(),
+        search: $('#searchFilter').val(),
+        page: page
+    };
+    
+    $.ajax({
+        url: '/cscadmin/announcements/list/',
+        method: 'GET',
+        data: filters,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        success: function(response) {
+            if (response.success) {
+                renderAnnouncementsTable(response);
+                // Repopulate category filter and set selected value
+                if (response.categories) {
+                    populateSelectOptions('#categoryFilter', response.categories, filters.category);
+                }
+            } else {
+                showAlert('danger', response.error || 'Failed to load announcements');
+            }
+        },
+        error: function(xhr) {
+            const error = xhr.responseJSON?.error || 'Failed to load announcements';
+            showAlert('danger', error);
+        },
+        complete: function() {
+            hideLoading();
+        }
+    });
+}
+
 // Initialize the page
 $(document).ready(function() {
     initializeAnnouncementList();
     
     // Show deleted announcements modal
     $('#showDeletedBtn').click(function() {
-        showingDeletedAnnouncements = true;
         $('#deletedAnnouncementsModal').removeClass('hidden');
         loadDeletedAnnouncements();
     });
     
     // Close deleted announcements modal
-    $('#closeDeletedAnnouncementsModal').click(function() {
-        showingDeletedAnnouncements = false;
+    $('[onclick="closeModal(\'deletedAnnouncementsModal\')"]').click(function() {
         $('#deletedAnnouncementsModal').addClass('hidden');
     });
+});
+// Toggle export dropdown
+$(document).on('click', '#exportDropdownBtn', function(e) {
+    e.stopPropagation();
+    $('#exportDropdownMenu').toggleClass('hidden');
+});
+// Hide dropdown when clicking outside
+$(document).on('click', function(e) {
+    if (!$(e.target).closest('#exportDropdownBtn').length) {
+        $('#exportDropdownMenu').addClass('hidden');
+    }
 });
 </script>
