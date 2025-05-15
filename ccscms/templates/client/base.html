@@ -16,7 +16,7 @@
       <div class="header-logo">
         <a href="{%url 'client_lpage'%}" class="logo-link">
           <div class="logo-img">
-            <img src="{% static 'images/logos/csc.jpg' %}" alt="cscs logo">
+            <img src="{% static 'vendor/img/student_council.JPG' %}" alt="cscs logo">
           </div>
           <div class="logo-label">
             <span>Student Council</span>
@@ -37,11 +37,25 @@
       <section class="profile-section">
         <a href="#" class="profile-link">
           <div class="profile-img">
-            <img src="{% static 'images/samples/home-zamboanga.jpg' %}" alt="Profile image">
+            {% if user.is_authenticated %}
+              {% if user.profile and user.profile.image %}
+                <img src="{{ user.profile.image.url }}" alt="Profile image">
+              {% else %}
+                <img src="{% static 'vendor/img/profile.jpg' %}" alt="Default profile image">
+              {% endif %}
+            {% else %}
+              <img src="{% static 'vendor/img/profile.jpg' %}" alt="Guest profile">
+            {% endif %}
           </div>
+          
           <div class="profile-name">
-            <span>@John Doe</span>
-            <span>johndoe@gmail.com</span>
+            {% if user.is_authenticated %}
+              <span>@{{ user.firstname }} {{ user.lastname }}</span>
+              <span>{{ user.email }}</span>
+            {% else %}
+              <span>@Guest</span>
+              <span>guest@example.com</span>
+            {% endif %}
           </div>
         </a>
         <button class="button close-btn" id="closeMenu">
@@ -79,7 +93,7 @@
               <li><div class="accordion-link"><a href="{%url 'announcements_list'%}">Announcements</a><span class="material-symbols-outlined">arrow_right_alt</span></div></li>
               <li><div class="accordion-link"><a href="{%url 'events_list'%}">Events</a><span class="material-symbols-outlined">arrow_right_alt</span></div></li>
               <li><div class="accordion-link"><a href="{%url 'posts_list'%}">Posts</a><span class="material-symbols-outlined">arrow_right_alt</span></div></li>
-              <li><div class="accordion-link"><a href="#">Transparency</a><span class="material-symbols-outlined">arrow_right_alt</span></div></li>
+              <li><div class="accordion-link"><a href="{%url 'transparency_list'%}">Transparency</a><span class="material-symbols-outlined">arrow_right_alt</span></div></li>
             </ul>
           </li>
           <li class="accordion-list">
@@ -102,12 +116,15 @@
               <li><div class="accordion-link"><a href="#">About Us</a><span class="material-symbols-outlined">arrow_right_alt</span></div></li>
               <li><div class="accordion-link"><a href="#">Contact Us</a><span class="material-symbols-outlined">arrow_right_alt</span></div></li>
               <li><div class="accordion-link"><a href="#">Concerns</a><span class="material-symbols-outlined">arrow_right_alt</span></div></li>
-              <li><div class="accordion-link"><a href="#">Feedback</a><span class="material-symbols-outlined">arrow_right_alt</span></div></li>
+              <li><div class="accordion-link"><a href="{% url 'feedback' %}">Feedback</a><span class="material-symbols-outlined">arrow_right_alt</span></div></li>
             </ul>
           </li>
           <li class="accordion-list">
-            <a href="#" class="accordion-label login">Log in</a>
-            <a href="#" class="accordion-label logout">Log out</a>
+            {% if user.is_authenticated %}
+              <a href="{% url 'logout' %}" class="accordion-label logout" style="color: red;">Log out</a>
+            {% else %}
+              <a href="{% url 'auth' %}" class="accordion-label login" style="color: blue;">Log in</a>
+            {% endif %}
           </li>
         </ul>
       </nav>
@@ -124,13 +141,13 @@
     <section class="footer-main">
       <div class="footer-logo">
         <a href="#" class="logo-link-img">
-          <img src="{% static 'logos/wmsu.png' %}" alt="wmsu logo">
+          <img src="{% static 'vendor/img/wmsu.jpg' %}" alt="wmsu logo">
         </a>
         <a href="#" class="logo-link-img">
-          <img src="{% static 'logos/ccs.png' %}" alt="ccs logo">
+          <img src="{% static 'vendor/img/ccs.jpg' %}" alt="ccs logo">
         </a>
         <a href="#" class="logo-link-img">
-          <img src="{% static 'logos/cscccsLogo.png' %}" alt="csc logo">
+          <img src="{% static 'vendor/img/student_council.JPG' %}" alt="csc logo">
         </a>
       </div>
       <section class="footer-links">
@@ -138,27 +155,27 @@
           <h4 class="footer-link-title">Quick links</h4>
           <ul>
             <li class="footer-link"><a href="#">Home</a></li>
-            <li class="footer-link"><a href="#">Accomplishment</a></li>
+            <li class="footer-link"><a href="{% url 'accomplishments_list'%}">Accomplishment</a></li>
             <li class="footer-link"><a href="#">Achievements</a></li>
             <li class="footer-link"><a href="#">Announcements</a></li>
             <li class="footer-link"><a href="#">Events</a></li>
             <li class="footer-link"><a href="#">Posts</a></li>
-            <li class="footer-link"><a href="#">Transparencies</a></li>
+            <li class="footer-link"><a href="{%url 'transparency_list'%}">Transparency</a></li>
           </ul>
         </div>
         <div class="footer-link-container">
           <h3 class="footer-link-title">About</h3>
           <ul>
             <li class="footer-link"><a href="#">About us</a></li>
-            <li class="footer-link"><a href="#">Concerns</a></li>
-            <li class="footer-link"><a href="#">Feedback</a></li>
+            <li class="footer-link"><a href="{% url 'complaint' %}">Concerns</a></li>
+            <li class="footer-link"><a href="{% url 'feedback' %}">Feedback</a></li>
           </ul>
         </div>
         <div class="footer-link-container">
           <h3 class="footer-link-title">Contact</h3>
           <ul>
-            <li class="footer-link"><a href="#">+96-123-4567</a></li>
-            <li class="footer-link"><a href="#">studentcouncil@gmail.com</a></li>
+            <li class="footer-link" style="color: var(--w-sub-font-color);">+96-123-4567</li>
+            <li class="footer-link" style="color: var(--w-sub-font-color);">studentcouncil@gmail.com</li>
           </ul>
         </div>
         <div class="footer-link-container">
@@ -166,7 +183,7 @@
           <ul>
             <li class="footer-link"><a href="{%url 'officers_list'%}">Officers</a></li>
             <li class="footer-link"><a href="{%url 'faculties_list'%}">Faculties</a></li>
-            <li class="footer-link"><a href="#">Committee</a></li>
+            <li class="footer-link"><a href="{%url 'committees_list'%}">Committee</a></li>
           </ul>
         </div>
       </section>
@@ -176,5 +193,25 @@
 
   <script src="{% static 'javascript/base/index.js' %}"></script>
   <script src="{% static 'vendor/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'javascript/base/auth.js' %}"></script>
+
+  <!-- Login Requirement Modal -->
+  <div class="modal fade" id="need_account" tabindex="-1" aria-labelledby="needAccountModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="needAccountModalLabel">Login Required</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>You need to be logged in to access this feature.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Maybe Later</button>
+          <a href="{% url 'auth' %}" class="btn btn-primary">Go to Login</a>
+        </div>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

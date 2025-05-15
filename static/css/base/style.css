@@ -283,10 +283,37 @@ body.menu-open {
   color: var(--d-font-color);
   font-size: var(--t1-font);
   font-weight: 600;
+  text-decoration: none;
+  position: relative;
+  display: inline-block;
 }
 
-.accordion-label.login {
-  display: none;
+.accordion-link a:hover {
+  color: var(--d-font-color);
+}
+
+.accordion-link a:hover::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  bottom: -2px;
+  left: 0;
+  background-color: var(--d-font-color);
+  transform: scaleX(1);
+  transition: transform 0.3s ease;
+}
+
+.accordion-link a::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  bottom: -2px;
+  left: 0;
+  background-color: var(--d-font-color);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
 }
 
 .accordion-about {
@@ -336,20 +363,21 @@ body.menu-open {
 
 .footer-logo {
   display: flex;
-  gap: 1rem;
+  gap: 2.5rem;
   justify-content: center;
 }
 
 .logo-link-img {
-  width: 5rem;
-  height: 5rem;
+  width: 8rem;
+  height: 8rem;
   display: block;
-  transition: all ease 0.4s;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.4s;
   border-radius: 50%;
   padding: 0.2rem;
 }
 
 .logo-link-img:hover {
+  transform: scale(1.08);
   background-color: var(--mid-color);
 }
 
@@ -376,20 +404,46 @@ body.menu-open {
 
 .footer-link-title {
   color: var(--w-font-color);
-  font-size: var(--h4-font);
+  font-size: 1.4rem;
   font-family: var(--secondary-font);
 }
 
 .footer-link a {
   color: var(--w-sub-font-color);
-  font-size: var(--t2-font);
+  font-size: 1.1rem;
   transition: all 0.4s ease;
-  display: block;
+  display: inline-block;
   padding: 0.3rem 0;
+  text-decoration: none;
+  position: relative;
 }
 
 .footer-link a:hover {
   color: var(--w-font-color);
+}
+
+.footer-link a:hover::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  bottom: 0;
+  left: 0;
+  background-color: var(--w-font-color);
+  transform: scaleX(1);
+  transition: transform 0.3s ease;
+}
+
+.footer-link a::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  bottom: 0;
+  left: 0;
+  background-color: var(--w-font-color);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
 }
 
 @media (min-width: 1024px) {
@@ -448,4 +502,61 @@ body.menu-open {
   .main-content {
     padding: 4rem;
   }
+}
+
+/* Login Requirement Modal Styles */
+#need_account .modal-content {
+    border-radius: 1rem;
+    border: none;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+#need_account .modal-header {
+    border-bottom: 1px solid var(--mid-w-color);
+    padding: 1.5rem;
+}
+
+#need_account .modal-title {
+    font-family: var(--secondary-font);
+    font-size: var(--h4-font);
+    color: var(--d-font-color);
+}
+
+#need_account .modal-body {
+    padding: 1.5rem;
+    font-size: var(--t2-font);
+    color: var(--d-sub-font-color);
+}
+
+#need_account .modal-footer {
+    border-top: 1px solid var(--mid-w-color);
+    padding: 1.5rem;
+}
+
+#need_account .btn {
+    padding: 0.8rem 1.5rem;
+    font-size: var(--t3-font);
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+#need_account .btn-primary {
+    background-color: var(--base-color);
+    border-color: var(--base-color);
+}
+
+#need_account .btn-primary:hover {
+    background-color: var(--mid-color);
+    border-color: var(--mid-color);
+}
+
+#need_account .btn-secondary {
+    background-color: var(--mid-w-color);
+    border-color: var(--mid-w-color);
+    color: var(--d-font-color);
+}
+
+#need_account .btn-secondary:hover {
+    background-color: var(--w-color);
+    border-color: var(--w-color);
 }

@@ -1,0 +1,544 @@
+<!-- transparency_list.html -->
+{% extends 'client/base.html' %}
+
+{% block content %}
+<section id="event-gallery" class="py-5">
+    <div class="container-fluid px-4">
+        <!-- Header -->
+        <div class="event_header">
+            <h1 class="event_title"><span>WMSU-COLLEGE OF COMPUTING STUDIES</span> | TRANSPARENCY</h1>
+        </div>
+        <div class="container text-center mb-5">
+            <h2 class="sub-heading text-dark">Financial and Project Transparency</h2>
+            <p class="description text-muted">
+                Stay informed about our payment processes, budget allocation, meetings, and ongoing projects. Discover how we maintain transparency in managing resources and decision-making for the College of Computing Studies.
+            </p>
+        </div>
+    </div>
+
+    <div class="separator-container">
+        <div class="modern-separator"></div>
+    </div>
+</section>
+
+<section class="event_section">
+    <!-- Section Title Wrapper -->
+    <div class="event_section_header">
+        <h2 class="event_section_title fw-bold">TRANSPARENCY</h2>
+    </div>
+</section>
+
+<section class="container my-5" style="--section-padding: 4rem; --section-margin: 3rem;">
+    <!-- Actions -->
+    <div class="d-flex flex-column flex-md-row align-items-md-center gap-3 mb-4">
+        <!-- Search Bar -->
+        <div class="input-group search-wrapper" style="max-width: 400px;">
+            <input type="text" class="form-control" id="search-input" placeholder="Search by keyword..." aria-label="Search">
+            <button class="btn btn-outline-success" type="button" id="search-btn">
+                <span class="material-symbols-rounded align-middle">search</span>
+            </button>
+        </div>
+        <!-- Filter Button -->
+        <button class="btn btn-outline-success d-flex align-items-center gap-2" id="open-filter-modal" type="button">
+            <span class="material-symbols-rounded">filter_alt</span>
+            <span>Filter</span>
+        </button>
+    </div>
+
+    <!-- Hidden main dropdowns for JS logic -->
+    <select id="status-dropdown" style="display:none;">
+        <option value="">All Statuses</option>
+        {% for status in statuses %}
+            <option value="{{ status.type|lower }}">{{ status.get_type_display }}</option>
+        {% endfor %}
+    </select>
+    <select id="category-dropdown" style="display:none;">
+        <option value="">All Categories</option>
+        {% for category in categories %}
+            <option value="{{ category.category|lower }}">{{ category.get_category_display }}</option>
+        {% endfor %}
+    </select>
+
+    <!-- Cards -->
+    <div id="transparency-cards-container">
+        {% for item in transparency_list %}
+            <div class="transparency-card-col" data-aos="fade-up" data-aos-duration="1000">
+                <a href="{% url 'transparency_detail' item.pk %}" class="text-decoration-none w-100">
+                    <div class="card transparency-card h-100">
+                        <div class="card-img-top-wrapper position-relative">
+                            {% if item.image %}
+                                <img src="{{ item.image.url }}" class="card-img-top">
+                            {% else %}
+                                <img src="https://placehold.co/420x300/e9ecef/495057?text=No+Image+Available" class="card-img-top">
+                            {% endif %}
+                            <div class="card-badges position-absolute top-0 start-0 m-2 d-flex gap-2">
+                                <span class="badge bg-success" data-value="{{ item.status.type|lower }}">{{ item.status.get_type_display }}</span>
+                                <span class="badge bg-info" data-value="{{ item.category.category|lower }}">{{ item.category.get_category_display }}</span>
+                            </div>
+                            <div class="card-img-overlay d-flex flex-column justify-content-end p-0">
+                                <div class="d-flex flex-column flex-md-row align-items-end justify-content-between w-100 h-100 p-3" style="padding-top: 3.5rem;">
+                                    <div>
+                                        <h5 class="card-title mb-1" style="font-weight:700;">{{ item.title }}</h5>
+                                        <p class="card-text mb-2">{{ item.context|truncatewords:20 }}</p>
+                                    </div>
+                                    <span class="card-date text-light ms-md-3 mb-1" style="font-size:0.95em; white-space:nowrap;">{{ item.date }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        {% empty %}
+            <div class="col-12" id="no-results-message" style="display: none;">
+                <p>No transparency documents found.</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <div class="d-flex justify-content-center my-5">
+        <ul class="pagination custom-pagination mb-0">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}" aria-label="Previous">
+                        <span class="material-symbols-rounded">chevron_left</span>
+                    </a>
+                </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                    <a class="page-link" href="?page={{ num }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">{{ num }}</a>
+                </li>
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}" aria-label="Next">
+                        <span class="material-symbols-rounded">chevron_right</span>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+    {% endif %}
+</section>
+
+<!-- Filter Modal (place this outside the container) -->
+<div id="filter-modal" class="filter-modal-backdrop" style="display:none;">
+    <div class="filter-modal-content">
+        <div class="filter-modal-header">
+            <h5 class="mb-0 text-success">Filter Options</h5>
+            <button type="button" class="btn-close" id="close-filter-modal" aria-label="Close"></button>
+        </div>
+        <hr>
+        <div class="mb-3">
+            <label for="modal-status-dropdown" class="form-label small text-muted">Status</label>
+            <select id="modal-status-dropdown" class="form-select">
+                <option value="">All</option>
+                {% for status in statuses %}
+                    <option value="{{ status.type|lower }}">{{ status.get_type_display }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="modal-category-dropdown" class="form-label small text-muted">Category</label>
+            <select id="modal-category-dropdown" class="form-select">
+                <option value="">All</option>
+                {% for category in categories %}
+                    <option value="{{ category.category|lower }}">{{ category.get_category_display }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button class="btn btn-success w-100 mt-2" id="apply-filters-btn">Apply Filters</button>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<!-- Add these in your base template or at the end of this template -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+<script>
+    // Initialize AOS animation
+    document.addEventListener('DOMContentLoaded', function() {
+        AOS.init();
+        
+        // Filter function
+        function filterCards() {
+            const searchInput = document.getElementById('search-input');
+            const statusSelect = document.getElementById('status-dropdown');
+            const categorySelect = document.getElementById('category-dropdown');
+            const cards = document.querySelectorAll('.transparency-card-col');
+
+            const keyword = searchInput.value.trim().toLowerCase();
+            const selectedStatus = statusSelect.value.toLowerCase();
+            const selectedCategory = categorySelect.value.toLowerCase();
+
+            cards.forEach(card => {
+                const title = card.querySelector('.card-title')?.textContent.toLowerCase() || '';
+                const text = card.querySelector('.card-text')?.textContent.toLowerCase() || '';
+                const statusBadge = card.querySelector('.badge.bg-success');
+                const categoryBadge = card.querySelector('.badge.bg-info');
+                
+                const status = statusBadge?.getAttribute('data-value')?.toLowerCase() || '';
+                const category = categoryBadge?.getAttribute('data-value')?.toLowerCase() || '';
+
+                const matchesKeyword = !keyword || title.includes(keyword) || text.includes(keyword);
+                const matchesStatus = !selectedStatus || status === selectedStatus;
+                const matchesCategory = !selectedCategory || category === selectedCategory;
+
+                const cardInner = card.querySelector('.transparency-card');
+                if (matchesKeyword && matchesStatus && matchesCategory) {
+                    card.style.display = 'flex';
+                    if (cardInner) cardInner.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                    if (cardInner) cardInner.style.display = 'none';
+                }
+
+                console.log({
+                    title, text, status, category, matchesKeyword, matchesStatus, matchesCategory
+                });
+            });
+
+            // After filtering cards
+            const anyVisible = Array.from(cards).some(card => card.style.display !== 'none');
+            const noResultsMsg = document.getElementById('no-results-message');
+            if (noResultsMsg) {
+                noResultsMsg.style.display = anyVisible ? 'none' : 'block';
+            }
+        }
+
+        // Modal logic
+        const openBtn = document.getElementById('open-filter-modal');
+        const closeBtn = document.getElementById('close-filter-modal');
+        const modal = document.getElementById('filter-modal');
+        const applyBtn = document.getElementById('apply-filters-btn');
+        const modalStatus = document.getElementById('modal-status-dropdown');
+        const modalCategory = document.getElementById('modal-category-dropdown');
+        const statusSelect = document.getElementById('status-dropdown');
+        const categorySelect = document.getElementById('category-dropdown');
+        const searchInput = document.getElementById('search-input');
+        const searchBtn = document.getElementById('search-btn');
+
+        // Show modal
+        openBtn.addEventListener('click', function() {
+            modalStatus.value = statusSelect.value;
+            modalCategory.value = categorySelect.value;
+            modal.style.display = 'flex';
+        });
+
+        // Hide modal
+        closeBtn.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+
+        // Apply filters
+        applyBtn.addEventListener('click', function() {
+            statusSelect.value = modalStatus.value;
+            categorySelect.value = modalCategory.value;
+            modal.style.display = 'none';
+            filterCards();
+        });
+
+        // Close modal when clicking outside
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+
+        // Event listeners for filtering
+        searchInput.addEventListener('input', filterCards);
+        searchBtn.addEventListener('click', filterCards);
+        statusSelect.addEventListener('change', filterCards);
+        categorySelect.addEventListener('change', filterCards);
+
+        // Initial filter on page load
+        filterCards();
+    });
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+   
+    .event_header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .event_title {
+        font-size: 3rem;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .event_title span {
+        color: #1B4332;
+    }
+
+    .sub-heading {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    .description {
+        font-size: 1.6rem;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .separator-container {
+        background-color: #f1f1f1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0;
+        position: relative;
+        z-index: 20;
+        padding: 1.5rem 0;
+    }
+
+    .modern-separator {
+        width: 90%;
+        max-width: 1200px;
+        height: 6px;
+        background: linear-gradient(to right, #ff416c, #ff4b2b, #ff416c);
+        border-radius: 0;
+        box-shadow: 0 2px 10px rgba(255, 75, 43, 0.5);
+        z-index: 20;
+    }
+
+    .event_section {
+        padding: 2rem 0;
+    }
+
+    .event_section_header {
+        text-align: left;
+        margin-bottom: 3rem;
+        padding-left: 5rem;
+    }
+
+    .event_section_title {
+        font-size: 3.5rem;
+        color: #1B4332;
+    }
+
+    .transparency-card-col {
+        flex: 1 1 320px;
+        max-width: 420px;
+        min-width: 320px;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+    }
+
+    .transparency-card {
+        border-radius: 24px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+        overflow: hidden;
+        border: none;
+        background: #fff;
+        width: 100%;
+        max-width: 420px;
+        min-width: 320px;
+        aspect-ratio: 16/9;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .transparency-card:hover {
+        transform: translateY(-6px) scale(1.01);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.13);
+    }
+
+    .card-img-top-wrapper {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+        flex: 1 1 auto;
+        display: flex;
+        align-items: stretch;
+    }
+
+    .card-img-top {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        border-radius: 24px;
+    }
+
+    .card-badges {
+        z-index: 2;
+        position: absolute;
+        top: 16px;
+        left: 16px;
+        display: flex;
+        gap: 8px;
+    }
+
+    .badge {
+        font-size: 0.95em;
+        font-weight: 600;
+        border-radius: 8px;
+        padding: 0.4em 0.9em;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    }
+
+    .card-img-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(to top, rgba(0,0,0,0.7) 70%, transparent 100%);
+        color: white;
+        border-radius: 0 0 24px 24px;
+        min-height: 40%;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        pointer-events: none; /* So badges/buttons above are clickable */
+    }
+
+    .card-title {
+        font-size: 1.25rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+        color: #fff;
+        text-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    .card-text {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+        opacity: 0.95;
+        color: #f1f1f1;
+        text-shadow: 0 2px 8px rgba(0,0,0,0.10);
+    }
+
+    .card-date {
+        font-size: 0.95rem;
+        opacity: 0.9;
+        color: #e0e0e0;
+        text-shadow: 0 2px 8px rgba(0,0,0,0.10);
+    }
+
+    @media (max-width: 992px) {
+        .transparency-card {
+            max-width: 100%;
+            min-width: 0;
+            aspect-ratio: 16/10;
+        }
+    }
+    @media (max-width: 768px) {
+        .transparency-card {
+            aspect-ratio: 16/12;
+            border-radius: 16px;
+        }
+        .card-img-overlay {
+            border-radius: 0 0 16px 16px;
+        }
+    }
+
+    .custom-pagination .page-link {
+        color: #007bff;
+        border: none;
+        margin: 0 5px;
+        border-radius: 5px;
+    }
+
+    .custom-pagination .page-item.active .page-link {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .search-wrapper {
+        max-width: 400px;
+    }
+
+    .dropdown-menu {
+        min-width: 300px;
+    }
+
+    /* Search and filter section styling */
+    .input-group {
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    .btn-outline-primary {
+        border-color: #1B4332;
+    }
+
+    .btn-outline-primary:hover {
+        background-color: #1B4332;
+        color: white;
+    }
+
+    /* Dropdown styling */
+    .dropdown-menu {
+        border: none;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .dropdown-header {
+        font-weight: 600;
+    }
+
+    /* Actions bar */
+    .search-wrapper input {
+        border-radius: 8px 0 0 8px;
+    }
+    .search-wrapper .btn {
+        border-radius: 0 8px 8px 0;
+    }
+    .form-select {
+        border-radius: 8px;
+    }
+
+    #status-dropdown, #category-dropdown {
+        display: none !important;
+    }
+
+    .filter-modal-backdrop {
+        position: fixed;
+        z-index: 1050;
+        left: 0; top: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.10);
+        display: none; /* Hidden by default */
+        align-items: center;
+        justify-content: center;
+    }
+    .filter-modal-content {
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 8px 32px rgba(192,57,43,0.18);
+        padding: 2rem 2rem 1.5rem 2rem;
+        min-width: 320px;
+        max-width: 95vw;
+        min-height: 200px;
+        position: relative;
+        animation: popIn 0.18s cubic-bezier(.4,2,.6,1) 1;
+    }
+    @keyframes popIn {
+        0% { transform: scale(0.95); opacity: 0; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+
+    #transparency-cards-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2rem;
+        width: 100%;
+        justify-content: flex-start;
+    }
+</style>
+{% endblock %}

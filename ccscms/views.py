@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
+from django.views.generic import ListView, DetailView
 from django.contrib import messages
 from django.views import View
 from datetime import date
@@ -22,6 +23,16 @@ from django.conf import settings
 import json
 import logging
 from django.utils import timezone
+import openpyxl
+from django.apps import apps
+from django.template.loader import render_to_string
+from io import BytesIO
+from django.utils.html import strip_tags
+try:
+    from weasyprint import HTML
+    WEASYPRINT_AVAILABLE = True
+except ImportError:
+    WEASYPRINT_AVAILABLE = False
 
 
 logger = logging.getLogger(__name__)
@@ -33,7 +44,7 @@ from .models import (
     Status, Category, College, Department, Position, Committee, CommitteeMember,
     Faculty, ComplaintType, Transparency, GalleryPost, GalleryPostImage,
     PostImage, AccomplishmentImage, AchievementImage, AnnouncementAudience, 
-    
+    FeedbackType
 )
 
 def is_admin(user):
@@ -59,6 +70,7 @@ class AuthView(View):
             
             if user is not None:
                 login(request, user)
+                messages.success(request, f'Welcome back, {user.firstname}!')
                 if is_admin(user):
                     return redirect('admin_dashboard')
                 return redirect('landing_page')
@@ -102,8 +114,10 @@ class AuthView(View):
                     COR_img=None
                 )
                 
-                messages.success(request, 'Account created successfully! Please login.')
-                return redirect('auth')
+                # Log the user in after successful registration
+                login(request, user)
+                messages.success(request, 'Account created successfully! Welcome to Student Council.')
+                return redirect('landing_page')
             
             except Exception as e:
                 messages.error(request, f'Error creating account: {str(e)}')
@@ -113,8 +127,9 @@ class AuthView(View):
 
 @login_required
 def logout_view(request):
+    user = request.user
     logout(request)
-    messages.success(request, 'You have been logged out.')
+    messages.success(request, f'Goodbye, {user.firstname}! You have been logged out.')
     return redirect('auth')
 
 @login_required
@@ -219,7 +234,7 @@ def admin_dashboard(request):
                 return HttpResponse(html)
             elif page == 'accomplishments':
                 html = render_to_string('admin/accomplishment/accomplishment_list.html', {
-                    'categories': Category.objects.filter(is_active=True)
+                    'categories': Category.objects.filter(is_active=True, scope_id__in=[4, 7])
                 }, request=request)
                 return JsonResponse({'html': html})
             elif page == 'accomplishment_form':
@@ -1709,20 +1724,23 @@ def accomplishment_list(request):
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         try:
             # Get filter parameters
-            status = request.GET.get('status', '')
             category = request.GET.get('category', '')
             date_from = request.GET.get('date_from', '')
             search = request.GET.get('search', '')
             page = request.GET.get('page', 1)
+            show_deleted = request.GET.get('show_deleted', 'false').lower() == 'true'
             
             # Start with base queryset
-            accomplishments = Accomplishment.objects.filter(is_active=True).select_related(
-                'category', 'status', 'admin__account'
-            ).prefetch_related('images')
+            if show_deleted:
+                accomplishments = Accomplishment.all_objects.filter(is_active=False).select_related(
+                    'category', 'admin__account'
+                ).prefetch_related('images')
+            else:
+                accomplishments = Accomplishment.objects.filter(is_active=True).select_related(
+                    'category', 'admin__account'
+                ).prefetch_related('images')
             
             # Apply filters
-            if status:
-                accomplishments = accomplishments.filter(status__type=status)
             if category:
                 accomplishments = accomplishments.filter(category_id=category)
             if date_from:
@@ -1749,8 +1767,6 @@ def accomplishment_list(request):
                     'content': acc.content,
                     'category': acc.category.category if acc.category else '',
                     'category_id': acc.category.id if acc.category else None,
-                    'status': acc.status.type if acc.status else '',
-                    'status_id': acc.status.id if acc.status else None,
                     'impact': acc.impact,
                     'recognition': acc.recognition,
                     'accomplish_on': acc.accomplish_on.strftime('%Y-%m-%d') if acc.accomplish_on else '',
@@ -1767,18 +1783,20 @@ def accomplishment_list(request):
                     ]
                 })
             
-            # Get categories for filter dropdown
-            categories = Category.objects.filter(is_active=True).values('id', 'category')
+            # Get categories for filter dropdown (only scope_id 4 or 7)
+            categories = Category.objects.filter(is_active=True, scope_id__in=[4, 7]).values('id', 'category')
             
             return JsonResponse({
                 'success': True,
                 'accomplishments': accomplishments_data,
                 'categories': list(categories),
-                'has_previous': page_obj.has_previous(),
-                'has_next': page_obj.has_next(),
                 'current_page': page_obj.number,
                 'total_pages': paginator.num_pages,
-                'total_items': paginator.count
+                'total_items': paginator.count,
+                'has_previous': page_obj.has_previous(),
+                'has_next': page_obj.has_next(),
+                'previous_page_number': page_obj.previous_page_number() if page_obj.has_previous() else None,
+                'next_page_number': page_obj.next_page_number() if page_obj.has_next() else None
             })
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)}, status=500)
@@ -1793,7 +1811,7 @@ def accomplishment_create(request):
             data = request.POST.dict()
             
             # Validate required fields
-            required_fields = ['title', 'context', 'content', 'category', 'status', 'accomplish_on']
+            required_fields = ['title', 'context', 'content', 'category', 'accomplish_on']
             for field in required_fields:
                 if not data.get(field):
                     return JsonResponse({
@@ -1807,7 +1825,6 @@ def accomplishment_create(request):
                 context=data['context'],
                 content=data['content'],
                 category_id=data['category'],
-                status_id=data['status'],
                 impact=data.get('impact', ''),
                 recognition=data.get('recognition', ''),
                 accomplish_on=data['accomplish_on'],
@@ -1849,7 +1866,6 @@ def accomplishment_update(request, pk):
             accomplishment.context = data.get('context', accomplishment.context)
             accomplishment.content = data.get('content', accomplishment.content)
             accomplishment.category_id = data.get('category', accomplishment.category_id)
-            accomplishment.status_id = data.get('status', accomplishment.status_id)
             accomplishment.impact = data.get('impact', accomplishment.impact)
             accomplishment.recognition = data.get('recognition', accomplishment.recognition)
             
@@ -1877,19 +1893,6 @@ def accomplishment_update(request, pk):
         'error': 'Invalid request method'
     }, status=400)
 
-@csrf_exempt
-@login_required
-@user_passes_test(is_admin)
-def accomplishment_delete(request, pk):
-    if request.method == 'POST':
-        try:
-            accomplishment = get_object_or_404(Accomplishment, pk=pk, is_active=True)
-            accomplishment.delete()  # Soft delete
-            return JsonResponse({'success': True, 'message': 'Accomplishment deleted successfully'})
-        except Exception as e:
-            return JsonResponse({'success': False, 'error': str(e)}, status=500)
-    return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=400)
-
 @login_required
 @user_passes_test(is_admin)
 def accomplishment_detail(request, pk):
@@ -1915,8 +1918,6 @@ def accomplishment_detail(request, pk):
                     'content': accomplishment.content,
                     'category_id': accomplishment.category.id if accomplishment.category else None,
                     'category_name': accomplishment.category.category if accomplishment.category else '',
-                    'status_id': accomplishment.status.id if accomplishment.status else None,
-                    'status_name': accomplishment.status.type if accomplishment.status else '',
                     'impact': accomplishment.impact,
                     'recognition': accomplishment.recognition,
                     'accomplish_on': accomplishment.accomplish_on.strftime('%Y-%m-%d') if accomplishment.accomplish_on else None,
@@ -1934,7 +1935,8 @@ def accomplishment_detail(request, pk):
 def accomplishment_form_data(request):
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         try:
-            categories = list(Category.objects.filter(is_active=True).values('id', 'category'))
+            # Only include categories with scope_id 4 or 7
+            categories = list(Category.objects.filter(is_active=True, scope_id__in=[4, 7]).values('id', 'category'))
             status_choices = list(Status.objects.filter(is_active=True).values('id', 'type'))
             
             return JsonResponse({
@@ -1956,6 +1958,20 @@ def accomplishment_image_delete(request, pk):
             accomplishment_id = image.accomplishment.id
             image.delete()
             return JsonResponse({'success': True, 'message': 'Image deleted successfully'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=400)
+
+@csrf_exempt
+@login_required
+@user_passes_test(is_admin)
+def accomplishment_delete(request, pk):
+    if request.method == 'POST':
+        try:
+            accomplishment = get_object_or_404(Accomplishment, pk=pk, is_active=True)
+            accomplishment.is_active = False
+            accomplishment.save()
+            return JsonResponse({'success': True, 'message': 'Accomplishment deleted successfully'})
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)}, status=500)
     return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=400)
@@ -2371,6 +2387,21 @@ def restore_complaint(request, pk):
             return JsonResponse({'success': False, 'error': str(e)}, status=500)
     
     return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=400)
+
+@csrf_exempt
+@login_required
+@user_passes_test(is_admin)
+def accomplishment_restore(request, pk):
+    if request.method == 'POST':
+        try:
+            accomplishment = get_object_or_404(Accomplishment.all_objects, pk=pk, is_active=False)
+            accomplishment.is_active = True
+            accomplishment.save()
+            return JsonResponse({'success': True, 'message': 'Accomplishment restored successfully'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=400)
+
 #client view
 class ClientViews:
     
@@ -2713,6 +2744,46 @@ class ClientViews:
             'selected_category': selected_category,
         })
     @staticmethod
+    class TransparencyListView(ListView):
+        model = Transparency
+        template_name = 'client/transparency/list.html'
+        context_object_name = 'transparency_list'
+        paginate_by = 10
+    
+        def get_queryset(self):
+            queryset = Transparency.objects.select_related('category', 'status', 'admin')
+            
+            # Filter by category if provided
+            category = self.request.GET.get('category')
+            if category:
+                queryset = queryset.filter(category__category=category)
+                
+            # Filter by status if provided
+            status = self.request.GET.get('status')
+            if status:
+                queryset = queryset.filter(status__type=status)
+                
+            return queryset.order_by('-date')
+    
+        def get_context_data(self, **kwargs):
+            context = super().get_context_data(**kwargs)
+            # Filter categories to only show those with scope_id 5 (transparency)
+            context['categories'] = Category.objects.filter(scope_id=5)
+            context['statuses'] = Status.objects.all()
+            return context
+    @staticmethod
+    class TransparencyDetailView(DetailView):
+        model = Transparency
+        template_name = 'client/transparency/detail.html'
+        context_object_name = 'transparency'
+
+        def get_object(self):
+            return get_object_or_404(
+                Transparency.objects.select_related('category', 'status', 'admin'),
+                pk=self.kwargs.get('pk')
+            )
+            
+    @staticmethod
     def contact_page(request):
         """Contact us page"""
         return render(request, 'client/contact.html')
@@ -2720,6 +2791,134 @@ class ClientViews:
     def base(request):
         """Base template for the client"""
         return render(request, 'client/base.html')
-    
+    @staticmethod
+    @login_required
+    def feedback(request):
+        if request.method == 'POST':
+            rating = request.POST.get('rating')
+            comment = request.POST.get('comment')
+            feedback_type_id = request.POST.get('feedback_type')
+
+            try:
+                user = User.objects.get(account=request.user)
+                Feedback.objects.create(
+                    user=user,
+                    rating=rating,
+                    comment=comment,
+                    feedback_type_id=feedback_type_id
+                )
+                # If AJAX, return JSON
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    return JsonResponse({'success': True})
+                # Otherwise, normal redirect
+                messages.success(request, 'Thank you for your feedback!')
+                return redirect('landing_page')
+            except User.DoesNotExist:
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    return JsonResponse({'success': False, 'error': 'User profile not found.'}, status=400)
+                messages.error(request, 'User profile not found.')
+                return redirect('feedback')
+
+        feedback_types = FeedbackType.objects.all()
+        return render(request, 'client/client_inputs/feedback.html', {'feedback_types': feedback_types})
+
+    @staticmethod
+    @login_required
+    def complaint(request):
+        if request.method == 'POST':
+            complaint_type_id = request.POST.get('complaint_type')
+            description = request.POST.get('description')
+            complain_img = request.FILES.get('complain_img')
+
+            try:
+                user = User.objects.get(account=request.user)
+                complaint = Complaint.objects.create(
+                    user=user,
+                    complaint_type_id=complaint_type_id,
+                    description=description,
+                    complain_img=complain_img
+                )
+                
+                # If AJAX, return JSON
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    return JsonResponse({'success': True})
+                
+                # Otherwise, normal redirect
+                messages.success(request, 'Your complaint has been submitted successfully!')
+                return redirect('landing_page')
+                
+            except User.DoesNotExist:
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    return JsonResponse({'success': False, 'error': 'User profile not found.'}, status=400)
+                messages.error(request, 'User profile not found.')
+                return redirect('auth')
+            except Exception as e:
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    return JsonResponse({'success': False, 'error': str(e)}, status=400)
+                messages.error(request, f'Error submitting complaint: {str(e)}')
+                return redirect('complaint')
+
+        # GET request - show the form
+        complaint_types = ComplaintType.objects.filter(is_active=True)
+        return render(request, 'client/client_inputs/complaint.html', {'complaint_types': complaint_types})
+
 # Create an instance to use in urls.py
 client_views = ClientViews()
+
+@csrf_exempt
+@login_required
+@user_passes_test(is_admin)
+def export_data(request):
+    model_name = request.GET.get('model')
+    export_format = request.GET.get('format', 'excel')
+    # Map model names to Django models and visible fields
+    model_map = {
+        'accomplishment': (Accomplishment, ['title', 'category', 'context', 'content', 'impact', 'recognition', 'accomplish_on']),
+        'post': (Post, ['title', 'category', 'context', 'content', 'created_at']),
+        'achievement': (Achievement, ['title', 'category', 'context', 'content', 'awarded_by', 'awarded_on']),
+        # Add more as needed
+    }
+    if model_name not in model_map:
+        return HttpResponse('Invalid model', status=400)
+    model, fields = model_map[model_name]
+    queryset = model.objects.filter(is_active=True)
+    # Filtering (optional, e.g., by category)
+    category = request.GET.get('category')
+    if category and hasattr(model, 'category_id'):
+        queryset = queryset.filter(category_id=category)
+    # Prepare data
+    data = []
+    for obj in queryset:
+        row = []
+        for field in fields:
+            value = getattr(obj, field, '')
+            if hasattr(value, 'category'):
+                value = value.category
+            elif hasattr(value, 'strftime'):
+                value = value.strftime('%Y-%m-%d')
+            row.append(str(value))
+        data.append(row)
+    # Excel export
+    if export_format == 'excel':
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.append([f.replace('_', ' ').title() for f in fields])
+        for row in data:
+            ws.append(row)
+        output = BytesIO()
+        wb.save(output)
+        output.seek(0)
+        response = HttpResponse(output, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = f'attachment; filename={model_name}_export.xlsx'
+        return response
+    # PDF export
+    elif export_format == 'pdf' and WEASYPRINT_AVAILABLE:
+        html_string = render_to_string('admin/export_table.html', {'fields': fields, 'data': data, 'model_name': model_name.title()})
+        pdf_file = BytesIO()
+        HTML(string=html_string).write_pdf(pdf_file)
+        pdf_file.seek(0)
+        response = HttpResponse(pdf_file, content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename={model_name}_export.pdf'
+        return response
+    else:
+        return HttpResponse('Export format not supported or PDF library not installed.', status=400)

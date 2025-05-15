@@ -13,10 +13,10 @@ from .views import (
     announcement_permanent_delete, announcement_form_data, achievement_list, achievement_form_data, achievement_detail,
     achievement_create, achievement_update, achievement_delete,
     achievement_image_delete, client_views, logout_view,  accomplishment_list, accomplishment_create, accomplishment_update,
-    accomplishment_delete, accomplishment_detail, accomplishment_form_data,
-    accomplishment_image_delete, account_list, account_create, account_update,
+    accomplishment_detail, accomplishment_form_data, accomplishment_image_delete, account_list, account_create, account_update,
     account_delete, account_detail, account_form_data,
-    ClientViews,
+    ClientViews, accomplishment_restore, accomplishment_delete,
+    export_data,
 )
 
 urlpatterns = [
@@ -40,9 +40,13 @@ urlpatterns = [
     path('committees/', ClientViews.committees_list, name='committees_list'),
     path('committees/<int:committee_id>/', ClientViews.committee_detail, name='committee_detail'),
     path('accomplishments/', client_views.accomplishments_list, name='accomplishments_list'),
+    path('transparency/', client_views.TransparencyListView.as_view(), name='transparency_list'),
+    path('transparency/<int:pk>/', client_views.TransparencyDetailView.as_view(), name='transparency_detail'),
     path('about/', client_views.about_page, name='about_page'),
     path('contact/', client_views.contact_page, name='contact_page'),
-    path('contact/', client_views.contact_page, name='feedback'),#testing
+    path('feedback/', client_views.feedback, name='feedback'),
+      path('complaint/', client_views.complaint, name='complaint'),
+
 
     
     # Admin routes
@@ -116,10 +120,11 @@ urlpatterns = [
     path('cscadmin/accomplishments/list/', accomplishment_list, name='accomplishment_list'),
     path('cscadmin/accomplishments/create/', accomplishment_create, name='accomplishment_create'),
     path('cscadmin/accomplishments/<int:pk>/update/', accomplishment_update, name='accomplishment_update'),
-    path('cscadmin/accomplishments/<int:pk>/delete/', accomplishment_delete, name='accomplishment_delete'),
     path('cscadmin/accomplishments/<int:pk>/detail/', accomplishment_detail, name='accomplishment_detail'),
     path('cscadmin/accomplishments/form-data/', accomplishment_form_data, name='accomplishment_form_data'),
     path('cscadmin/accomplishment-images/<int:pk>/delete/', accomplishment_image_delete, name='accomplishment_image_delete'),
+    path('cscadmin/accomplishments/<int:pk>/restore/', accomplishment_restore, name='accomplishment_restore'),
+    path('cscadmin/accomplishments/<int:pk>/delete/', accomplishment_delete, name='accomplishment_delete'),
     
     #account
     path('cscadmin/accounts/list/', account_list, name='account_list'),
@@ -131,4 +136,6 @@ urlpatterns = [
     # Legacy client page (redirects to landing page)
     path('client/lpage/', client_lpage, name='client_lpage'),
     
+    # Add this new pattern
+    path('cscadmin/export/', export_data, name='export_data'),
 ]

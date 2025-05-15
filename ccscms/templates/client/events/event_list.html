@@ -94,10 +94,19 @@
                         {% endfor %}
                     </p>
                     <a href="{% url 'event_detail' event.pk %}" class="event_item_title">{{ event.name }}</a>
-                    <div class="event_date_con">
+                    <div class="event_date_con" style="display: flex; align-items: center; gap: 8px;">
                         <span class="material-symbols-outlined">calendar_month</span>
-                        <p class="event_date">{{ event.date_event|date:"D, M d, Y" }} {{ event.start_at|time:"g:iA" }} to {{ event.end_at|time:"g:iA" }}</p>
+                        <p class="event_date" style="margin: 0;">Date: {{ event.date_event|date:"D, M d, Y" }}</p>
                     </div>
+                    <div class="event_time_con" style="display: flex; align-items: center; gap: 8px;">
+                        <span class="material-symbols-outlined">schedule</span>
+                        <p class="event_time" style="margin: 0;">Time: {{ event.start_at|time:"g:iA" }} to {{ event.end_at|time:"g:iA" }}</p>
+                    </div>
+                    {% if event.context %}
+                    <div class="event_context" style="margin-top: 4px; color: #444; font-size: 0.98em;">
+                        {{ event.context }}
+                    </div>
+                    {% endif %}
                     <div class="event_loc_con">
                         <span class="material-symbols-outlined">location_on</span>
                         <p class="event_location">{{ event.location }}</p>

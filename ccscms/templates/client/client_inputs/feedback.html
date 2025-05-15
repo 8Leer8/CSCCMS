@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback - Student Council</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background-image: url('{% static "vendor/bg/WMSU1.jpg" %}');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.45); /* Adjust opacity as needed */
+            z-index: 0;
+            pointer-events: none;
+        }
+        .feedback-container {
+            max-width: 700px;
+            margin: 1rem auto;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            border: 2px solid #4caf50;
+            backdrop-filter: blur(5px);
+            position: relative;
+            z-index: 1;
+        }
+        .feedback-header {
+            text-align: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e8f5e9;
+        }
+        .feedback-header h1 {
+            color: #2e7d32;
+            font-weight: 600;
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+        .feedback-header p {
+            color: #558b2f;
+            font-size: 1rem;
+            margin-bottom: 0;
+        }
+        .emoji-rating {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        .emoji-option {
+            cursor: pointer;
+            text-align: center;
+            transition: transform 0.2s;
+            padding: 0.5rem;
+            border-radius: 8px;
+            background: #f8f9fa;
+            border: 1px solid #e8f5e9;
+        }
+        .emoji-option:hover {
+            transform: scale(1.05);
+            background: #e8f5e9;
+        }
+        .emoji-option.selected {
+            background: #c8e6c9;
+            box-shadow: 0 0 8px rgba(76,175,80,0.3);
+            border-color: #4caf50;
+        }
+        .emoji-option i {
+            font-size: 2rem;
+            margin-bottom: 0.3rem;
+        }
+        .emoji-option span {
+            display: block;
+            color: #558b2f;
+            font-size: 0.8rem;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-label {
+            font-weight: 500;
+            color: #2e7d32;
+            margin-bottom: 0.3rem;
+        }
+        .form-control {
+            border-radius: 6px;
+            border: 1px solid #c8e6c9;
+            padding: 0.5rem;
+        }
+        .form-control:focus {
+            border-color: #4caf50;
+            box-shadow: 0 0 0 0.2rem rgba(76,175,80,0.25);
+        }
+        .btn-submit {
+            background: #4caf50;
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 6px;
+            border: none;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .btn-submit:hover {
+            background: #388e3c;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(76,175,80,0.3);
+        }
+        .feedback-type-select {
+            width: 100%;
+            padding: 0.5rem;
+            border-radius: 6px;
+            border: 1px solid #c8e6c9;
+            background-color: white;
+        }
+        .feedback-type-select:focus {
+            border-color: #4caf50;
+            outline: none;
+            box-shadow: 0 0 0 0.2rem rgba(76,175,80,0.25);
+        }
+        .alert {
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            padding: 0.5rem 1rem;
+        }
+        textarea.form-control {
+            min-height: 80px;
+        }
+        .alert-success {
+            background-color: #e8f5e9;
+            border-color: #c8e6c9;
+            color: #2e7d32;
+        }
+        .alert-danger {
+            background-color: #ffebee;
+            border-color: #ffcdd2;
+            color: #c62828;
+        }
+        .btn-cancel {
+            background: #f8f9fa;
+            color: #6c757d;
+            padding: 0.5rem 1.5rem;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .btn-cancel:hover {
+            background: #e9ecef;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(108,117,125,0.2);
+        }
+        /* Modal Styles */
+        .modal-content {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .modal-header {
+            background-color: #4caf50;
+            color: white;
+            border-radius: 15px 15px 0 0;
+            border: none;
+        }
+        .modal-header .btn-close {
+            color: white;
+            filter: brightness(0) invert(1);
+        }
+        .modal-body {
+            padding: 2rem;
+            text-align: center;
+        }
+        .modal-body i {
+            font-size: 4rem;
+            color: #4caf50;
+            margin-bottom: 1rem;
+        }
+        .modal-body p {
+            font-size: 1.2rem;
+            color: #2e7d32;
+            margin-bottom: 0;
+        }
+        /* Form Validation Styles */
+        .form-control.is-invalid {
+            border-color: #dc3545;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+        .invalid-feedback {
+            display: none;
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        .form-control.is-invalid + .invalid-feedback {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="feedback-container">
+            <div class="feedback-header">
+                <h1>Share Your Feedback</h1>
+                <p>Your opinion matters! Help us improve by sharing your experience.</p>
+            </div>
+            <form method="POST" action="{% url 'feedback' %}" id="feedbackForm">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="feedback_type" class="form-label">Feedback Type</label>
+                    <select name="feedback_type" id="feedback_type" class="feedback-type-select" required>
+                        <option value="">Select Feedback Type</option>
+                        {% for type in feedback_types %}
+                            <option value="{{ type.id }}">{{ type.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">How would you rate your experience?</label>
+                    <div class="emoji-rating">
+                        <label class="emoji-option" data-rating="1">
+                            <input type="radio" name="rating" value="1" required style="display: none;">
+                            <i class="fas fa-face-angry" style="color: #e74c3c;"></i>
+                            <span>Very Dissatisfied</span>
+                        </label>
+                        <label class="emoji-option" data-rating="2">
+                            <input type="radio" name="rating" value="2" required style="display: none;">
+                            <i class="fas fa-face-frown" style="color: #f39c12;"></i>
+                            <span>Dissatisfied</span>
+                        </label>
+                        <label class="emoji-option" data-rating="3">
+                            <input type="radio" name="rating" value="3" required style="display: none;">
+                            <i class="fas fa-face-meh" style="color: #f1c40f;"></i>
+                            <span>Neutral</span>
+                        </label>
+                        <label class="emoji-option" data-rating="4">
+                            <input type="radio" name="rating" value="4" required style="display: none;">
+                            <i class="fas fa-face-smile" style="color: #2ecc71;"></i>
+                            <span>Satisfied</span>
+                        </label>
+                        <label class="emoji-option" data-rating="5">
+                            <input type="radio" name="rating" value="5" required style="display: none;">
+                            <i class="fas fa-face-grin-stars" style="color: #3498db;"></i>
+                            <span>Very Satisfied</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="comment" class="form-label">Additional Comments</label>
+                    <textarea class="form-control" id="comment" name="comment" rows="3" 
+                              placeholder="Share your thoughts and suggestions with us..."></textarea>
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-submit me-2">
+                        <i class="fas fa-paper-plane me-2"></i>Submit Feedback
+                    </button>
+                    <button type="button" class="btn btn-cancel" onclick="window.history.back()">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Feedback Thank You Modal -->
+    <div class="modal fade" id="feedbackThankYouModal" tabindex="-1" aria-labelledby="feedbackThankYouModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="feedbackThankYouModalLabel">
+                        <i class="fas fa-check-circle me-2"></i>Thank You!
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="modalCloseBtn"></button>
+                </div>
+                <div class="modal-body">
+                    <i class="fas fa-heart"></i>
+                    <p>We appreciate your feedback!</p>
+                    <small class="text-muted">Redirecting you back...</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const emojiOptions = document.querySelectorAll('.emoji-option');
+            const feedbackForm = document.getElementById('feedbackForm');
+            const feedbackModal = new bootstrap.Modal(document.getElementById('feedbackThankYouModal'));
+            const modalElement = document.getElementById('feedbackThankYouModal');
+            const closeBtn = document.getElementById('modalCloseBtn');
+            let modalTimeout;
+
+            // Form validation
+            function validateForm() {
+                let isValid = true;
+                const requiredFields = feedbackForm.querySelectorAll('[required]');
+                
+                requiredFields.forEach(field => {
+                    if (!field.value) {
+                        field.classList.add('is-invalid');
+                        isValid = false;
+                    } else {
+                        field.classList.remove('is-invalid');
+                    }
+                });
+
+                // Check if rating is selected
+                const ratingSelected = feedbackForm.querySelector('input[name="rating"]:checked');
+                if (!ratingSelected) {
+                    const ratingGroup = document.querySelector('.emoji-rating');
+                    ratingGroup.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    const ratingGroup = document.querySelector('.emoji-rating');
+                    ratingGroup.classList.remove('is-invalid');
+                }
+
+                return isValid;
+            }
+
+            // Add validation feedback elements
+            const requiredFields = feedbackForm.querySelectorAll('[required]');
+            requiredFields.forEach(field => {
+                const feedbackDiv = document.createElement('div');
+                feedbackDiv.className = 'invalid-feedback';
+                feedbackDiv.textContent = 'This field is required';
+                field.parentNode.appendChild(feedbackDiv);
+            });
+
+            // Add validation to emoji rating
+            const ratingGroup = document.querySelector('.emoji-rating');
+            const ratingFeedback = document.createElement('div');
+            ratingFeedback.className = 'invalid-feedback text-center mt-1';
+            ratingFeedback.textContent = 'Please select a rating';
+            ratingGroup.parentNode.appendChild(ratingFeedback);
+            
+            emojiOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    emojiOptions.forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                    const radio = this.querySelector('input[type="radio"]');
+                    radio.checked = true;
+                    ratingGroup.classList.remove('is-invalid');
+                });
+            });
+
+            feedbackForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                if (!validateForm()) {
+                    return;
+                }
+
+                // Get form data
+                const formData = new FormData(this);
+                
+                // Send AJAX request
+                fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        feedbackModal.show();
+                        
+                        modalTimeout = setTimeout(() => {
+                            feedbackModal.hide();
+                            window.history.back();
+                        }, 3000);
+                    } else {
+                        alert('There was an error submitting your feedback. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('There was an error submitting your feedback. Please try again.');
+                });
+            });
+
+            // If user closes modal manually, go back
+            modalElement.addEventListener('hidden.bs.modal', function () {
+                clearTimeout(modalTimeout);
+                window.history.back();
+            });
+
+            // If user clicks X, close modal (handled by Bootstrap, but we clear timeout)
+            closeBtn.addEventListener('click', function() {
+                clearTimeout(modalTimeout);
+            });
+
+            // Add input event listeners to remove invalid state when user starts typing
+            requiredFields.forEach(field => {
+                field.addEventListener('input', function() {
+                    if (this.value) {
+                        this.classList.remove('is-invalid');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

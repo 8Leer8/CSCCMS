@@ -131,7 +131,22 @@ class Status(SoftDeleteModel):
         db_table = 'status'
         verbose_name_plural = 'statuses'
         ordering = ['type']
+class Scope(models.Model):
+    type = models.CharField(
+        max_length=50,
+        unique=True,
+        null=True,
+    )
+    description = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        db_table = 'scope'
+        ordering = ['type']
+
+    def __str__(self):
+        return self.type
 class Category(SoftDeleteModel):
     CATEGORY_TYPES = (
         ('research', 'Research'),
@@ -142,6 +157,13 @@ class Category(SoftDeleteModel):
         ('parties', 'Parties'),
         ('drinks', 'Drinks'),
         ('food', 'Food'),
+    )
+    scope = models.ForeignKey(
+        Scope,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        db_column='scope_id'  # Explicit column name
     )
     category = models.CharField(max_length=50, choices=CATEGORY_TYPES)
     description = models.TextField(null=True, blank=True)
@@ -343,7 +365,6 @@ class ComplaintType(SoftDeleteModel):
 
 class Complaint(SoftDeleteModel):
     complaint_type = models.ForeignKey(ComplaintType, on_delete=models.PROTECT)
-    other_info = models.TextField(null=True, blank=True)
     description = models.TextField()
     complain_img = models.ImageField(upload_to=upload_to, null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -542,7 +563,6 @@ class Accomplishment(SoftDeleteModel):
     context = models.TextField()
     content = models.TextField()
     accomplish_on = models.DateField()
-    status = models.ForeignKey(Status, on_delete=models.PROTECT)
     impact = models.TextField(null=True, blank=True)
     recognition = models.TextField(null=True, blank=True)
     admin = models.ForeignKey(Admin, on_delete=models.PROTECT)
@@ -554,7 +574,6 @@ class Accomplishment(SoftDeleteModel):
         ordering = ['-accomplish_on']
         indexes = [
             models.Index(fields=['category']),
-            models.Index(fields=['status']),
         ]
 
 class AccomplishmentImage(SoftDeleteModel):
@@ -662,12 +681,18 @@ class VolunteerEvent(models.Model):
     class Meta:
         db_table = 'volunteer_event_list'
         unique_together = ('volunteer', 'event')
+class FeedbackType(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.name
 
 class Feedback(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     rating = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(5)]
     )
+    feedback_type = models.ForeignKey(FeedbackType, on_delete=models.SET_NULL, null=True)
     comment = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
     
