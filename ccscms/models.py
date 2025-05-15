@@ -589,12 +589,13 @@ class AccomplishmentImage(SoftDeleteModel):
 class Achievement(SoftDeleteModel):
     category = models.ForeignKey('Category', on_delete=models.PROTECT)
     title = models.CharField(max_length=255)
+    heading = models.CharField(max_length=255, blank=True, null=True)
     context = models.TextField(blank=True, null=True)  # Short summary or paragraph
     content = models.TextField(blank=True, null=True)  # Optional full details
 
     # Optional fields for flexibility
     team_name = models.CharField(max_length=255, blank=True, null=True)
-    mentor = models.CharField(max_length=255, blank=True, null=True)
+    person_in_charge = models.CharField(max_length=255, blank=True, null=True)
     location = models.CharField(max_length=255, blank=True, null=True)
 
     # Support full date range OR just a year
@@ -603,7 +604,6 @@ class Achievement(SoftDeleteModel):
     end_date = models.DateField(blank=True, null=True)
 
     awarded_by = models.CharField(max_length=100, blank=True, null=True)
-    status = models.ForeignKey('Status', on_delete=models.PROTECT)
     admin = models.ForeignKey('Admin', on_delete=models.PROTECT)
 
     created_at = models.DateTimeField(default=timezone.now)
@@ -614,7 +614,6 @@ class Achievement(SoftDeleteModel):
         ordering = ['-awarded_on']
         indexes = [
             models.Index(fields=['category']),
-            models.Index(fields=['status']),
         ]
 
     def __str__(self):

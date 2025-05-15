@@ -1,106 +1,139 @@
 <form id="achievementForm" enctype="multipart/form-data">
     <input type="hidden" id="achievementId" name="id">
-    
-    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-        <!-- Left Column -->
-        <div class="space-y-4">
+    <!-- Basic Info Section -->
+    <div class="mb-6 rounded-lg shadow-md bg-white border border-gray-200">
+        <div class="flex items-center mb-2 pt-4 px-4">
+            <i class="fas fa-info-circle text-blue-500 bg-blue-50 rounded-full p-2 shadow mr-2"></i>
+            <h4 class="text-md font-semibold text-gray-800">Basic Information</h4>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 px-4 pb-4">
             <div>
-                <label for="achievementTitle" class="block text-sm font-medium text-gray-700">Title*</label>
-                <input type="text" id="achievementTitle" name="title" required
-                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
+                <label for="achievementTitle" class="block text-sm font-medium text-gray-700"><i class="fas fa-heading mr-1 text-blue-400"></i>Title*</label>
+                <input type="text" id="achievementTitle" name="title" required class="mt-1 block w-full h-12 border border-gray-300 rounded-lg shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 sm:text-sm transition-all duration-150">
             </div>
-            
             <div>
-                <label for="achievementTeamName" class="block text-sm font-medium text-gray-700">Team Name</label>
-                <input type="text" id="achievementTeamName" name="team_name"
-                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
+                <label for="achievementHeading" class="block text-sm font-medium text-gray-700"><i class="fas fa-quote-right mr-1 text-blue-400"></i>Heading</label>
+                <input type="text" id="achievementHeading" name="heading" class="mt-1 block w-full h-12 border border-gray-300 rounded-lg shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 sm:text-sm transition-all duration-150">
             </div>
-            
             <div>
-                <label for="achievementMentor" class="block text-sm font-medium text-gray-700">Mentor</label>
-                <input type="text" id="achievementMentor" name="mentor"
-                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
+                <label for="achievementTeamName" class="block text-sm font-medium text-gray-700"><i class="fas fa-users mr-1 text-blue-400"></i>Team Name</label>
+                <input type="text" id="achievementTeamName" name="team_name" class="mt-1 block w-full h-12 border border-gray-300 rounded-lg shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 sm:text-sm transition-all duration-150">
             </div>
-            
             <div>
-                <label for="achievementLocation" class="block text-sm font-medium text-gray-700">Location</label>
-                <input type="text" id="achievementLocation" name="location"
-                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
+                <label for="achievementPersonInCharge" class="block text-sm font-medium text-gray-700"><i class="fas fa-user-tie mr-1 text-blue-400"></i>Person in Charge</label>
+                <input type="text" id="achievementPersonInCharge" name="person_in_charge" class="mt-1 block w-full h-12 border border-gray-300 rounded-lg shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 sm:text-sm transition-all duration-150">
             </div>
-            
             <div>
-                <label for="achievementAwardedBy" class="block text-sm font-medium text-gray-700">Awarded By*</label>
-                <input type="text" id="achievementAwardedBy" name="awarded_by" required
-                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
+                <label for="achievementLocation" class="block text-sm font-medium text-gray-700">
+                    <i class="fas fa-map-marker-alt mr-1 text-red-400"></i>Location
+                </label>
+                <select id="achievementLocation" name="location" class="mt-1 block w-full h-12 border border-gray-300 rounded-lg shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 sm:text-sm transition-all duration-150">
+                    <option value="">Select a city...</option>
+                </select>
             </div>
-            
             <div>
-                <label for="achievementCategory" class="block text-sm font-medium text-gray-700">Category*</label>
-                <select id="achievementCategory" name="category" required
-                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
+                <label for="achievementAwardedBy" class="block text-sm font-medium text-gray-700"><i class="fas fa-trophy mr-1 text-blue-400"></i>Awarded By*</label>
+                <input type="text" id="achievementAwardedBy" name="awarded_by" required class="mt-1 block w-full h-12 border border-gray-300 rounded-lg shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 sm:text-sm transition-all duration-150">
+            </div>
+            <div>
+                <label for="achievementCategory" class="block text-sm font-medium text-gray-700"><i class="fas fa-layer-group mr-1 text-blue-400"></i>Category*</label>
+                <select id="achievementCategory" name="category" required class="mt-1 block w-full h-12 border border-gray-300 rounded-lg shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 sm:text-sm transition-all duration-150">
                     <option value="">Select Category</option>
                 </select>
             </div>
         </div>
-        
-        <!-- Right Column -->
-        <div class="space-y-4">
+    </div>
+    <!-- Section Divider -->
+    <div class="w-full border-t border-gray-200 my-6"></div>
+    <!-- Dates Section -->
+    <div class="mb-6 rounded-lg shadow-md bg-white border border-gray-200">
+        <div class="flex items-center mb-2 pt-4 px-4">
+            <i class="fas fa-calendar-alt text-green-500 bg-green-50 rounded-full p-2 shadow mr-2"></i>
+            <h4 class="text-md font-semibold text-gray-800">Dates</h4>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 px-4 pb-4">
             <div>
-                <label for="achievementAwardedOn" class="block text-sm font-medium text-gray-700">Date Awarded*</label>
-                <input type="date" id="achievementAwardedOn" name="awarded_on" required
-                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
+                <label for="achievementAwardedOn" class="block text-sm font-medium text-gray-700"><i class="fas fa-medal mr-1 text-green-400"></i>Date Awarded*</label>
+                <input type="date" id="achievementAwardedOn" name="awarded_on" required class="mt-1 block w-full h-12 border border-gray-300 rounded-lg shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400 sm:text-sm transition-all duration-150">
             </div>
-            
             <div>
-                <label for="achievementStartDate" class="block text-sm font-medium text-gray-700">Start Date</label>
-                <input type="date" id="achievementStartDate" name="start_date"
-                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
+                <label for="achievementStartDate" class="block text-sm font-medium text-gray-700"><i class="fas fa-play mr-1 text-green-400"></i>Start Date</label>
+                <input type="date" id="achievementStartDate" name="start_date" class="mt-1 block w-full h-12 border border-gray-300 rounded-lg shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400 sm:text-sm transition-all duration-150">
             </div>
-            
             <div>
-                <label for="achievementEndDate" class="block text-sm font-medium text-gray-700">End Date</label>
-                <input type="date" id="achievementEndDate" name="end_date"
-                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
-            </div>
-            
-            <div>
-                <div>
-                    <label for="achievementStatus" class="block text-sm font-medium text-gray-700">Status*</label>
-                    <select id="achievementStatus" name="status" required
-                        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
-                        <option value="">Select Status</option>
-                        <!-- Options will be populated by JavaScript -->
-                    </select>
-                </div>
-            </div>
-            
-            <div>
-                <label for="achievementContext" class="block text-sm font-medium text-gray-700">Short Description*</label>
-                <textarea id="achievementContext" name="context" rows="3" required
-                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm"></textarea>
-            </div>
-            
-            <div>
-                <label for="achievementContent" class="block text-sm font-medium text-gray-700">Full Description*</label>
-                <textarea id="achievementContent" name="content" rows="5" required
-                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm"></textarea>
-            </div>
-            
-            <div>
-                <label for="achievementImages" class="block text-sm font-medium text-gray-700">Images</label>
-                <input type="file" id="achievementImages" name="images" multiple accept="image/*"
-                    class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary-light file:text-primary-dark hover:file:bg-primary-dark hover:file:text-white">
-                <p class="mt-1 text-xs text-gray-500">Upload multiple images (optional)</p>
-                
-                <!-- Preview of uploaded images -->
-                <div id="uploadedImages" class="mt-2 grid grid-cols-3 gap-2"></div>
-                
-                <!-- Existing images -->
-                <div id="existingImages" class="mt-2 hidden">
-                    <p class="text-xs text-gray-500 mb-2">Current Images (click to delete)</p>
-                    <div class="grid grid-cols-3 gap-2"></div>
-                </div>
+                <label for="achievementEndDate" class="block text-sm font-medium text-gray-700"><i class="fas fa-flag-checkered mr-1 text-green-400"></i>End Date</label>
+                <input type="date" id="achievementEndDate" name="end_date" class="mt-1 block w-full h-12 border border-gray-300 rounded-lg shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400 sm:text-sm transition-all duration-150">
             </div>
         </div>
     </div>
+    <!-- Section Divider -->
+    <div class="w-full border-t border-gray-200 my-6"></div>
+    <!-- Description Section -->
+    <div class="mb-6 rounded-lg shadow-md bg-white border border-gray-200">
+        <div class="flex items-center mb-2 pt-4 px-4">
+            <i class="fas fa-align-left text-pink-500 bg-pink-50 rounded-full p-2 shadow mr-2"></i>
+            <h4 class="text-md font-semibold text-gray-800">Description & Details</h4>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 px-4 pb-4">
+            <div>
+                <label for="achievementContext" class="block text-sm font-medium text-gray-700"><i class="fas fa-quote-left mr-1 text-pink-400"></i>Short Description*</label>
+                <textarea id="achievementContext" name="context" rows="3" required class="mt-1 block w-full h-12 border border-gray-300 rounded-lg shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-pink-400 sm:text-sm transition-all duration-150 resize-none"></textarea>
+            </div>
+            <div>
+                <label for="achievementContent" class="block text-sm font-medium text-gray-700"><i class="fas fa-file-alt mr-1 text-pink-400"></i>Full Description*</label>
+                <textarea id="achievementContent" name="content" rows="5" required class="mt-1 block w-full h-12 border border-gray-300 rounded-lg shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-pink-400 sm:text-sm transition-all duration-150 resize-none"></textarea>
+            </div>
+        </div>
+    </div>
+    <!-- Section Divider -->
+    <div class="w-full border-t border-gray-200 my-6"></div>
+    <!-- Images Section -->
+    <div class="mb-6 rounded-lg shadow-md bg-white border border-gray-200">
+        <div class="flex items-center mb-2 pt-4 px-4">
+            <i class="fas fa-images text-purple-500 bg-purple-50 rounded-full p-2 shadow mr-2"></i>
+            <h4 class="text-md font-semibold text-gray-800">Images</h4>
+        </div>
+        <div class="px-4 pb-4">
+            <!-- Existing Images -->
+            <div id="existingImages" class="hidden mb-4">
+                <p class="text-sm text-gray-500 mb-2">Current Images:</p>
+                <div class="flex flex-wrap"></div>
+            </div>
+            <!-- New Images -->
+            <div class="mb-4">
+                <label for="achievementImages" class="block text-sm font-medium text-gray-700 mb-2"><i class="fas fa-upload mr-1 text-purple-400"></i>Add New Images</label>
+                <input type="file" id="achievementImages" name="images" multiple accept="image/*" class="block w-full h-12 text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-purple-100 file:text-purple-700 hover:file:bg-purple-200 hover:file:text-purple-900">
+                <p class="mt-1 text-sm text-gray-500">Upload images that showcase this achievement.</p>
+            </div>
+            <!-- Image Preview -->
+            <div id="uploadedImages" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4"></div>
+        </div>
+    </div>
 </form>
+
+<style>
+/* Style Select2 to match Tailwind input fields */
+.select2-container--default .select2-selection--single {
+    height: 3rem !important; /* h-12 */
+    border: 1px solid #d1d5db !important; /* border-gray-300 */
+    border-radius: 0.5rem !important; /* rounded-lg */
+    padding: 0.5rem 0.75rem !important; /* py-2 px-3 */
+    font-size: 0.875rem !important; /* text-sm */
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.select2-container--default .select2-selection--single:focus,
+.select2-container--default .select2-selection--single.select2-selection--focus {
+    outline: none;
+    border-color: #60a5fa !important; /* focus:border-blue-400 */
+    box-shadow: 0 0 0 2px #60a5fa33;
+}
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 2.5rem !important;
+    padding-left: 0 !important;
+}
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 3rem !important;
+    right: 0.75rem !important;
+}
+</style>

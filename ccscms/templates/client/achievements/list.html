@@ -108,8 +108,14 @@
                         <div class="col-md-8">
                             <p class="year text-uppercase fw-bold">{{ achievement.awarded_on|date:"Y" }}</p>
                             <h2 class="title">{{ achievement.title }}</h2>
+                            {% if achievement.heading %}
+                            <div class="fw-semibold text-primary mb-2" style="font-size:1.3rem;">{{ achievement.heading }}</div>
+                            {% endif %}
                             <div class="achievement-meta">
                                 <p>Category: {{ achievement.category.get_category_display }}</p>
+                                {% if achievement.person_in_charge %}
+                                <p><i class="fas fa-user-tie text-blue-400"></i> Person in Charge: <span class="fw-semibold">{{ achievement.person_in_charge }}</span></p>
+                                {% endif %}
                                 <p class="description">{{ achievement.context }}</p>
                             </div>
                             <a href="{% url 'achievements_detail' achievement.pk %}" class="explore-button">
@@ -141,8 +147,14 @@
                         <div class="col-md-8">
                             <p class="year text-uppercase fw-bold">{{ achievement.awarded_on|date:"Y" }}</p>
                             <h2 class="title">{{ achievement.title }}</h2>
+                            {% if achievement.heading %}
+                            <div class="fw-semibold text-primary mb-2" style="font-size:1.3rem;">{{ achievement.heading }}</div>
+                            {% endif %}
                             <div class="achievement-meta">
                                 <p>Category: {{ achievement.category.get_category_display }}</p>
+                                {% if achievement.person_in_charge %}
+                                <p><i class="fas fa-user-tie text-blue-400"></i> Person in Charge: <span class="fw-semibold">{{ achievement.person_in_charge }}</span></p>
+                                {% endif %}
                                 <p class="description">{{ achievement.context }}</p>
                             </div>
                             <a href="{% url 'achievements_detail' achievement.pk %}" class="explore-button">

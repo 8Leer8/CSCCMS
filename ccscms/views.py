@@ -1409,7 +1409,6 @@ def achievement_list(request):
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         try:
             # Get filter parameters
-            status = request.GET.get('status', '')
             category = request.GET.get('category', '')
             date_from = request.GET.get('date_from', '')
             search = request.GET.get('search', '')
@@ -1423,12 +1422,6 @@ def achievement_list(request):
                 achievements = Achievement.objects.filter(is_active=True)
             
             # Apply filters
-            if status:
-                if status == 'active':
-                    achievements = achievements.filter(is_active=True)
-                elif status == 'inactive':
-                    achievements = achievements.filter(is_active=False)
-            
             if category:
                 achievements = achievements.filter(category_id=category)
             
@@ -1450,37 +1443,48 @@ def achievement_list(request):
             # Prepare data for response
             achievements_data = []
             for achievement in page_obj:
-                achievements_data.append({
+                achievement_data = {
                     'id': achievement.id,
                     'title': achievement.title,
+                    'heading': achievement.heading,
                     'context': achievement.context,
                     'content': achievement.content,
+                    'team_name': achievement.team_name,
+                    'person_in_charge': achievement.person_in_charge,
+                    'location': achievement.location,
+                    'awarded_on': achievement.awarded_on.strftime('%Y-%m-%d') if achievement.awarded_on else None,
+                    'start_date': achievement.start_date.strftime('%Y-%m-%d') if achievement.start_date else None,
+                    'end_date': achievement.end_date.strftime('%Y-%m-%d') if achievement.end_date else None,
                     'awarded_by': achievement.awarded_by,
-                    'awarded_on': achievement.awarded_on.strftime('%Y-%m-%d') if achievement.awarded_on else '',
-                    'category': achievement.category.category if achievement.category else '',
+                    'category': achievement.category.category,
+                    'category_id': achievement.category.id,
                     'is_active': achievement.is_active,
-                    'featured_image': request.build_absolute_uri(achievement.images.first().image.url) if achievement.images.exists() else None,
-                    'images': [
-                        {'id': img.id, 'url': request.build_absolute_uri(img.image.url)}
-                        for img in achievement.images.all()
-                    ]
-                })
+                }
+                
+                # Get featured image if exists
+                featured_image = achievement.images.filter(is_active=True).first()
+                if featured_image:
+                    achievement_data['featured_image'] = featured_image.image.url
+                
+                achievements_data.append(achievement_data)
             
+            # Add categories to AJAX response
+            categories = list(Category.objects.filter(is_active=True, scope_id__in=[3, 7]).values('id', 'category'))
             return JsonResponse({
                 'success': True,
                 'achievements': achievements_data,
-                'has_previous': page_obj.has_previous(),
-                'has_next': page_obj.has_next(),
-                'current_page': page_obj.number,
+                'categories': categories,
                 'total_pages': paginator.num_pages,
-                'total_items': paginator.count
+                'current_page': page_obj.number,
+                'has_next': page_obj.has_next(),
+                'has_previous': page_obj.has_previous(),
             })
         except Exception as e:
-            logger.error(f"Error loading achievement list: {str(e)}", exc_info=True)
+            logger.error(f"Error loading achievements: {str(e)}", exc_info=True)
             return JsonResponse({'success': False, 'error': str(e)}, status=500)
     
     # For non-AJAX requests, return the template with categories for the filter dropdown
-    categories = Category.objects.filter(is_active=True)
+    categories = Category.objects.filter(is_active=True, scope_id__in=[3, 7])
     return render(request, 'admin/achievement/achievement_list.html', {
         'categories': categories
     })
@@ -1489,67 +1493,16 @@ def achievement_list(request):
 @user_passes_test(is_admin)
 def achievement_form_data(request):
     try:
-        categories = list(Category.objects.filter(is_active=True).values('id', 'category'))
-        statuses = list(Status.objects.filter(is_active=True).values('id', 'type'))
-        
-        # Create a default status if none exists
-        if not statuses:
-            default_status = Status.objects.create(
-                type='active',
-                description='Default status'
-            )
-            statuses = [{'id': default_status.id, 'type': default_status.type}]
+        categories = list(Category.objects.filter(is_active=True, scope_id__in=[3, 7]).values('id', 'category'))
         
         return JsonResponse({
             'success': True,
-            'categories': categories,
-            'statuses': statuses
+            'categories': categories
         })
     except Exception as e:
         logger.error(f"Error loading achievement form data: {str(e)}", exc_info=True)
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
-# In your views.py, update the achievement views:
-
-@login_required
-@user_passes_test(is_admin)
-def achievement_detail(request, pk):
-    try:
-        achievement = Achievement.objects.get(pk=pk)
-        
-        images = []
-        for img in achievement.images.all():
-            images.append({
-                'id': img.id,
-                'url': request.build_absolute_uri(img.image.url)
-            })
-        
-        return JsonResponse({
-            'success': True,
-            'achievement': {
-                'id': achievement.id,
-                'title': achievement.title,
-                'context': achievement.context,
-                'content': achievement.content,
-                'awarded_by': achievement.awarded_by,
-                'team_name': achievement.team_name,
-                'mentor': achievement.mentor,
-                'location': achievement.location,
-                'awarded_on': achievement.awarded_on.strftime('%Y-%m-%d') if achievement.awarded_on else None,
-                'start_date': achievement.start_date.strftime('%Y-%m-%d') if achievement.start_date else None,
-                'end_date': achievement.end_date.strftime('%Y-%m-%d') if achievement.end_date else None,
-                'category_id': achievement.category.id if achievement.category else None,
-                'category': achievement.category.category if achievement.category else '',
-                'is_active': achievement.is_active,
-                'featured_image': request.build_absolute_uri(achievement.images.first().image.url) if achievement.images.exists() else None,
-                'images': images
-            }
-        })
-    except Achievement.DoesNotExist:
-        return JsonResponse({'success': False, 'error': 'Achievement not found'}, status=404)
-    except Exception as e:
-        logger.error(f"Error loading achievement detail: {str(e)}", exc_info=True)
-        return JsonResponse({'success': False, 'error': str(e)}, status=500)
 @csrf_exempt
 @login_required
 @user_passes_test(is_admin)
@@ -1560,7 +1513,7 @@ def achievement_create(request):
             files = request.FILES
             
             # Validate required fields
-            required_fields = ['title', 'status']
+            required_fields = ['title']
             for field in required_fields:
                 if not form_data.get(field):
                     return JsonResponse({
@@ -1568,29 +1521,19 @@ def achievement_create(request):
                         'error': f'{field} is required'
                     }, status=400)
 
-            # Get or create a default status if none exists
-            try:
-                status = Status.objects.get(pk=form_data['status'])
-            except Status.DoesNotExist:
-                # Create a default status if it doesn't exist
-                status = Status.objects.create(
-                    type='active',
-                    description='Default active status'
-                )
-
             # Create the achievement
             achievement = Achievement.objects.create(
                 title=form_data['title'],
+                heading=form_data.get('heading', ''),
                 context=form_data.get('context', ''),
                 content=form_data.get('content', ''),
                 team_name=form_data.get('team_name', ''),
-                mentor=form_data.get('mentor', ''),
+                person_in_charge=form_data.get('person_in_charge', ''),
                 location=form_data.get('location', ''),
                 awarded_on=form_data.get('awarded_on'),
                 start_date=form_data.get('start_date'),
                 end_date=form_data.get('end_date'),
                 awarded_by=form_data.get('awarded_by', ''),
-                status=status,
                 category_id=form_data.get('category'),
                 admin=request.user.admin
             )
@@ -1602,10 +1545,8 @@ def achievement_create(request):
 
             return JsonResponse({
                 'success': True,
-                'id': achievement.id,
                 'message': 'Achievement created successfully'
             })
-
         except Exception as e:
             logger.error(f"Error creating achievement: {str(e)}", exc_info=True)
             return JsonResponse({
@@ -1649,17 +1590,17 @@ def achievement_update(request, pk):
 
             # Update fields
             achievement.title = form_data['title']
+            achievement.heading = form_data.get('heading', '')
             achievement.context = form_data['context']
             achievement.content = form_data['content']
             achievement.awarded_by = form_data['awarded_by']
             achievement.team_name = form_data.get('team_name', '')
-            achievement.mentor = form_data.get('mentor', '')
+            achievement.person_in_charge = form_data.get('person_in_charge', '')
             achievement.location = form_data.get('location', '')
             achievement.awarded_on = awarded_on
             achievement.start_date = start_date
             achievement.end_date = end_date
             achievement.category_id = form_data['category']
-            achievement.is_active = form_data.get('status', 'active') == 'active'
             
             # Handle new images
             if 'images' in files:
@@ -1690,12 +1631,22 @@ def achievement_delete(request, pk):
     if request.method == 'POST':
         try:
             achievement = get_object_or_404(Achievement, pk=pk, is_active=True)
-            achievement.delete()  # Soft delete
-            return JsonResponse({'success': True, 'message': 'Achievement deleted successfully'})
+            achievement.is_active = False
+            achievement.save()
+            return JsonResponse({
+                'success': True, 
+                'message': f'Achievement "{achievement.title}" has been moved to trash'
+            })
         except Exception as e:
             logger.error(f"Error deleting achievement: {str(e)}", exc_info=True)
-            return JsonResponse({'success': False, 'error': str(e)}, status=500)
-    return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=400)
+            return JsonResponse({
+                'success': False, 
+                'error': str(e)
+            }, status=500)
+    return JsonResponse({
+        'success': False, 
+        'error': 'Invalid request method'
+    }, status=400)
 
 @csrf_exempt
 @login_required
@@ -2421,7 +2372,7 @@ class ClientViews:
         # Get active achievements (limit to 2)
         achievements = Achievement.objects.filter(
             is_active=True
-        ).select_related('category', 'status', 'admin').prefetch_related('images')[:2]
+        ).select_related('category', 'admin').prefetch_related('images')[:2]
 
         # Get upcoming events (limit to 4)
         events = Event.objects.filter(
@@ -2589,29 +2540,23 @@ class ClientViews:
     def achievements_list(request):
         # Get all active achievements with related data
         achievements = Achievement.objects.filter(is_active=True)\
-            .select_related('category', 'status')\
-            .prefetch_related('images')\
+            .select_related('category').prefetch_related('images')\
             .order_by('-awarded_on')
-
         # Get filter options
         categories = Category.objects.filter(is_active=True)
-        statuses = Status.objects.filter(is_active=True)
-
         context = {
             'achievements': achievements,
             'categories': categories,
-            'statuses': statuses,
         }
         return render(request, 'client/achievements/list.html', context)
     @staticmethod
     def achievements_detail(request, pk):
         achievement = get_object_or_404(
             Achievement.objects.filter(is_active=True)
-            .select_related('category', 'status')
+            .select_related('category')
             .prefetch_related('images'),
             pk=pk
         )
-
         context = {
             'achievement': achievement,
         }
@@ -2922,3 +2867,48 @@ def export_data(request):
         return response
     else:
         return HttpResponse('Export format not supported or PDF library not installed.', status=400)
+
+@login_required
+@user_passes_test(is_admin)
+def achievement_detail_admin(request, pk):
+    try:
+        achievement = get_object_or_404(Achievement, pk=pk)
+        images = [
+            {
+                'id': img.id,
+                'url': request.build_absolute_uri(img.image.url)
+            } for img in achievement.images.all()
+        ]
+        data = {
+            'id': achievement.id,
+            'title': achievement.title,
+            'heading': achievement.heading,
+            'context': achievement.context,
+            'content': achievement.content,
+            'team_name': achievement.team_name,
+            'person_in_charge': achievement.person_in_charge,
+            'location': achievement.location,
+            'awarded_on': achievement.awarded_on.strftime('%Y-%m-%d') if achievement.awarded_on else '',
+            'start_date': achievement.start_date.strftime('%Y-%m-%d') if achievement.start_date else '',
+            'end_date': achievement.end_date.strftime('%Y-%m-%d') if achievement.end_date else '',
+            'awarded_by': achievement.awarded_by,
+            'category_id': achievement.category_id,
+            'images': images
+        }
+        return JsonResponse({'success': True, 'achievement': data})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+@csrf_exempt
+@login_required
+@user_passes_test(is_admin)
+def achievement_restore(request, pk):
+    if request.method == 'POST':
+        try:
+            achievement = get_object_or_404(Achievement.all_objects, pk=pk, is_active=False)
+            achievement.is_active = True
+            achievement.save()
+            return JsonResponse({'success': True, 'message': 'Achievement restored successfully'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=400)

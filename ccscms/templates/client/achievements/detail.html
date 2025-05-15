@@ -273,8 +273,11 @@
     </div>
     <!-- Achievement Title Info -->
     <div class="event_title_info">
-        <p class="category">{{ achievement.category.get_category_display }}</p>
+        <p class="category mb-2">{{ achievement.category.get_category_display }}</p>
         <h2>{{ achievement.title }}</h2>
+        {% if achievement.heading %}
+        <div class="fw-semibold text-warning mb-2" style="font-size:1.5rem;">{{ achievement.heading }}</div>
+        {% endif %}
         <p class="organizer">Awarded on {{ achievement.awarded_on|date:'l, F d, Y' }}</p>
     </div>
     <!-- Main Content -->
@@ -308,6 +311,13 @@
             {% endif %}
             <div class="event_description_data">
                 {{ achievement.content|linebreaks }}
+            </div>
+            <div class="event_info_group">
+                <div class="event_info_label">
+                    <span class="event_info_icon"><i class="fas fa-user-tie text-blue-400"></i></span>
+                    <span class="fw-semibold">Person in Charge:</span>
+                    <span class="ms-2">{{ achievement.person_in_charge|default:'N/A' }}</span>
+                </div>
             </div>
         </div>
     </div>

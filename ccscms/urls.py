@@ -10,13 +10,13 @@ from .views import (
     categories_management, post_list, post_create, post_update, 
     post_delete, post_detail, post_form_data,  announcement_list, announcement_create, announcement_update,
     announcement_detail_admin, announcement_delete, announcement_restore,
-    announcement_permanent_delete, announcement_form_data, achievement_list, achievement_form_data, achievement_detail,
+    announcement_permanent_delete, announcement_form_data, achievement_list, achievement_form_data,
     achievement_create, achievement_update, achievement_delete,
     achievement_image_delete, client_views, logout_view,  accomplishment_list, accomplishment_create, accomplishment_update,
     accomplishment_detail, accomplishment_form_data, accomplishment_image_delete, account_list, account_create, account_update,
     account_delete, account_detail, account_form_data,
     ClientViews, accomplishment_restore, accomplishment_delete,
-    export_data,
+    export_data, achievement_detail_admin, achievement_restore,
 )
 
 urlpatterns = [
@@ -110,11 +110,12 @@ urlpatterns = [
     # Achievement URLs
     path('cscadmin/achievements/list/', achievement_list, name='achievement_list'),
     path('cscadmin/achievements/form-data/', achievement_form_data, name='achievement_form_data'),
-    path('cscadmin/achievements/<int:pk>/detail/', achievement_detail, name='achievement_detail'),
     path('cscadmin/achievements/create/', achievement_create, name='achievement_create'),
     path('cscadmin/achievements/<int:pk>/update/', achievement_update, name='achievement_update'),
     path('cscadmin/achievements/<int:pk>/delete/', achievement_delete, name='achievement_delete'),
     path('cscadmin/achievement-images/<int:pk>/delete/', achievement_image_delete, name='achievement_image_delete'),
+    path('cscadmin/achievements/<int:pk>/detail/', achievement_detail_admin, name='achievement_detail_admin'),
+    path('cscadmin/achievements/<int:pk>/restore/', achievement_restore, name='achievement_restore'),
     
     #accomplishments URLs
     path('cscadmin/accomplishments/list/', accomplishment_list, name='accomplishment_list'),
