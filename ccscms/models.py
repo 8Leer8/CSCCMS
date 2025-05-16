@@ -636,7 +636,7 @@ class Transparency(SoftDeleteModel):
     context = models.TextField()
     description = models.TextField()
     date = models.DateField()
-    document_url = models.CharField(max_length=255, null=True, blank=True)
+    document = models.FileField(upload_to='transparency_docs/', null=True, blank=True)
     image = models.ImageField(upload_to=upload_to, null=True, blank=True)
     status = models.ForeignKey(Status, on_delete=models.PROTECT)
     admin = models.ForeignKey(Admin, on_delete=models.PROTECT)

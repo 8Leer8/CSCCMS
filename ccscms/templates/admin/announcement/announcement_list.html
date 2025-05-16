@@ -890,15 +890,4 @@ $(document).ready(function() {
         $('#deletedAnnouncementsModal').addClass('hidden');
     });
 });
-// Toggle export dropdown
-$(document).on('click', '#exportDropdownBtn', function(e) {
-    e.stopPropagation();
-    $('#exportDropdownMenu').toggleClass('hidden');
-});
-// Hide dropdown when clicking outside
-$(document).on('click', function(e) {
-    if (!$(e.target).closest('#exportDropdownBtn').length) {
-        $('#exportDropdownMenu').addClass('hidden');
-    }
-});
 </script>

@@ -156,6 +156,10 @@
                                     <i class="fas fa-newspaper mr-3 group-hover:text-neutral-light"></i>
                                     Posts
                                 </a>
+                                <a href="#" data-page="transparency" class="flex items-center px-4 py-2 text-sm font-medium rounded-md group nav-link">
+                                    <i class="fas fa-file-alt mr-3 group-hover:text-neutral-light"></i>
+                                    Transparency
+                                </a>
                             </div>
                         </div>
                         
@@ -426,10 +430,11 @@
     
     <script src="{% static 'javascript/base/admin_achievements.js' %}"></script>
     <script src="{% static 'javascript/base/admin_accomplishments.js' %}"></script>
-    
+    <script src="{% static 'javascript/base/admin_transparency.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="{% static 'javascript/admin/event_form.js' %}"></script>
     <script src="{% static 'javascript/admin/event_admin.js' %}"></script>
+    <script src="{% static 'admin/account_admin.js' %}"></script>
     <script>
     // Global variables
 let currentPage = sessionStorage.getItem('currentPage') || 'dashboard';
@@ -630,6 +635,7 @@ function loadPageContent(page) {
         'accomplishments': 'Accomplishment Management',
         'volunteers': 'Volunteer Management',
         'accounts': 'Account Management',
+        'transparency': 'Transparency Management',
         'feedback': 'Feedback Management',
         'settings': 'System Settings',
         'categories': 'Categories Management',
@@ -675,6 +681,8 @@ function loadPageContent(page) {
                     initializeFeedbackPage();
                 } else if (page === 'settings') {
                     initializeSettingsPage();
+                } else if (page === 'transparency') {
+                    initializeTransparencyList();
                 }
             } else {
                 showAlert('danger', 'Invalid response format');
@@ -1477,7 +1485,17 @@ $(document).on('click', '[data-page]', function(e) {
         // Add other page types if needed
     }
 });
-
+// Toggle export dropdown
+$(document).on('click', '#exportDropdownBtn', function(e) {
+    e.stopPropagation();
+    $('#exportDropdownMenu').toggleClass('hidden');
+});
+// Hide dropdown when clicking outside
+$(document).on('click', function(e) {
+    if (!$(e.target).closest('#exportDropdownBtn').length) {
+        $('#exportDropdownMenu').addClass('hidden');
+    }
+});
 // Handle logout
 $(document).on('click', 'a[href="{% url "logout" %}"]', function(e) {
     e.preventDefault();
@@ -1485,5 +1503,11 @@ $(document).on('click', 'a[href="{% url "logout" %}"]', function(e) {
     window.location.href = $(this).attr('href');
 });
     </script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Select2 -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <!-- Custom JavaScript -->
+    <script src="{% static 'javascript/admin/post_admin.js' %}"></script>
 </body>
 </html>

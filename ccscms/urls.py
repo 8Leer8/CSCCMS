@@ -19,6 +19,8 @@ from .views import (
     export_data, achievement_detail_admin, achievement_restore,
     announcement_form, event_form,
     event_categories_api,
+    transparency_list, create_transparency, update_transparency, delete_transparency, restore_transparency,
+    transparency_form, account_restore,
 )
 
 urlpatterns = [
@@ -65,6 +67,7 @@ urlpatterns = [
     path('cscadmin/accomplishments/', admin_dashboard, name='accomplishments_template'),
     path('cscadmin/volunteers/', admin_dashboard, name='volunteers_template'),
     path('cscadmin/settings/', admin_dashboard, name='settings_template'),
+    path('cscadmin/transparency/', admin_dashboard, name='transparency_template'),
     
     # Admin - Event Management (AJAX endpoints)
     path('cscadmin/events/list/', EventListView.as_view(), name='event_list_data'),
@@ -139,9 +142,18 @@ urlpatterns = [
     path('cscadmin/accounts/<int:pk>/delete/', account_delete, name='account_delete'),
     path('cscadmin/accounts/<int:pk>/detail/', account_detail, name='account_detail'),
     path('cscadmin/accounts/form-data/', account_form_data, name='account_form_data'),
+    path('cscadmin/accounts/<int:pk>/restore/', account_restore, name='account_restore'),
     # Legacy client page (redirects to landing page)
     path('client/lpage/', client_lpage, name='client_lpage'),
     
     # Add this new pattern
     path('cscadmin/export/', export_data, name='export_data'),
+
+    # Transparency Management
+    path('cscadmin/transparency/list/', transparency_list, name='transparency_list'),
+    path('cscadmin/transparency/create/', create_transparency, name='create_transparency'),
+    path('cscadmin/transparency/<int:transparency_id>/update/', update_transparency, name='update_transparency'),
+    path('cscadmin/transparency/<int:pk>/delete/', delete_transparency, name='delete_transparency'),
+    path('cscadmin/transparency/<int:pk>/restore/', restore_transparency, name='restore_transparency'),
+    path('cscadmin/transparency/form/', transparency_form, name='transparency_form'),
 ]

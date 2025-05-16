@@ -1,159 +1,148 @@
+<!-- Dashboard Overview Header -
+
 <!-- Dashboard Cards -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    <div class="bg-primary-light shadow-lg rounded-lg p-6 text-primary-dark">
-        <div class="flex items-center">
-            <i class="fas fa-newspaper text-4xl mr-4"></i>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-10">
+    <div class="bg-gradient-to-br from-primary-light to-white shadow-xl rounded-2xl p-8 flex items-center transition-transform duration-200 hover:scale-105 hover:shadow-2xl">
+        <i class="fas fa-newspaper text-5xl text-primary-dark/70 mr-6"></i>
             <div>
-                <h2 class="text-lg font-semibold">Total Posts</h2>
-                <p class="text-3xl font-bold" id="totalPosts">0</p>
-            </div>
+            <h2 class="text-base font-semibold text-gray-700 mb-1">Total Posts</h2>
+            <p class="text-4xl font-extrabold text-primary-dark" id="totalPosts">0</p>
         </div>
     </div>
-    <div class="bg-primary-light shadow-lg rounded-lg p-6 text-primary-dark">
-        <div class="flex items-center">
-            <i class="fas fa-calendar-alt text-4xl mr-4"></i>
+    <div class="bg-gradient-to-br from-primary-light to-white shadow-xl rounded-2xl p-8 flex items-center transition-transform duration-200 hover:scale-105 hover:shadow-2xl">
+        <i class="fas fa-calendar-alt text-5xl text-primary-dark/70 mr-6"></i>
             <div>
-                <h2 class="text-lg font-semibold">Total Events</h2>
-                <p class="text-3xl font-bold" id="totalEvents">0</p>
-            </div>
+            <h2 class="text-base font-semibold text-gray-700 mb-1">Total Events</h2>
+            <p class="text-4xl font-extrabold text-primary-dark" id="totalEvents">0</p>
         </div>
     </div>
-    <div class="bg-primary-light shadow-lg rounded-lg p-6 text-primary-dark">
-        <div class="flex items-center">
-            <i class="fas fa-bullhorn text-4xl mr-4"></i>
+    <div class="bg-gradient-to-br from-primary-light to-white shadow-xl rounded-2xl p-8 flex items-center transition-transform duration-200 hover:scale-105 hover:shadow-2xl">
+        <i class="fas fa-bullhorn text-5xl text-primary-dark/70 mr-6"></i>
             <div>
-                <h2 class="text-lg font-semibold">Total Announcements</h2>
-                <p class="text-3xl font-bold" id="totalAnnouncements">0</p>
-            </div>
+            <h2 class="text-base font-semibold text-gray-700 mb-1">Total Announcements</h2>
+            <p class="text-4xl font-extrabold text-primary-dark" id="totalAnnouncements">0</p>
         </div>
     </div>
+</div>
+
+<!-- Trends Section -->
+<div class="mb-6">
+    <h2 class="text-2xl font-bold text-primary-dark mb-2">Trends</h2>
+    <p class="text-gray-500 mb-4">Visualize activity over the last 6 months</p>
+</div>
+
+<!-- Time Series Line Charts Row -->
+<div class="grid grid-cols-1 gap-8 lg:grid-cols-3 mb-10">
+    <!-- Posts Trend Line Chart -->
+    <div class="bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center hover:shadow-xl transition-shadow duration-200">
+        <h3 class="text-lg font-semibold text-primary-dark mb-2">Posts Trend</h3>
+        <div class="w-full h-64"><canvas id="postsTrendChart"></canvas></div>
+    </div>
+    <!-- Events Trend Line Chart -->
+    <div class="bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center hover:shadow-xl transition-shadow duration-200">
+        <h3 class="text-lg font-semibold text-primary-dark mb-2">Events Trend</h3>
+        <div class="w-full h-64"><canvas id="eventsTrendChart"></canvas></div>
+    </div>
+    <!-- Complaints Trend Line Chart -->
+    <div class="bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center hover:shadow-xl transition-shadow duration-200">
+        <h3 class="text-lg font-semibold text-primary-dark mb-2">Complaints Trend</h3>
+        <div class="w-full h-64"><canvas id="complaintsTrendChart"></canvas></div>
+    </div>
+</div>
+
+<!-- Categories & Status Section -->
+<div class="mb-6">
+    <h2 class="text-2xl font-bold text-primary-dark mb-2">Categories & Status</h2>
+    <p class="text-gray-500 mb-4">Distribution of posts, events, and complaints</p>
 </div>
 
 <!-- Charts Row -->
-<div class="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
+<div class="grid grid-cols-1 gap-8 lg:grid-cols-3 mb-10">
     <!-- Posts by Category Chart -->
-    <div class="bg-neutral-light rounded-lg shadow-lg overflow-hidden">
-        <div class="p-5 border-b border-gray-200 flex items-center justify-between">
-            <h3 class="text-lg font-medium text-primary-dark">Posts by Category</h3>
-            <i class="fas fa-chart-bar text-gray-400"></i>
-        </div>
-        <div class="p-5 flex justify-center items-center">
-            <div class="h-72 w-72">
-                <canvas id="postsByCategoryChart"></canvas>
-            </div>
-        </div>
+    <div class="bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center hover:shadow-xl transition-shadow duration-200">
+        <h3 class="text-lg font-semibold text-primary-dark mb-2">Posts by Category</h3>
+        <div class="w-full h-64"><canvas id="postsByCategoryChart"></canvas></div>
     </div>
-
     <!-- Complaints Status Chart -->
-    <div class="bg-neutral-light rounded-lg shadow-lg overflow-hidden">
-        <div class="p-5 border-b border-gray-200 flex items-center justify-between">
-            <h3 class="text-lg font-medium text-primary-dark">Complaints Status</h3>
-            <i class="fas fa-exclamation-circle text-gray-400"></i>
-        </div>
-        <div class="p-5 flex justify-center items-center">
-            <div class="h-72 w-72">
-                <canvas id="complaintsStatusChart"></canvas>
-            </div>
-        </div>
+    <div class="bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center hover:shadow-xl transition-shadow duration-200">
+        <h3 class="text-lg font-semibold text-primary-dark mb-2">Complaints Status</h3>
+        <div class="w-full h-64"><canvas id="complaintsStatusChart"></canvas></div>
     </div>
-
     <!-- Events Status Chart -->
-    <div class="bg-neutral-light rounded-lg shadow-lg overflow-hidden">
-        <div class="p-5 border-b border-gray-200 flex items-center justify-between">
-            <h3 class="text-lg font-medium text-primary-dark">Events Status</h3>
-            <i class="fas fa-calendar-check text-gray-400"></i>
-        </div>
-        <div class="p-5 flex justify-center items-center">
-            <div class="h-72 w-72">
-                <canvas id="eventsStatusChart"></canvas>
-            </div>
-        </div>
+    <div class="bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center hover:shadow-xl transition-shadow duration-200">
+        <h3 class="text-lg font-semibold text-primary-dark mb-2">Events Status</h3>
+        <div class="w-full h-64"><canvas id="eventsStatusChart"></canvas></div>
     </div>
 </div>
 
+<!-- Recent Activity Section -->
+<div class="mb-6">
+    <h2 class="text-2xl font-bold text-primary-dark mb-2">Recent Activity</h2>
+    <p class="text-gray-500 mb-4">Latest posts, events, and more</p>
+</div>
+
 <!-- Latest Records -->
-<div class="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+<div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
     <!-- Latest Posts -->
-    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-        <div class="p-5 border-b border-gray-200 flex justify-between items-center">
-            <h3 class="text-lg font-medium text-gray-900">Latest Posts</h3>
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden mb-6">
+        <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-primary-light/40">
+            <h3 class="text-lg font-semibold text-gray-900">Latest Posts</h3>
             <a href="#" data-page="posts" class="text-sm font-medium text-blue-600 hover:text-blue-500">View All</a>
         </div>
-        <div class="p-5 h-80 overflow-y-auto custom-scrollbar" id="latest-posts">
-            <!-- Posts will be loaded here -->
-        </div>
+        <div class="p-5 h-80 overflow-y-auto custom-scrollbar" id="latest-posts"></div>
     </div>
-
     <!-- Latest Events -->
-    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-        <div class="p-5 border-b border-gray-200 flex justify-between items-center">
-            <h3 class="text-lg font-medium text-gray-900">Latest Events</h3>
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden mb-6">
+        <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-primary-light/40">
+            <h3 class="text-lg font-semibold text-gray-900">Latest Events</h3>
             <a href="#" data-page="events" class="text-sm font-medium text-green-600 hover:text-green-500">View All</a>
         </div>
-        <div class="p-5 h-80 overflow-y-auto custom-scrollbar" id="latest-events">
-            <!-- Events will be loaded here -->
-        </div>
+        <div class="p-5 h-80 overflow-y-auto custom-scrollbar" id="latest-events"></div>
     </div>
-
     <!-- Latest Announcements -->
-    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-        <div class="p-5 border-b border-gray-200 flex justify-between items-center">
-            <h3 class="text-lg font-medium text-gray-900">Latest Announcements</h3>
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden mb-6">
+        <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-primary-light/40">
+            <h3 class="text-lg font-semibold text-gray-900">Latest Announcements</h3>
             <a href="#" data-page="announcements" class="text-sm font-medium text-cyan-600 hover:text-cyan-500">View All</a>
         </div>
-        <div class="p-5 h-80 overflow-y-auto custom-scrollbar" id="latest-announcements">
-            <!-- Announcements will be loaded here -->
-        </div>
+        <div class="p-5 h-80 overflow-y-auto custom-scrollbar" id="latest-announcements"></div>
     </div>
-
     <!-- Latest Complaints -->
-    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-        <div class="p-5 border-b border-gray-200 flex justify-between items-center">
-            <h3 class="text-lg font-medium text-gray-900">Latest Complaints</h3>
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden mb-6">
+        <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-primary-light/40">
+            <h3 class="text-lg font-semibold text-gray-900">Latest Complaints</h3>
             <a href="#" data-page="complaints" class="text-sm font-medium text-red-600 hover:text-red-500">View All</a>
         </div>
-        <div class="p-5 h-80 overflow-y-auto custom-scrollbar" id="latest-complaints">
-            <!-- Complaints will be loaded here -->
-        </div>
+        <div class="p-5 h-80 overflow-y-auto custom-scrollbar" id="latest-complaints"></div>
     </div>
-
     <!-- Latest Achievements -->
-    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-        <div class="p-5 border-b border-gray-200 flex justify-between items-center">
-            <h3 class="text-lg font-medium text-gray-900">Latest Achievements</h3>
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden mb-6">
+        <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-primary-light/40">
+            <h3 class="text-lg font-semibold text-gray-900">Latest Achievements</h3>
             <a href="#" data-page="achievements" class="text-sm font-medium text-yellow-600 hover:text-yellow-500">View All</a>
         </div>
-        <div class="p-5 h-80 overflow-y-auto custom-scrollbar" id="latest-achievements">
-            <!-- Achievements will be loaded here -->
-        </div>
+        <div class="p-5 h-80 overflow-y-auto custom-scrollbar" id="latest-achievements"></div>
     </div>
-
     <!-- Latest Accomplishments -->
-    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-        <div class="p-5 border-b border-gray-200 flex justify-between items-center">
-            <h3 class="text-lg font-medium text-gray-900">Latest Accomplishments</h3>
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden mb-6">
+        <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-primary-light/40">
+            <h3 class="text-lg font-semibold text-gray-900">Latest Accomplishments</h3>
             <a href="#" data-page="accomplishments" class="text-sm font-medium text-purple-600 hover:text-purple-500">View All</a>
         </div>
-        <div class="p-5 h-80 overflow-y-auto custom-scrollbar" id="latest-accomplishments">
-            <!-- Accomplishments will be loaded here -->
-        </div>
+        <div class="p-5 h-80 overflow-y-auto custom-scrollbar" id="latest-accomplishments"></div>
     </div>
-
     <!-- Latest New Accounts -->
-    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-        <div class="p-5 border-b border-gray-200 flex justify-between items-center">
-            <h3 class="text-lg font-medium text-gray-900">New Accounts</h3>
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden mb-6">
+        <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-primary-light/40">
+            <h3 class="text-lg font-semibold text-gray-900">New Accounts</h3>
             <a href="#" data-page="accounts" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">View All</a>
         </div>
-        <div class="p-5 h-80 overflow-y-auto custom-scrollbar" id="latest-accounts">
-            <!-- New accounts (users only) will be loaded here -->
-        </div>
+        <div class="p-5 h-80 overflow-y-auto custom-scrollbar" id="latest-accounts"></div>
     </div>
-
     <!-- Feedback and Concerns -->
-    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-        <div class="p-5 border-b border-gray-200 flex justify-between items-center">
-            <h3 class="text-lg font-medium text-gray-900">Feedback and Concerns</h3>
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden mb-6">
+        <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-primary-light/40">
+            <h3 class="text-lg font-semibold text-gray-900">Feedback and Concerns</h3>
             <i class="fas fa-comments text-gray-400"></i>
         </div>
         <div class="p-5 flex justify-center items-center">
@@ -232,21 +221,32 @@ function initializeDashboardCharts(data) {
                     datasets: [{
                         label: 'Posts by Category',
                         data: data.posts_by_category.map(item => item.count || 0),
-                        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
+                        backgroundColor: ['#2563eb', '#22d3ee', '#fbbf24', '#f87171', '#a78bfa', '#34d399'],
                         hoverOffset: 4
                     }]
                 },
                 options: {
                     responsive: true,
+                    maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            position: 'right',
+                            position: 'bottom',
                             labels: {
                                 font: {
-                                    size: 12
+                                    size: 13
                                 }
                             }
+                        },
+                        tooltip: {
+                            backgroundColor: '#fff',
+                            titleColor: '#111',
+                            bodyColor: '#111',
+                            borderColor: '#e5e7eb',
+                            borderWidth: 1
                         }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
                     }
                 }
             });
@@ -258,24 +258,32 @@ function initializeDashboardCharts(data) {
             new Chart(complaintsStatusCtx, {
                 type: 'pie',
                 data: {
-                    labels: data.complaints_by_status.map(item => item.status || 'Unknown'),
+                    labels: data.complaints_by_status.map(item => item.remarks || 'Unknown'),
                     datasets: [{
                         label: 'Complaints by Status',
                         data: data.complaints_by_status.map(item => item.count || 0),
-                        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
+                        backgroundColor: ['#f87171', '#fbbf24', '#34d399', '#a78bfa', '#2563eb', '#22d3ee'],
                         hoverOffset: 4
                     }]
                 },
                 options: {
                     responsive: true,
+                    maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            position: 'right',
+                            position: 'bottom',
                             labels: {
                                 font: {
-                                    size: 12
+                                    size: 13
                                 }
                             }
+                        },
+                        tooltip: {
+                            backgroundColor: '#fff',
+                            titleColor: '#111',
+                            bodyColor: '#111',
+                            borderColor: '#e5e7eb',
+                            borderWidth: 1
                         }
                     }
                 }
@@ -292,20 +300,28 @@ function initializeDashboardCharts(data) {
                     datasets: [{
                         label: 'Events by Status',
                         data: data.events_by_status.map(item => item.count || 0),
-                        backgroundColor: ['#4BC0C0', '#FF9F40', '#9966FF'],
+                        backgroundColor: ['#34d399', '#fbbf24', '#2563eb', '#f87171', '#a78bfa', '#22d3ee'],
                         hoverOffset: 4
                     }]
                 },
                 options: {
                     responsive: true,
+                    maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            position: 'right',
+                            position: 'bottom',
                             labels: {
                                 font: {
-                                    size: 12
+                                    size: 13
                                 }
                             }
+                        },
+                        tooltip: {
+                            backgroundColor: '#fff',
+                            titleColor: '#111',
+                            bodyColor: '#111',
+                            borderColor: '#e5e7eb',
+                            borderWidth: 1
                         }
                     }
                 }
@@ -322,21 +338,141 @@ function initializeDashboardCharts(data) {
                     datasets: [{
                         label: 'Feedback and Concerns',
                         data: data.complaint_data.map(item => item.count || 0),
-                        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'],
+                        backgroundColor: ['#f87171', '#fbbf24', '#34d399', '#a78bfa', '#2563eb', '#22d3ee'],
                         hoverOffset: 4
                     }]
                 },
                 options: {
                     responsive: true,
+                    maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            position: 'right',
+                            position: 'bottom',
                             labels: {
                                 font: {
-                                    size: 12
+                                    size: 13
                                 }
                             }
+                        },
+                        tooltip: {
+                            backgroundColor: '#fff',
+                            titleColor: '#111',
+                            bodyColor: '#111',
+                            borderColor: '#e5e7eb',
+                            borderWidth: 1
                         }
+                    }
+                }
+            });
+        }
+
+        // Posts Trend Line Chart
+        if (data.posts_time_series && data.posts_time_series.length > 0) {
+            const ctx = document.getElementById('postsTrendChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.posts_time_series.map(item => item.month ? (new Date(item.month)).toLocaleString('en-US', { month: 'short', year: 'numeric' }) : 'Unknown'),
+                    datasets: [{
+                        label: 'Posts',
+                        data: data.posts_time_series.map(item => item.count || 0),
+                        borderColor: '#2563eb',
+                        backgroundColor: 'rgba(37,99,235,0.12)',
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#2563eb',
+                        pointRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { font: { size: 13 } } },
+                        tooltip: {
+                            backgroundColor: '#fff',
+                            titleColor: '#111',
+                            bodyColor: '#111',
+                            borderColor: '#e5e7eb',
+                            borderWidth: 1
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+        // Events Trend Line Chart
+        if (data.events_time_series && data.events_time_series.length > 0) {
+            const ctx = document.getElementById('eventsTrendChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.events_time_series.map(item => item.month ? (new Date(item.month)).toLocaleString('en-US', { month: 'short', year: 'numeric' }) : 'Unknown'),
+                    datasets: [{
+                        label: 'Events',
+                        data: data.events_time_series.map(item => item.count || 0),
+                        borderColor: '#34d399',
+                        backgroundColor: 'rgba(52,211,153,0.12)',
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#34d399',
+                        pointRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { font: { size: 13 } } },
+                        tooltip: {
+                            backgroundColor: '#fff',
+                            titleColor: '#111',
+                            bodyColor: '#111',
+                            borderColor: '#e5e7eb',
+                            borderWidth: 1
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+        // Complaints Trend Line Chart
+        if (data.complaints_time_series && data.complaints_time_series.length > 0) {
+            const ctx = document.getElementById('complaintsTrendChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.complaints_time_series.map(item => item.month ? (new Date(item.month)).toLocaleString('en-US', { month: 'short', year: 'numeric' }) : 'Unknown'),
+                    datasets: [{
+                        label: 'Complaints',
+                        data: data.complaints_time_series.map(item => item.count || 0),
+                        borderColor: '#f87171',
+                        backgroundColor: 'rgba(248,113,113,0.12)',
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#f87171',
+                        pointRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { font: { size: 13 } } },
+                        tooltip: {
+                            backgroundColor: '#fff',
+                            titleColor: '#111',
+                            bodyColor: '#111',
+                            borderColor: '#e5e7eb',
+                            borderWidth: 1
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
                     }
                 }
             });

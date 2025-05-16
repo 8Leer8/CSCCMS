@@ -246,6 +246,12 @@ def admin_dashboard(request):
             elif page == 'account_form':
                 html = render_to_string('admin/account/account_form_modal.html', request=request)
                 return HttpResponse(html)
+            elif page == 'transparency':
+                html = render_to_string('admin/transparency/transparency_list.html', request=request)
+                return JsonResponse({'html': html})
+            elif page == 'transparency_form':
+                html = render_to_string('admin/transparency/transparency_form.html', request=request)
+                return HttpResponse(html)
             else:
                 return JsonResponse({'error': f'Page "{page}" not found'}, status=404)
         except Exception as e:
@@ -311,6 +317,34 @@ def get_dashboard_data(request):
             .annotate(count=Count('id'))
         )
 
+        # Time series for line charts (last 6 months)
+        from django.utils import timezone
+        from django.db.models.functions import TruncMonth
+        now = timezone.now()
+        six_months_ago = now - timedelta(days=180)
+
+        posts_time_series = list(
+            Post.objects.filter(is_active=True, created_at__gte=six_months_ago)
+            .annotate(month=TruncMonth('created_at'))
+            .values('month')
+            .annotate(count=Count('id'))
+            .order_by('month')
+        )
+        events_time_series = list(
+            Event.objects.filter(is_active=True, date_event__gte=six_months_ago)
+            .annotate(month=TruncMonth('date_event'))
+            .values('month')
+            .annotate(count=Count('id'))
+            .order_by('month')
+        )
+        complaints_time_series = list(
+            Complaint.objects.filter(is_active=True, created_at__gte=six_months_ago)
+            .annotate(month=TruncMonth('created_at'))
+            .values('month')
+            .annotate(count=Count('id'))
+            .order_by('month')
+        )
+
         return {
             'total_posts': total_posts,
             'total_events': total_events,
@@ -330,10 +364,13 @@ def get_dashboard_data(request):
             'posts_by_category': posts_by_category,
             'events_by_status': events_by_status,
             'complaints_by_status': complaints_by_status,
+            'posts_time_series': posts_time_series,
+            'events_time_series': events_time_series,
+            'complaints_time_series': complaints_time_series,
         }
     except Exception as e:
         logger.error(f"Error in get_dashboard_data: {e}", exc_info=True)
-        raise
+        return {}
 
 
 def client_lpage(request):
@@ -1289,7 +1326,7 @@ def post_detail(request, pk):
 def post_form_data(request):
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         try:
-            categories = list(Category.objects.filter(is_active=True).values('id', 'category'))
+            categories = list(Category.objects.filter(is_active=True, scope_id__in=[6, 7]).values('id', 'category'))
             if not categories:
                 # Create a default category if none exists
                 default_category = Category.objects.create(
@@ -2203,7 +2240,7 @@ def account_list(request):
             page = request.GET.get('page', 1)
             
             # Start with base queryset
-            accounts = Account.objects.filter(is_active=True)
+            accounts = Account.objects.all()
             
             # Apply filters
             if account_type:
@@ -2363,8 +2400,9 @@ def account_delete(request, pk):
     if request.method == 'POST':
         try:
             account = get_object_or_404(Account, pk=pk, is_active=True)
-            account.delete()  # Soft delete
-            return JsonResponse({'success': True, 'message': 'Account deleted successfully'})
+            account.is_active = False  # Soft delete
+            account.save()
+            return JsonResponse({'success': True, 'message': 'Account deactivated successfully'})
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)}, status=500)
     return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=400)
@@ -3081,9 +3119,11 @@ def export_data(request):
     # Map model names to Django models and visible fields
     model_map = {
         'accomplishment': (Accomplishment, ['title', 'category', 'context', 'content', 'impact', 'recognition', 'accomplish_on']),
-        'post': (Post, ['title', 'category', 'context', 'content', 'created_at']),
+        'post': (Post, ['title', 'category', 'context', 'content', 'created_at', 'start_publish_on', 'end_publish_on', 'status']),
         'achievement': (Achievement, ['title', 'category', 'context', 'content', 'awarded_by', 'awarded_on']),
         'announcement': (Announcement, ['title', 'category', 'context', 'content', 'created_at', 'start_publish_on', 'end_publish_on', 'status', 'landmark', 'location', 'date_post', 'time_post']),
+        'event': (Event, ['name', 'category', 'context', 'content', 'created_at', 'date_event', 'start_at', 'end_at', 'status']),
+        
         # Add more as needed
     }
     if model_name not in model_map:
@@ -3225,3 +3265,274 @@ def event_categories_api(request):
         'types': [{'id': t['id'], 'name': t['type'], 'description': t['description']} for t in types],
         'audiences': [{'id': a['id'], 'name': a['type'], 'description': a['description']} for a in audiences],
     })
+
+# Transparency views
+@login_required
+@user_passes_test(is_admin)
+def transparency_list(request):
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        # Get filter parameters
+        status = request.GET.get('status', '')
+        date_from = request.GET.get('date_from', '')
+        date_to = request.GET.get('date_to', '')
+        search = request.GET.get('search', '')
+        page = request.GET.get('page', 1)
+        show_deleted = request.GET.get('show_deleted', 'false') == 'true'
+
+        # Base queryset
+        queryset = Transparency.objects.all()
+
+        # Apply filters
+        if show_deleted:
+            queryset = queryset.filter(is_active=False)
+        else:
+            queryset = queryset.filter(is_active=True)
+        
+        if status:
+            queryset = queryset.filter(status=status)
+        
+        if date_from:
+            queryset = queryset.filter(start_publish_on__gte=date_from)
+        
+        if date_to:
+            queryset = queryset.filter(end_publish_on__lte=date_to)
+        
+        if search:
+            queryset = queryset.filter(
+                Q(title__icontains=search) |
+                Q(description__icontains=search)
+            )
+
+        # Pagination
+        paginator = Paginator(queryset, 10)
+        try:
+            transparency = paginator.page(page)
+        except (PageNotAnInteger, EmptyPage):
+            transparency = paginator.page(1)
+
+        # Prepare response data
+        data = {
+            'transparency_list': [
+                {
+                    'id': t.id,
+                    'title': t.title,
+                    'description': t.description,
+                    'date': t.date.strftime('%Y-%m-%d') if t.date else None,
+                    'status': t.status.type if hasattr(t.status, 'type') else str(t.status),
+                    'document': t.document.url if t.document else None,
+                    'is_active': t.is_active,
+                    # Add more fields as needed
+                }
+                for t in transparency
+            ],
+            'total_pages': paginator.num_pages,
+            'current_page': transparency.number,
+            'has_next': transparency.has_next(),
+            'has_previous': transparency.has_previous(),
+            'next_page_number': transparency.next_page_number() if transparency.has_next() else None,
+            'previous_page_number': transparency.previous_page_number() if transparency.has_previous() else None,
+            'start_index': transparency.start_index(),
+            'end_index': transparency.end_index(),
+            'paginator': {
+                'count': paginator.count,
+                'num_pages': paginator.num_pages
+            }
+        }
+
+        return JsonResponse(data)
+
+    return render(request, 'admin/transparency/transparency_list.html')
+
+@login_required
+@user_passes_test(is_admin)
+def transparency_form(request):
+    return render(request, 'admin/transparency/transparency_form.html')
+
+@login_required
+@user_passes_test(is_admin)
+def create_transparency(request):
+    if request.method == 'POST':
+        try:
+            title = request.POST.get('title')
+            context = request.POST.get('context')
+            description = request.POST.get('description')
+            date = request.POST.get('date')
+            document_url = request.POST.get('document_url')
+            status_value = request.POST.get('status')
+            from .models import Status
+            status_obj = None
+            if status_value:
+                try:
+                    status_obj = Status.objects.get(type=status_value)
+                except Status.DoesNotExist:
+                    return JsonResponse({'success': False, 'error': f'Status "{status_value}" does not exist.'})
+            document = request.FILES.get('document')
+            transparency = Transparency.objects.create(
+                title=title,
+                context=context,
+                description=description,
+                date=date,
+                document_url=document_url,
+                status=status_obj,
+                admin=request.user.admin,
+                document=document  # This line is correct if 'document' is not None
+            )
+            if 'document' in request.FILES:
+                transparency.document = request.FILES['document']
+            transparency.save()
+            return JsonResponse({
+                'success': True,
+                'message': 'Document created successfully',
+                'transparency': {
+                    'id': transparency.id,
+                    'title': transparency.title,
+                    'context': transparency.context,
+                    'description': transparency.description,
+                    'date': transparency.date.strftime('%Y-%m-%d') if transparency.date else None,
+                    'document_url': transparency.document_url,
+                    'status': transparency.status.type if hasattr(transparency.status, 'type') else str(transparency.status),
+                    'is_active': transparency.is_active,
+                }
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            })
+    return JsonResponse({
+        'success': False,
+        'error': 'Invalid request method'
+    })
+
+@login_required
+@user_passes_test(is_admin)
+def update_transparency(request, transparency_id):
+    if request.method == 'GET':
+        try:
+            transparency = Transparency.objects.get(id=transparency_id)
+            return JsonResponse({
+                'success': True,
+                'transparency': {
+                    'id': transparency.id,
+                    'title': transparency.title,
+                    'context': transparency.context,
+                    'description': transparency.description,
+                    'date': transparency.date.strftime('%Y-%m-%d') if transparency.date else None,
+                    'document': transparency.document.url if transparency.document else None,
+                    'status': transparency.status.type if hasattr(transparency.status, 'type') else str(transparency.status),
+                    'is_active': transparency.is_active,
+                }
+            })
+        except Transparency.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'error': 'Document not found'
+            })
+
+    elif request.method == 'POST':
+        try:
+            transparency = Transparency.objects.get(id=transparency_id)
+            transparency.title = request.POST.get('title')
+            transparency.context = request.POST.get('context')
+            transparency.description = request.POST.get('description')
+            transparency.date = request.POST.get('date')
+            transparency.document_url = request.POST.get('document_url')
+            status_value = request.POST.get('status')
+            from .models import Status
+            if status_value:
+                try:
+                    transparency.status = Status.objects.get(type=status_value)
+                except Status.DoesNotExist:
+                    return JsonResponse({'success': False, 'error': f'Status "{status_value}" does not exist.'})
+            transparency.save()
+            if 'document' in request.FILES:
+                transparency.document = request.FILES['document']
+            transparency.save()
+            return JsonResponse({
+                'success': True,
+                'message': 'Document updated successfully'
+            })
+        except Transparency.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'error': 'Document not found'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            })
+    return JsonResponse({
+        'success': False,
+        'error': 'Invalid request method'
+    })
+
+@login_required
+@user_passes_test(is_admin)
+def delete_transparency(request, transparency_id):
+    if request.method == 'POST':
+        try:
+            transparency = Transparency.objects.get(id=transparency_id)
+            transparency.is_deleted = True
+            transparency.save()
+            return JsonResponse({
+                'success': True,
+                'message': 'Document deleted successfully'
+            })
+        except Transparency.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'error': 'Document not found'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            })
+
+    return JsonResponse({
+        'success': False,
+        'error': 'Invalid request method'
+    })
+
+@login_required
+@user_passes_test(is_admin)
+def restore_transparency(request, transparency_id):
+    if request.method == 'POST':
+        try:
+            transparency = Transparency.objects.get(id=transparency_id)
+            transparency.is_deleted = False
+            transparency.save()
+            return JsonResponse({
+                'success': True,
+                'message': 'Document restored successfully'
+            })
+        except Transparency.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'error': 'Document not found'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            })
+
+    return JsonResponse({
+        'success': False,
+        'error': 'Invalid request method'
+    })
+
+@csrf_exempt
+@login_required
+@user_passes_test(is_admin)
+def account_restore(request, pk):
+    if request.method == 'POST':
+        try:
+            account = get_object_or_404(Account, pk=pk, is_active=False)
+            account.is_active = True
+            account.save()
+            return JsonResponse({'success': True, 'message': 'Account restored successfully'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=400)
