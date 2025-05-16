@@ -16,6 +16,7 @@
     <!-- School Year Filter -->
     <div class="row mb-4">
         <div class="col-md-6 offset-md-3">
+            <label for="syFilter" class="form-label mb-2 fw-bold">Filter by School Year:</label>
             <select id="syFilter" class="form-select form-select-lg">
                 <option value="all">All School Years</option>
                 {% for sy in members_by_sy.keys %}
@@ -33,7 +34,7 @@
         <div class="card-body p-4" style="background: transparent;">
             <div class="row justify-content-center">
                 {% for member in members %}
-                <div class="col-12 col-sm-10 col-md-6 col-lg-4 mb-4 d-flex justify-content-center">
+                <div class="col-12 col-sm-10 col-md-6 col-lg-3 mb-4 d-flex justify-content-center">
                     <div class="card officer-card border-0 shadow-sm" style="max-width: 420px; width: 100%; border-radius: 1.5rem;">
                         <div class="position-relative" style="height: 300px; overflow: hidden; border-radius: 1.5rem 1.5rem 0 0;">
                             {% if member.profile_img %}
@@ -42,29 +43,31 @@
                             <img src="https://placehold.co/420x300/e9ecef/495057?text=No+Image+Available" class="card-img-top h-100 w-100" style="object-fit: cover;" alt="No Image Available">
                             {% endif %}
                         </div>
-                        <div class="card-body">
+                        <div class="card-body d-flex flex-column">
                             <h5 class="card-title fw-bold mb-1">{{ member.firstname }} {{ member.lastname }}</h5>
                             <div class="card-subtitle mb-2 text-success">{{ member.position.name }}</div>
                             <ul class="list-unstyled mb-3">
                                 <li><i class="fas fa-building me-2"></i><strong>Department:</strong> {{ member.department.name }}</li>
                                 <li><i class="fas fa-calendar me-2"></i><strong>Term:</strong> {{ member.start_term|date:"Y-m-d" }} - {{ member.end_term|date:"Y-m-d" }}</li>
                             </ul>
-                            <button 
-                                type="button"
-                                class="btn btn-success w-100 view-officer-btn"
-                                data-bs-toggle="modal"
-                                data-bs-target="#officerModal"
-                                data-member='{
-                                    "img": "{% if member.profile_img %}{{ member.profile_img.url }}{% else %}https://placehold.co/420x300/e9ecef/495057?text=No+Image+Available{% endif %}",
-                                    "name": "{{ member.firstname }} {{ member.lastname }}",
-                                    "position": "{{ member.position.name }}",
-                                    "department": "{{ member.department.name }}",
-                                    "term": "{{ member.start_term|date:"Y-m-d" }} - {{ member.end_term|date:"Y-m-d" }}",
-                                    "bio": "{{ member.bio|default:"" }}"
-                                }'
-                            >
-                                <i class="fas fa-user me-2"></i>View Details
-                            </button>
+                            <div class="mt-auto">
+                                <button 
+                                    type="button"
+                                    class="btn btn-success w-100 view-officer-btn"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#officerModal"
+                                    data-member='{
+                                        "img": "{% if member.profile_img %}{{ member.profile_img.url }}{% else %}https://placehold.co/420x300/e9ecef/495057?text=No+Image+Available{% endif %}",
+                                        "name": "{{ member.firstname }} {{ member.lastname }}",
+                                        "position": "{{ member.position.name }}",
+                                        "department": "{{ member.department.name }}",
+                                        "term": "{{ member.start_term|date:"Y-m-d" }} - {{ member.end_term|date:"Y-m-d" }}",
+                                        "bio": "{{ member.bio|default:"" }}"
+                                    }'
+                                >
+                                    <i class="fas fa-user me-2"></i>View Details
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -17,13 +17,21 @@
 <div class="offcanvas">
     <span class="close-btn">&times;</span>
     <nav>
-        <a href="#" class="nav-link">HOME</a>
-        <a href="#" class="nav-link">ABOUT</a>
-        <a href="#" class="nav-link">ANNOUNCEMENT</a>
-        <a href="{%url 'events_list'%}" class="nav-link">EVENTS</a>
-        <a href="#" class="nav-link">ACHIEVEMENTS</a>
-        <a href="#" class="nav-link">PROFESSORS</a>
-        <a href="#" class="nav-link">OFFICERS</a>
+        <div class="nav-links-grid">
+            <div class="nav-links-col">
+                <a href="{% url 'accomplishments_list' %}" class="nav-link"><i class="bi bi-award"></i> <span class="nav-link-text">ACCOMPLISHMENT</span></a>
+                <a href="{% url 'achievements_list' %}" class="nav-link"><i class="bi bi-trophy"></i> <span class="nav-link-text">ACHIEVEMENTS</span></a>
+                <a href="{% url 'announcements_list' %}" class="nav-link"><i class="bi bi-megaphone"></i> <span class="nav-link-text">ANNOUNCEMENTS</span></a>
+                <a href="{% url 'committees_list' %}" class="nav-link"><i class="bi bi-people"></i> <span class="nav-link-text">COMMITTEES</span></a>
+                <a href="{% url 'events_list' %}" class="nav-link"><i class="bi bi-calendar-event"></i> <span class="nav-link-text">EVENTS</span></a>
+            </div>
+            <div class="nav-links-col">
+                <a href="{% url 'officers_list' %}" class="nav-link"><i class="bi bi-person-badge"></i> <span class="nav-link-text">OFFICERS</span></a>
+                <a href="{% url 'posts_list' %}" class="nav-link"><i class="bi bi-file-earmark-text"></i> <span class="nav-link-text">POSTS</span></a>
+                <a href="{% url 'faculties_list' %}" class="nav-link"><i class="bi bi-mortarboard"></i> <span class="nav-link-text">PROFESSORS</span></a>
+                <a href="{% url 'transparency_list_client' %}" class="nav-link"><i class="bi bi-eye"></i> <span class="nav-link-text">TRANSPARENCY</span></a>
+            </div>
+        </div>
     </nav>
 </div>
 
@@ -151,10 +159,10 @@
     </div>
     <div class="container">
         {% if announcements %}
-        <div class="row">
+        <div class="row align-items-stretch">
             <!-- Main Featured Announcement -->
-            <div class="col-lg-6" data-aos="fade-up" data-aos-duration="1000">
-                <a href="{% url 'announcement_detail' announcements.0.id %}" class="announcement-card large">
+            <div class="col-lg-6 d-flex">
+                <a href="{% url 'announcement_detail' announcements.0.id %}" class="announcement-card large h-100 w-100 d-flex flex-column">
                     <div class="announcement-image">
                         {% if announcements.0.admin.account.profile_img %}
                         <img src="{{ announcements.0.admin.account.profile_img.url }}" alt="{{ announcements.0.title }}">
@@ -162,7 +170,7 @@
                         <img src="{% static 'landing/img/img5.jpg' %}" alt="{{ announcements.0.title }}">
                         {% endif %}
                     </div>
-                    <div class="announcement-content">
+                    <div class="announcement-content mt-auto">
                         <span class="category">{{ announcements.0.category.category|upper }}</span>
                         <h3>{{ announcements.0.title }}</h3>
                         <p>{{ announcements.0.context|truncatechars:100 }}</p>
@@ -172,8 +180,8 @@
 
             <!-- Two Smaller Announcements -->
             {% if announcements|length > 1 %}
-            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-duration="1000">
-                <a href="{% url 'announcement_detail' announcements.1.id %}" class="announcement-card small">
+            <div class="col-lg-3 col-md-6 d-flex">
+                <a href="{% url 'announcement_detail' announcements.1.id %}" class="announcement-card small h-100 w-100 d-flex flex-column">
                     <div class="announcement-image">
                         {% if announcements.1.admin.account.profile_img %}
                         <img src="{{ announcements.1.admin.account.profile_img.url }}" alt="{{ announcements.1.title }}">
@@ -181,7 +189,7 @@
                         <img src="{% static 'landing/img/img5.jpg' %}" alt="{{ announcements.1.title }}">
                         {% endif %}
                     </div>
-                    <div class="announcement-content">
+                    <div class="announcement-content mt-auto">
                         <span class="category">{{ announcements.1.category.category|upper }}</span>
                         <h3>{{ announcements.1.title }}</h3>
                         <p>{{ announcements.1.context|truncatechars:100 }}</p>
@@ -191,8 +199,8 @@
             {% endif %}
 
             {% if announcements|length > 2 %}
-            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-duration="1000">
-                <a href="{% url 'announcement_detail' announcements.2.id %}" class="announcement-card small">
+            <div class="col-lg-3 col-md-6 d-flex">
+                <a href="{% url 'announcement_detail' announcements.2.id %}" class="announcement-card small h-100 w-100 d-flex flex-column">
                     <div class="announcement-image">
                         {% if announcements.2.admin.account.profile_img %}
                         <img src="{{ announcements.2.admin.account.profile_img.url }}" alt="{{ announcements.2.title }}">
@@ -200,7 +208,7 @@
                         <img src="{% static 'landing/img/img5.jpg' %}" alt="{{ announcements.2.title }}">
                         {% endif %}
                     </div>
-                    <div class="announcement-content">
+                    <div class="announcement-content mt-auto">
                         <span class="category">{{ announcements.2.category.category|upper }}</span>
                         <h3>{{ announcements.2.title }}</h3>
                         <p>{{ announcements.2.context|truncatechars:100 }}</p>
@@ -385,14 +393,14 @@
 <!-- Posts Section -->
 <section class="post-section">
     <div class="achievements text-center" data-aos="fade-up" data-aos-duration="1000">
-        <h2 class="fw-bold">POST</h2>
+        <h2 class="fw-bold">POSTS</h2>
     </div>
     
     <div class="container py-5">
         {% if posts %}
         <div class="row g-4 justify-content-center">
-            {% for post in posts|slice:":4" %}
-            <div class="row col-12 col-md-6 col-lg-6" data-aos="fade-up" data-aos-duration="1000">
+            {% for post in posts %}
+            <div class="col-12 col-md-6 col-lg-6" data-aos="fade-up" data-aos-duration="1000">
                 <div class="exam-card position-relative overflow-hidden">
                     <div class="exam-image">
                         {% if post.images.all %}
@@ -405,6 +413,9 @@
                         <div>
                             <p class="exam-date mb-1">{{ post.created_at|date:"F j, Y" }}</p>
                             <h4 class="exam-title m-0">{{ post.title }}</h4>
+                            {% if post.category %}
+                            <span class="category">{{ post.category.category|upper }}</span>
+                            {% endif %}
                         </div>
                         <div class="text-end">
                             <a href="{% url 'posts_detail' post.id %}" class="read-more">Read More <span>&rarr;</span></a>
@@ -413,10 +424,10 @@
                 </div>
             </div>
             {% endfor %}
+        </div>
 
-            <div class="see-more-container" data-aos="fade-up" data-aos-duration="1000">
-                <a href="" class="see-more-btn">See More Posts</a>
-            </div>
+        <div class="see-more-container" data-aos="fade-up" data-aos-duration="1000">
+            <a href="{% url 'posts_list' %}" class="see-more-btn">See More Posts</a>
         </div>
         {% else %}
         <div class="no-content-message text-center py-5" data-aos="fade-up" data-aos-duration="1000">
@@ -498,5 +509,75 @@ AOS.init();
     });
 });
 </script>
+
+<style>
+.offcanvas .nav-links-grid {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 3rem;
+    flex-wrap: wrap;
+    margin-top: 3rem;
+}
+.offcanvas .nav-links-col {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+.offcanvas .nav-link {
+    display: flex;
+    align-items: center;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #fff;
+    text-decoration: none;
+    position: relative;
+    padding: 0.5rem 0;
+    transition: color 0.2s;
+    justify-content: flex-start;
+}
+.offcanvas .nav-link .bi, .offcanvas .nav-link .fa {
+    margin-right: 1rem;
+    font-size: 2rem;
+    color: #fff;
+    transition: color 0.2s;
+    position: relative;
+    z-index: 1;
+}
+.offcanvas .nav-link:hover .bi, .offcanvas .nav-link:focus .bi,
+.offcanvas .nav-link:hover .fa, .offcanvas .nav-link:focus .fa {
+    color: #ff5e62;
+}
+.offcanvas .nav-link-text {
+    position: relative;
+    display: inline-block;
+    color: #fff;
+    transition: color 0.2s;
+    z-index: 2;
+}
+.offcanvas .nav-link-text::after {
+    content: '';
+    display: block;
+    height: 3px;
+    background: #ff5e62;
+    width: 0;
+    transition: width 0.3s;
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    z-index: 2;
+}
+.offcanvas .nav-link:hover .nav-link-text,
+.offcanvas .nav-link:focus .nav-link-text {
+    color: #ff5e62;
+}
+.offcanvas .nav-link:hover .nav-link-text::after,
+.offcanvas .nav-link:focus .nav-link-text::after {
+    width: 100%;
+}
+</style>
+
+<!-- Bootstrap Icons CDN -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 </body>
 </html>

@@ -1,0 +1,130 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center">
+    <div class="w-full max-w-4xl mx-auto p-6 bg-white rounded-2xl shadow-xl mt-10">
+        <div class="flex flex-col md:flex-row gap-8">
+            <!-- Profile Form and Image -->
+            <div class="flex-1">
+                <form method="POST" enctype="multipart/form-data" class="space-y-6">
+                    {% csrf_token %}
+                    <div class="flex flex-col items-center">
+                        <div class="relative group mb-4">
+                            <img id="profilePreview" src="{% if user.profile_img %}{{ user.profile_img.url }}{% else %}{% static 'images/default-profile.png' %}{% endif %}" alt="Profile Picture" class="w-36 h-36 rounded-full object-cover border-4 border-blue-200 shadow-lg transition duration-200">
+                            <label for="profile_img" class="absolute bottom-2 right-2 bg-white rounded-full p-2 shadow-md cursor-pointer hover:bg-blue-50 transition-all duration-200 border-2 border-white group-hover:border-blue-200">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 13h6m2 2a2 2 0 100-4 2 2 0 000 4zm-2-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4" /></svg>
+                                <input id="profile_img" name="profile_img" type="file" class="hidden" accept="image/*" onchange="previewImage(event)">
+                            </label>
+                        </div>
+                        <h2 class="text-xl font-bold text-gray-800 mb-2">{{ user.firstname }} {{ user.lastname }}</h2>
+                        <p class="text-gray-500 mb-4">{{ user.email }}</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label for="firstname" class="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
+                                <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                First Name
+                            </label>
+                            <input type="text" id="firstname" name="firstname" value="{{ user.firstname }}" required class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 text-lg py-3 px-4 hover:ring-2 hover:ring-blue-400 hover:shadow-lg transition">
+                        </div>
+                        <div>
+                            <label for="lastname" class="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
+                                <svg class="w-6 h-6 text-purple-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                Last Name
+                            </label>
+                            <input type="text" id="lastname" name="lastname" value="{{ user.lastname }}" required class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:ring-purple-500 focus:border-purple-500 text-lg py-3 px-4 hover:ring-2 hover:ring-blue-400 hover:shadow-lg transition">
+                        </div>
+                        <div>
+                            <label for="middlename" class="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
+                                <svg class="w-6 h-6 text-pink-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                Middle Name
+                            </label>
+                            <input type="text" id="middlename" name="middlename" value="{{ user.middlename }}" class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:ring-pink-500 focus:border-pink-500 text-lg py-3 px-4 hover:ring-2 hover:ring-blue-400 hover:shadow-lg transition">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
+                                <svg class="w-6 h-6 text-orange-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 12H8m8 0a4 4 0 11-8 0 4 4 0 018 0zm-8 0V8a4 4 0 018 0v4" /></svg>
+                                Email Address
+                            </label>
+                            <input type="email" id="email" name="email" value="{{ user.email }}" required class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:ring-orange-500 focus:border-orange-500 text-lg py-3 px-4 hover:ring-2 hover:ring-blue-400 hover:shadow-lg transition">
+                        </div>
+                        <div>
+                            <label for="contact_number" class="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
+                                <svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm0 8a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H5a2 2 0 01-2-2v-2zm8-8a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zm0 8a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+                                Contact Number
+                            </label>
+                            <input type="tel" id="contact_number" name="contact_number" value="{{ user.contact_number }}" required class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:ring-green-500 focus:border-green-500 text-lg py-3 px-4 hover:ring-2 hover:ring-blue-400 hover:shadow-lg transition">
+                            <span class="text-xs text-gray-400">Format: +999999999 (up to 15 digits)</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-end gap-2">
+                        <button type="button" onclick="window.location.href='{{ from_url }}'" class="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 transition">Go Back</button>
+                        <button type="submit" class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition">Update Profile</button>
+                    </div>
+                </form>
+                <!-- Change Password Section -->
+                <div class="mt-10 border-t pt-6">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">Change Password</h3>
+                    <form method="POST" action="" class="space-y-4" id="passwordForm">
+                        {% csrf_token %}
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label for="current_password" class="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
+                                    <svg class="w-6 h-6 text-yellow-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 11c1.104 0 2-.896 2-2V7a2 2 0 10-4 0v2c0 1.104.896 2 2 2zm0 0v2m0 4h.01" /></svg>
+                                    Current Password
+                                </label>
+                                <input type="password" id="current_password" name="current_password" required class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:ring-yellow-500 focus:border-yellow-500 text-lg py-3 px-4 hover:ring-2 hover:ring-blue-400 hover:shadow-lg transition">
+                            </div>
+                            <div>
+                                <label for="new_password" class="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
+                                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 11c1.104 0 2-.896 2-2V7a2 2 0 10-4 0v2c0 1.104.896 2 2 2zm0 0v2m0 4h.01" /></svg>
+                                    New Password
+                                </label>
+                                <input type="password" id="new_password" name="new_password" required class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:ring-blue-600 focus:border-blue-600 text-lg py-3 px-4 hover:ring-2 hover:ring-blue-400 hover:shadow-lg transition">
+                            </div>
+                            <div>
+                                <label for="confirm_password" class="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
+                                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 11c1.104 0 2-.896 2-2V7a2 2 0 10-4 0v2c0 1.104.896 2 2 2zm0 0v2m0 4h.01" /></svg>
+                                    Confirm New Password
+                                </label>
+                                <input type="password" id="confirm_password" name="confirm_password" required class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:ring-green-600 focus:border-green-600 text-lg py-3 px-4 hover:ring-2 hover:ring-blue-400 hover:shadow-lg transition">
+                            </div>
+                        </div>
+                        <div class="flex justify-end">
+                            <button type="submit" class="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition">Change Password</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function previewImage(event) {
+            const reader = new FileReader();
+            reader.onload = function(){
+                const output = document.getElementById('profilePreview');
+                output.src = reader.result;
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        }
+    </script>
+    <style>
+    @keyframes fade-in {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+      animation: fade-in 0.3s ease;
+    }
+    </style>
+</body>
+</html> 

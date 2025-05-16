@@ -21,16 +21,51 @@
     <div class="modern-separator"></div>
 </div>
 
-<div class="accomplishment-filter-container" data-aos="fade-up" data-aos-duration="1000">
-    <form method="get" id="categoryFilterForm" class="accomplishment-filter-form">
-        <label for="categoryFilter" class="form-label mb-0 me-2 fw-bold filter-label">Filter by Category:</label>
-        <select name="category" id="categoryFilter" class="form-select filter-select" onchange="this.form.submit();">
-            <option value="">All Categories</option>
-            {% for cat in categories %}
-                <option value="{{ cat.id }}" {% if cat.id|stringformat:"s" == selected_category|stringformat:"s" %}selected{% endif %}>{{ cat.category }}</option>
-            {% endfor %}
-        </select>
-    </form>
+<!-- Filter Section -->
+<div class="container" data-aos="fade-up" data-aos-duration="1000">
+    <div class="row justify-content-center mb-4">
+        <div class="col-md-10">
+            <div class="filter-wrapper bg-white rounded-3 shadow-sm p-4">
+                <form method="get" id="categoryFilterForm" class="accomplishment-filter-form">
+                    <div class="row g-4">
+                        <!-- Search Section -->
+                        <div class="col-md-6">
+                            <div class="search-box">
+                                <label for="searchTitle" class="form-label fw-bold filter-label">
+                                    <i class="fas fa-search me-2"></i>Search Accomplishments
+                                </label>
+                                <div class="input-group">
+                                    <input type="text" 
+                                           name="search" 
+                                           id="searchTitle" 
+                                           class="form-control search-input" 
+                                           placeholder="Enter title to search..." 
+                                           value="{{ request.GET.search }}">
+                                    <button type="submit" class="btn btn-success search-btn">
+                                        Search
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Category Filter Section -->
+                        <div class="col-md-6">
+                            <div class="category-box">
+                                <label for="categoryFilter" class="form-label fw-bold filter-label">
+                                    <i class="fas fa-filter me-2"></i>Filter by Category
+                                </label>
+                                <select name="category" id="categoryFilter" class="form-select filter-select">
+                                    <option value="">All Categories</option>
+                                    {% for cat in categories %}
+                                        <option value="{{ cat.id }}" {% if cat.id|stringformat:"s" == selected_category|stringformat:"s" %}selected{% endif %}>{{ cat.category }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 
 {% for accomplishment in accomplishments %}
@@ -42,20 +77,30 @@
                     {% if accomplishment.images.exists %}
                         <img src="{{ accomplishment.images.first.image.url }}" alt="{{ accomplishment.title }}">
                     {% else %}
-                        <img src="https://placehold.co/350x260?text=No+Image" alt="No image available">
+                        <img src="{% static 'vendor/img/image.png' %}" alt="No image available">
                     {% endif %}
                 </div>
             </div>
             <div class="award-content-custom">
-                <h2 class="accomplishment-title">{{ accomplishment.title }}</h2>
-                <p class="accomplishment-content">{{ accomplishment.content }}</p>
+                <h2 class="accomplishment-title">
+                    <i class="fas fa-trophy me-2 text-warning"></i>{{ accomplishment.title }}
+                </h2>
+                <p class="accomplishment-content">
+                    <i class="fas fa-clipboard-list me-2 text-info"></i>{{ accomplishment.content }}
+                </p>
                 {% if accomplishment.impact %}
-                <p class="impact"><strong>Impact:</strong> {{ accomplishment.impact }}</p>
+                <p class="impact">
+                    <i class="fas fa-chart-line me-2 text-success"></i><strong>Impact:</strong> {{ accomplishment.impact }}
+                </p>
                 {% endif %}
                 {% if accomplishment.recognition %}
-                <p class="recognition"><strong>Recognition:</strong> {{ accomplishment.recognition }}</p>
+                <p class="recognition">
+                    <i class="fas fa-award me-2 text-primary"></i><strong>Recognition:</strong> {{ accomplishment.recognition }}
+                </p>
                 {% endif %}
-                <p class="date"><small>Accomplished on: {{ accomplishment.accomplish_on|date:"F d, Y" }}</small></p>
+                <p class="date">
+                    <i class="fas fa-calendar-check me-2 text-muted"></i><small>Accomplished on: {{ accomplishment.accomplish_on|date:"F d, Y" }}</small>
+                </p>
             </div>
         </div>
     </div>
@@ -259,64 +304,76 @@
             font-size: 1.1rem;
         }
     }
-    #categoryFilterForm {
-        margin-bottom: 1.5rem;
+    .filter-wrapper {
+        border: 1px solid rgba(26, 61, 47, 0.1);
+        transition: all 0.3s ease;
+        background: linear-gradient(to right, #ffffff, #f8fafc);
     }
-    @media (max-width: 768px) {
-        #categoryFilterForm {
-            width: 100%;
-        }
-    }
-    .accomplishment-filter-container {
-        display: flex;
-        justify-content: flex-start;
-        align-items: center;
-        margin: 2rem 0 1.5rem 0;
-        padding-left: 2.5vw;
-    }
-    .accomplishment-filter-form {
-        background: #fff;
-        border-radius: 16px;
-        box-shadow: 0 2px 12px rgba(26, 61, 47, 0.10);
-        padding: 0.8rem 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.7rem;
+    .filter-wrapper:hover {
+        box-shadow: 0 4px 15px rgba(26, 61, 47, 0.15);
     }
     .filter-label {
-        font-size: 1.15rem;
+        font-size: 1.1rem;
         color: #1a3d2f;
         font-weight: 600;
-        margin-bottom: 0;
-        margin-right: 0.5rem;
         letter-spacing: 0.5px;
+        margin-bottom: 0.8rem;
+        display: block;
+    }
+    .search-box, .category-box {
+        background: #fff;
+        padding: 1.2rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(26, 61, 47, 0.08);
+        height: 100%;
+    }
+    .search-input {
+        border: 1px solid rgba(26, 61, 47, 0.2);
+        border-radius: 8px 0 0 8px;
+        padding: 0.8rem 1rem;
+        font-size: 1rem;
+        color: #1a3d2f;
+        transition: all 0.3s ease;
+        height: 48px;
+    }
+    .search-input:focus {
+        border-color: #1a3d2f;
+        box-shadow: 0 0 0 0.2rem rgba(26, 61, 47, 0.15);
+    }
+    .search-btn {
+        background-color: #1a3d2f;
+        border-color: #1a3d2f;
+        padding: 0.8rem 1.5rem;
+        font-weight: 500;
+        height: 48px;
+        border-radius: 0 8px 8px 0;
+    }
+    .search-btn:hover {
+        background-color: #2e5d43;
+        border-color: #2e5d43;
     }
     .filter-select {
-        min-width: 170px;
-        max-width: 240px;
-        font-size: 1.1rem;
+        border: 1px solid rgba(26, 61, 47, 0.2);
         border-radius: 8px;
-        border: 1.5px solid #b7c9b7;
-        background: #f8fafc;
+        padding: 0.8rem 1rem;
+        font-size: 1rem;
         color: #1a3d2f;
-        padding: 0.4rem 1rem;
-        transition: border 0.2s;
+        transition: all 0.3s ease;
+        height: 48px;
     }
     .filter-select:focus {
-        border: 1.5px solid #6b866f;
-        outline: none;
-        box-shadow: 0 0 0 2px #b7c9b733;
+        border-color: #1a3d2f;
+        box-shadow: 0 0 0 0.2rem rgba(26, 61, 47, 0.15);
     }
-    @media (max-width: 900px) {
-        .accomplishment-filter-container {
-            padding-left: 0;
-            justify-content: center;
+    @media (max-width: 768px) {
+        .filter-wrapper {
+            margin: 0 1rem;
         }
-        .accomplishment-filter-form {
-            width: 100%;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 0.5rem;
+        .search-box, .category-box {
+            margin-bottom: 1rem;
+        }
+        .search-input, .filter-select {
+            font-size: 0.95rem;
         }
     }
 </style>

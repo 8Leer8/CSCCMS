@@ -63,7 +63,7 @@
     <div id="transparency-cards-container">
         {% for item in transparency_list %}
             <div class="transparency-card-col" data-aos="fade-up" data-aos-duration="1000">
-                <a href="{% url 'transparency_detail' item.pk %}" class="text-decoration-none w-100">
+                <a href="{% url 'transparency_detail_client' item.pk %}" class="text-decoration-none w-100">
                     <div class="card transparency-card h-100">
                         <div class="card-img-top-wrapper position-relative">
                             {% if item.image %}

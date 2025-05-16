@@ -3,6 +3,7 @@
 
 {% block extra_css %}
 <link href="{% static 'achievement/achievements.css' %}" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
 <style>
 .history-box {
     max-width: 1100px !important;
@@ -68,6 +69,239 @@
         height: 120px !important;
     }
 }
+
+/* Search and Filter Styles */
+.search-filter-section {
+    background: #fff;
+    padding: 2.5rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    margin-bottom: 3rem;
+    position: relative;
+    overflow: hidden;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.search-filter-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #2D6A4F, #40916C);
+}
+
+.search-filter-form {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+    position: relative;
+    width: 100%;
+    justify-content: center;
+}
+
+.search-input-group {
+    flex: 1;
+    min-width: 200px;
+    max-width: 300px;
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-input-group .input-icon {
+    position: absolute;
+    left: 1.2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    font-size: 1.2rem;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.search-input-group input {
+    width: 100%;
+    padding: 1.2rem 1.2rem 1.2rem 3rem;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    background-color: #f8f9fa;
+}
+
+.search-input-group input:focus {
+    border-color: #2D6A4F;
+    background-color: #fff;
+    box-shadow: 0 0 0 4px rgba(45, 106, 79, 0.1);
+    outline: none;
+}
+
+.search-input-group input::placeholder {
+    color: #adb5bd;
+}
+
+.filter-select-group {
+    min-width: 180px;
+    max-width: 220px;
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.filter-select-group .select-icon {
+    position: absolute;
+    left: 1.2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    font-size: 1.1rem;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.filter-select-group select {
+    width: 100%;
+    padding: 1.2rem 3rem 1.2rem 3rem;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    font-size: 1.2rem;
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+    appearance: none;
+    cursor: pointer;
+}
+
+.filter-select-group select:focus {
+    border-color: #2D6A4F;
+    background-color: #fff;
+    box-shadow: 0 0 0 4px rgba(45, 106, 79, 0.1);
+    outline: none;
+}
+
+.filter-select-group::after {
+    content: '\f078';
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    position: absolute;
+    right: 1.2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    font-size: 0.9rem;
+    pointer-events: none;
+}
+
+.search-button {
+    padding: 1.2rem 2.5rem;
+    background: linear-gradient(135deg, #2D6A4F, #40916C);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1.2rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    box-shadow: 0 4px 15px rgba(45, 106, 79, 0.2);
+}
+
+.search-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(45, 106, 79, 0.3);
+    background: linear-gradient(135deg, #40916C, #2D6A4F);
+}
+
+.search-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 10px rgba(45, 106, 79, 0.2);
+}
+
+.search-button i {
+    font-size: 1.2rem;
+}
+
+@media (max-width: 900px) {
+    .search-filter-section {
+        max-width: 98vw;
+        padding: 1.5rem;
+    }
+    .search-filter-form {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    .search-input-group,
+    .filter-select-group {
+        width: 100%;
+        max-width: none;
+    }
+    .search-button {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+.filter-wrapper {
+    background: #fff;
+    border-radius: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    padding: 2.5rem 2rem;
+    margin-bottom: 2rem;
+}
+.accomplishment-filter-form .form-label.filter-label {
+    font-size: 1.1rem;
+    color: #1a3d2f;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.search-box .input-group .search-input {
+    border-radius: 0.75rem 0 0 0.75rem;
+    font-size: 1.1rem;
+    padding: 1rem 1.2rem;
+    border: 2px solid #e9ecef;
+    background: #f8f9fa;
+}
+.search-box .input-group .search-btn {
+    border-radius: 0 0.75rem 0.75rem 0;
+    font-size: 1.1rem;
+    padding: 1rem 2rem;
+    background: linear-gradient(135deg, #2D6A4F, #40916C);
+    border: none;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(45, 106, 79, 0.08);
+    transition: background 0.2s, box-shadow 0.2s;
+}
+.search-box .input-group .search-btn:hover {
+    background: linear-gradient(135deg, #40916C, #2D6A4F);
+    box-shadow: 0 4px 16px rgba(45, 106, 79, 0.15);
+}
+.category-box .filter-select {
+    border-radius: 0.75rem;
+    font-size: 1.1rem;
+    padding: 1rem 1.2rem;
+    border: 2px solid #e9ecef;
+    background: #f8f9fa;
+    margin-top: 0.2rem;
+}
+@media (max-width: 900px) {
+    .filter-wrapper {
+        padding: 1.5rem 0.5rem;
+    }
+    .accomplishment-filter-form .row.g-4 > div {
+        margin-bottom: 1rem;
+    }
+}
 </style>
 {% endblock %}
 
@@ -96,6 +330,53 @@
             <h2 class="event_section_title fw-bold">ACHIEVEMENTS</h2>
         </div>
 
+        <!-- Filter Section -->
+        <div class="container" data-aos="fade-up" data-aos-duration="1000">
+            <div class="row justify-content-center mb-4">
+                <div class="col-md-10">
+                    <div class="filter-wrapper bg-white rounded-3 shadow-sm p-4">
+                        <form method="get" id="achievementFilterForm" class="accomplishment-filter-form">
+                            <div class="row g-4">
+                                <!-- Search Section -->
+                                <div class="col-md-6">
+                                    <div class="search-box">
+                                        <label for="searchInput" class="form-label fw-bold filter-label">
+                                            <i class="fas fa-search me-2"></i>Search Achievements
+                                        </label>
+                                        <div class="input-group">
+                                            <input type="text"
+                                                   name="search"
+                                                   id="searchInput"
+                                                   class="form-control search-input"
+                                                   placeholder="Enter title to search..."
+                                                   value="{{ request.GET.search|default:'' }}"
+                                                   autocomplete="off">
+                                            <button type="submit" class="btn btn-success search-btn">
+                                                Search
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Category Filter Section -->
+                                <div class="col-md-6">
+                                    <div class="category-box">
+                                        <label for="categorySelect" class="form-label fw-bold filter-label">
+                                            <i class="fas fa-filter me-2"></i>Filter by Category
+                                        </label>
+                                        <select name="category" id="categorySelect" class="form-select filter-select">
+                                            <option value="">All Categories</option>
+                                            {% for category in categories %}
+                                                <option value="{{ category.id }}" {% if request.GET.category == category.id|stringformat:"s" %}selected{% endif %}>{{ category.get_category_display }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Achievement List -->
         <div class="all-history-sections">
@@ -106,29 +387,35 @@
                         {% if forloop.counter|divisibleby:2 %}
                         <!-- Left Side: Text Description -->
                         <div class="col-md-8">
-                            <p class="year text-uppercase fw-bold">{{ achievement.awarded_on|date:"Y" }}</p>
-                            <h2 class="title">{{ achievement.title }}</h2>
+                            <p class="year text-uppercase fw-bold">
+                                <i class="fas fa-award me-2 text-warning"></i>{{ achievement.awarded_on|date:"Y" }}
+                            </p>
+                            <h2 class="title">
+                                <i class="fas fa-medal me-2 text-warning"></i>{{ achievement.title }}
+                            </h2>
                             {% if achievement.heading %}
-                            <div class="fw-semibold text-primary mb-2" style="font-size:1.3rem;">{{ achievement.heading }}</div>
+                            <div class="fw-semibold text-primary mb-2" style="font-size:1.3rem;">
+                                <i class="fas fa-certificate me-2"></i>{{ achievement.heading }}
+                            </div>
                             {% endif %}
                             <div class="achievement-meta">
-                                <p>Category: {{ achievement.category.get_category_display }}</p>
+                                <p><i class="fas fa-tag me-2 text-success"></i> Category: {{ achievement.category.get_category_display }}</p>
                                 {% if achievement.person_in_charge %}
-                                <p><i class="fas fa-user-tie text-blue-400"></i> Person in Charge: <span class="fw-semibold">{{ achievement.person_in_charge }}</span></p>
+                                <p><i class="fas fa-user-graduate me-2 text-primary"></i> Person in Charge: <span class="fw-semibold">{{ achievement.person_in_charge }}</span></p>
                                 {% endif %}
-                                <p class="description">{{ achievement.context }}</p>
+                                <p class="description"><i class="fas fa-clipboard-list me-2 text-info"></i>{{ achievement.context }}</p>
                             </div>
                             <a href="{% url 'achievements_detail' achievement.pk %}" class="explore-button">
-                                <span>SEE MORE DETAILS</span> <i class="fas fa-arrow-right"></i>
+                                <span>SEE MORE DETAILS</span> <i class="fas fa-chevron-right ms-2"></i>
                             </a>
                         </div>
                         <!-- Right Side: Image -->
                         <div class="col-md-4">
                             <div class="image-container">
-                                {% if achievement.image %}
-                                <img src="{{ achievement.image.url }}" class="img-fluid history-image" alt="{{ achievement.title }}">
+                                {% if achievement.images.exists %}
+                                <img src="{{ achievement.images.first.image.url }}" class="img-fluid history-image" alt="{{ achievement.title }}">
                                 {% else %}
-                                <img src="https://placehold.co/600x400/007bff/ffffff?text=Achievement" class="img-fluid history-image" alt="Default Achievement Image">
+                                <img src="{% static 'vendor/img/image.png' %}" class="img-fluid history-image" alt="Default Achievement Image">
                                 {% endif %}
                             </div>
                         </div>
@@ -136,8 +423,8 @@
                         <!-- Left Side: Image -->
                         <div class="col-md-4">
                             <div class="image-container">
-                                {% if achievement.image %}
-                                <img src="{{ achievement.image.url }}" class="img-fluid history-image" alt="{{ achievement.title }}">
+                                {% if achievement.images.exists %}
+                                <img src="{{ achievement.images.first.image.url }}" class="img-fluid history-image" alt="{{ achievement.title }}">
                                 {% else %}
                                 <img src="https://placehold.co/600x400/007bff/ffffff?text=Achievement" class="img-fluid history-image" alt="Default Achievement Image">
                                 {% endif %}
@@ -145,20 +432,26 @@
                         </div>
                         <!-- Right Side: Text Description -->
                         <div class="col-md-8">
-                            <p class="year text-uppercase fw-bold">{{ achievement.awarded_on|date:"Y" }}</p>
-                            <h2 class="title">{{ achievement.title }}</h2>
+                            <p class="year text-uppercase fw-bold">
+                                <i class="fas fa-award me-2 text-warning"></i>{{ achievement.awarded_on|date:"Y" }}
+                            </p>
+                            <h2 class="title">
+                                <i class="fas fa-medal me-2 text-warning"></i>{{ achievement.title }}
+                            </h2>
                             {% if achievement.heading %}
-                            <div class="fw-semibold text-primary mb-2" style="font-size:1.3rem;">{{ achievement.heading }}</div>
+                            <div class="fw-semibold text-primary mb-2" style="font-size:1.3rem;">
+                                <i class="fas fa-certificate me-2"></i>{{ achievement.heading }}
+                            </div>
                             {% endif %}
                             <div class="achievement-meta">
-                                <p>Category: {{ achievement.category.get_category_display }}</p>
+                                <p><i class="fas fa-tag me-2 text-success"></i> Category: {{ achievement.category.get_category_display }}</p>
                                 {% if achievement.person_in_charge %}
-                                <p><i class="fas fa-user-tie text-blue-400"></i> Person in Charge: <span class="fw-semibold">{{ achievement.person_in_charge }}</span></p>
+                                <p><i class="fas fa-user-graduate me-2 text-primary"></i> Person in Charge: <span class="fw-semibold">{{ achievement.person_in_charge }}</span></p>
                                 {% endif %}
-                                <p class="description">{{ achievement.context }}</p>
+                                <p class="description"><i class="fas fa-clipboard-list me-2 text-info"></i>{{ achievement.context }}</p>
                             </div>
                             <a href="{% url 'achievements_detail' achievement.pk %}" class="explore-button">
-                                <span>SEE MORE DETAILS</span> <i class="fas fa-arrow-right"></i>
+                                <span>SEE MORE DETAILS</span> <i class="fas fa-chevron-right ms-2"></i>
                             </a>
                         </div>
                         {% endif %}
@@ -178,6 +471,44 @@
 <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
 <script>
     AOS.init();
+
+    // Live search functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        const categorySelect = document.getElementById('categorySelect');
+        const searchForm = document.getElementById('searchForm');
+        let searchTimeout;
+
+        function performSearch() {
+            const searchValue = searchInput.value;
+            const categoryValue = categorySelect.value;
+            
+            // Build the URL with current search parameters
+            let url = new URL(window.location.href);
+            url.searchParams.set('search', searchValue);
+            if (categoryValue) {
+                url.searchParams.set('category', categoryValue);
+            } else {
+                url.searchParams.delete('category');
+            }
+            
+            // Update the URL without reloading the page
+            window.history.pushState({}, '', url);
+            
+            // Submit the form
+            searchForm.submit();
+        }
+
+        // Add event listeners for live search
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(performSearch, 500); // 500ms delay
+        });
+
+        categorySelect.addEventListener('change', function() {
+            performSearch();
+        });
+    });
 </script>
 {% endblock %}
 {% endblock %}

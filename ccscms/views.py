@@ -52,31 +52,31 @@ def is_admin(user):
     return hasattr(user, 'admin')
 
 class AuthView(View):
-    template_name = 'auth/login.html'
-    
     def get(self, request):
         if request.user.is_authenticated:
-            if is_admin(request.user):
+            if request.user.is_staff:
                 return redirect('admin_dashboard')
             return redirect('landing_page')
-        return render(request, self.template_name)
-    
-    @method_decorator(csrf_protect)
+        return render(request, 'auth/login.html')
+
     def post(self, request):
         if 'login' in request.POST:
             email = request.POST.get('email')
             password = request.POST.get('password')
-            user = authenticate(request, email=email, password=password)
+            next_url = request.POST.get('next', '')
             
+            user = authenticate(request, username=email, password=password)
             if user is not None:
                 login(request, user)
-                messages.success(request, f'Welcome back, {user.firstname}!')
-                if is_admin(user):
+                if next_url:
+                    return redirect(next_url)
+                if user.is_staff:
                     return redirect('admin_dashboard')
                 return redirect('landing_page')
-            messages.error(request, 'Invalid email or password.')
-            return redirect('auth')
-        
+            else:
+                messages.error(request, 'Invalid email or password')
+                return redirect('auth')
+                
         elif 'signup' in request.POST:
             email = request.POST.get('email')
             password = request.POST.get('password')
@@ -84,45 +84,39 @@ class AuthView(View):
             firstname = request.POST.get('firstname')
             lastname = request.POST.get('lastname')
             contact_number = request.POST.get('contact_number')
+            next_url = request.POST.get('next', '')
             
             if password != password2:
-                messages.error(request, 'Passwords do not match.')
+                messages.error(request, 'Passwords do not match')
                 return redirect('auth')
-            
-            if Account.objects.filter(email=email).exists():
-                messages.error(request, 'Email already exists.')
+                
+            if User.objects.filter(account__email=email).exists():
+                messages.error(request, 'Email already exists')
                 return redirect('auth')
+                
+            # Create the Account first
+            account = Account.objects.create_user(
+                email=email,
+                password=password,
+                firstname=firstname,
+                lastname=lastname,
+                contact_number=contact_number,
+                account_type='user',
+                is_active=True
+            )
+            # Create the User and link to Account
+            user = User.objects.create(
+                account=account,
+                username=email
+            )
+            # If you have a Profile model, update as needed
+            # Profile.objects.create(user=user, contact_number=contact_number)
             
-            try:
-                user = Account.objects.create_user(
-                    email=email,
-                    password=password,
-                    firstname=firstname,
-                    lastname=lastname,
-                    contact_number=contact_number,
-                    account_type='user'
-                )
-                
-                # Generate a unique student number (using timestamp to ensure uniqueness)
-                username = email.split('@')[0]
-                student_number = f"ST{timezone.now().strftime('%Y%m%d%H%M%S')}"
-                
-                User.objects.create(
-                    account=user,
-                    username=username,
-                    student_number=student_number,
-                    COR_img=None
-                )
-                
-                # Log the user in after successful registration
-                login(request, user)
-                messages.success(request, 'Account created successfully! Welcome to Student Council.')
-                return redirect('landing_page')
+            login(request, account)
+            if next_url:
+                return redirect(next_url)
+            return redirect('landing')
             
-            except Exception as e:
-                messages.error(request, f'Error creating account: {str(e)}')
-                return redirect('auth')
-        
         return redirect('auth')
 
 @login_required
@@ -2661,33 +2655,31 @@ class ClientViews:
     def landing_page(request):
         today = date.today()
     
-        # Get active posts (limit to 4)
+        # Get active posts (limit to 4) - Simplified query
         posts = Post.objects.filter(
-            Q(status='active') | Q(status='scheduled'),
-            start_publish_on__lte=today,
-            end_publish_on__gte=today,
-            is_active=True
-        ).select_related('category', 'admin').prefetch_related('images')[:4]
+            is_active=True,
+            status__in=['active', 'scheduled']
+        ).select_related('category', 'admin').prefetch_related('images').order_by('-created_at')[:4]
 
         # Get active achievements (limit to 2)
         achievements = Achievement.objects.filter(
             is_active=True
-        ).select_related('category', 'admin').prefetch_related('images')[:2]
+        ).select_related('category', 'admin').prefetch_related('images').order_by('-awarded_on')[:2]
 
         # Get upcoming events (limit to 4)
         events = Event.objects.filter(
-            Q(status='active') | Q(status='scheduled'),
-            date_event__gte=today,
-            is_active=True
-        ).select_related('admin').prefetch_related('audiences', 'labels', 'types')[:4]
+            is_active=True,
+            status__in=['active', 'scheduled'],
+            date_event__gte=today
+        ).select_related('admin').prefetch_related('audiences', 'labels', 'types').order_by('date_event')[:4]
 
-        # Get active announcements (limit to 3)
+        # Get active announcements (limit to 6)
         announcements = Announcement.objects.filter(
-            Q(status='active') | Q(status='scheduled'),
+            is_active=True,
+            status__in=['active', 'scheduled'],
             start_publish_on__lte=today,
-            end_publish_on__gte=today,
-            is_active=True
-        ).select_related('category', 'admin').prefetch_related('audiences')[:3]
+            end_publish_on__gte=today
+        ).select_related('category', 'admin').prefetch_related('audiences').order_by('-start_publish_on')[:6]
 
         context = {
             'posts': posts,
@@ -2744,8 +2736,20 @@ class ClientViews:
 
     @staticmethod
     def announcement_list(request):
+        from django.db.models.functions import TruncMonth
         announcements = Announcement.objects.filter(is_active=True).order_by('-created_at')
-        return render(request, 'client/announcements/announcement_list.html', {'announcements': announcements})
+        # Get unique months from created_at
+        announcement_dates = (
+            Announcement.objects.filter(is_active=True)
+            .annotate(month=TruncMonth('created_at'))
+            .values_list('month', flat=True)
+            .distinct()
+            .order_by('-month')
+        )
+        return render(request, 'client/announcements/announcement_list.html', {
+            'announcements': announcements,
+            'announcement_dates': announcement_dates,
+        })
     @staticmethod
     def announcement_detail(request, pk):
         announcement = Announcement.objects.get(pk=pk, is_active=True)
@@ -2838,16 +2842,32 @@ class ClientViews:
         return render(request, 'client/events/event_detail.html', context)
     @staticmethod
     def achievements_list(request):
-        # Get all active achievements with related data
-        achievements = Achievement.objects.filter(is_active=True)\
-            .select_related('category').prefetch_related('images')\
-            .order_by('-awarded_on')
-        # Get filter options
-        categories = Category.objects.filter(is_active=True)
+        # Get search query and category filter
+        search_query = request.GET.get('search', '')
+        category_id = request.GET.get('category')
+        
+        # Base queryset
+        achievements = Achievement.objects.all()
+        
+        # Apply search filter if query exists
+        if search_query:
+            achievements = achievements.filter(title__icontains=search_query)
+        
+        # Apply category filter if selected
+        if category_id:
+            achievements = achievements.filter(category_id=category_id)
+        
+        # Get categories with scope_id 3 or 7
+        categories = Category.objects.filter(scope_id__in=[3, 7], is_active=True)
+        
+        # Order by awarded date
+        achievements = achievements.order_by('-awarded_on')
+        
         context = {
             'achievements': achievements,
             'categories': categories,
         }
+        
         return render(request, 'client/achievements/list.html', context)
     @staticmethod
     def achievements_detail(request, pk):
@@ -2982,7 +3002,7 @@ class ClientViews:
         if selected_category:
             accomplishments = accomplishments.filter(category_id=selected_category)
         accomplishments = accomplishments.select_related('category').prefetch_related('images').order_by('-accomplish_on')
-        categories = Category.objects.filter(is_active=True)
+        categories = Category.objects.filter(is_active=True, scope_id__in=[4, 7])
         return render(request, 'client/accomplishment/list.html', {
             'accomplishments': accomplishments,
             'categories': categories,
@@ -3106,6 +3126,61 @@ class ClientViews:
         # GET request - show the form
         complaint_types = ComplaintType.objects.filter(is_active=True)
         return render(request, 'client/client_inputs/complaint.html', {'complaint_types': complaint_types})
+    @staticmethod
+    @login_required
+    def profile(request):
+        user = request.user
+        # Get the 'from' parameter or fallback to home
+        from_url = request.GET.get('from') or request.session.get('profile_from') or '/'
+        if request.method == 'POST':
+            # After POST, keep the original 'from' in session
+            request.session['profile_from'] = from_url
+            # Check if password change is requested
+            current_password = request.POST.get('current_password')
+            new_password = request.POST.get('new_password')
+            confirm_password = request.POST.get('confirm_password')
+
+            if current_password or new_password or confirm_password:
+                # Password change logic
+                if not (current_password and new_password and confirm_password):
+                    messages.error(request, 'Please fill in all password fields.')
+                elif not user.check_password(current_password):
+                    messages.error(request, 'Current password is incorrect.')
+                elif new_password != confirm_password:
+                    messages.error(request, 'New passwords do not match.')
+                elif len(new_password) < 8:
+                    messages.error(request, 'New password must be at least 8 characters.')
+                else:
+                    user.set_password(new_password)
+                    user.save()
+                    messages.success(request, 'Password changed successfully!')
+                    login(request, user)
+                return redirect('profile')
+
+            # Only update profile if the email is present in POST (i.e., profile form was submitted)
+            if request.POST.get('email'):
+                user.firstname = request.POST.get('firstname', user.firstname)
+                user.lastname = request.POST.get('lastname', user.lastname)
+                user.middlename = request.POST.get('middlename', user.middlename)
+                user.email = request.POST.get('email', user.email)
+                user.contact_number = request.POST.get('contact_number', user.contact_number)
+
+                # Only update the image if a new one is uploaded
+                if request.FILES.get('profile_img'):
+                    user.profile_img = request.FILES['profile_img']
+
+                try:
+                    user.save()
+                    messages.success(request, 'Profile updated successfully!')
+                except Exception as e:
+                    messages.error(request, f'Error updating profile: {str(e)}')
+
+                return redirect('profile')
+
+        # On GET, store the 'from' parameter in session
+        if 'from' in request.GET:
+            request.session['profile_from'] = from_url
+        return render(request, 'client/client_inputs/profile.html', {'from_url': from_url})
 
 # Create an instance to use in urls.py
 client_views = ClientViews()
@@ -3536,3 +3611,4 @@ def account_restore(request, pk):
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)}, status=500)
     return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=400)
+

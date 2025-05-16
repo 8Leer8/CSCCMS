@@ -61,7 +61,7 @@ class Account(AbstractUser):
     firstname = models.CharField(max_length=100)
     middlename = models.CharField(max_length=100, null=True, blank=True)
     contact_number = models.CharField(
-        max_length=20,
+        max_length=20, null=True, blank=True,
         validators=[
             RegexValidator(
                 regex=r'^\+?1?\d{9,15}$',

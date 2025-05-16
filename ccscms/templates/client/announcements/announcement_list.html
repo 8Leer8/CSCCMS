@@ -24,16 +24,16 @@
 
     <div class="gallery-container d-flex justify-content-center align-items-center mb-4" style="gap: 2rem; flex-wrap: nowrap;">
         <div class="gallery-item" style="width: 400px; height: 400px; border-radius: 1.5rem; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08); background: #fff;">
-            <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80" alt="Gallery image 1" style="width: 100%; height: 100%; object-fit: cover;">
+            <img src="{% static 'post/img/img2.jpg' %}" alt="Gallery image 1" style="width: 100%; height: 100%; object-fit: cover;">
         </div>
         <div class="gallery-item" style="width: 260px; height: 400px; border-radius: 1.5rem; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08); background: #fff;">
-            <img src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80" alt="Gallery image 2" style="width: 100%; height: 100%; object-fit: cover;">
+            <img src="{% static 'post/img/img1.jpg' %}" alt="Gallery image 2" style="width: 100%; height: 100%; object-fit: cover;">
         </div>
         <div class="gallery-item" style="width: 260px; height: 400px; border-radius: 1.5rem; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08); background: #fff;">
-            <img src="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80" alt="Gallery image 3" style="width: 100%; height: 100%; object-fit: cover;">
+            <img src="{% static 'post/img/img3.jpg' %}" alt="Gallery image 3" style="width: 100%; height: 100%; object-fit: cover;">
         </div>
         <div class="gallery-item" style="width: 400px; height: 400px; border-radius: 1.5rem; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08); background: #fff;">
-            <img src="https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=400&q=80" alt="Gallery image 4" style="width: 100%; height: 100%; object-fit: cover;">
+            <img src="{% static 'post/img/img4.jpg' %}" alt="Gallery image 4" style="width: 100%; height: 100%; object-fit: cover;">
         </div>
     </div>   
 </section>
@@ -49,17 +49,22 @@
       <h2 class="event_section_title" style="font-size: 3rem; font-family: 'Times New Roman', Times, serif; color: #204020; letter-spacing: 1px; text-align: left; font-weight: 400;">ANNOUNCEMENTS</h2>
     </div>
 
-    <!-- Date Filter -->
+    <!-- Date Filter and Search -->
     <div class="d-flex align-items-center mb-4 border-bottom pb-2" data-aos="fade-up" data-aos-duration="1000">
       <h5 class="mb-0 text-dark fw-bold">{% now "F Y" %}</h5>
       <hr class="flex-grow-1 ms-3 mb-0 border-top" />
-      <div class="ms-auto">
-        <select class="form-select form-select-sm w-auto" id="announcementDateFilter">
-          <option value="all">All Dates</option>
-          {% for date in announcement_dates %}
-            <option value="{{ date|date:'Y-m' }}">{{ date|date:"F Y" }}</option>
-          {% endfor %}
-        </select>
+      <div class="d-flex gap-3 ms-auto" style="justify-content: flex-end;">
+        <div class="search-container">
+          <input type="text" class="form-control form-control-sm" id="announcementSearch" placeholder="Search announcements...">
+        </div>
+        <div class="date-dropdown-container">
+          <select class="form-select form-select-sm w-auto" id="announcementDateFilter">
+            <option value="all">All Dates</option>
+            {% for date in announcement_dates %}
+              <option value="{{ date|date:'Y-m' }}">{{ date|date:"F Y" }}</option>
+            {% endfor %}
+          </select>
+        </div>
       </div>
     </div>
 
@@ -72,7 +77,7 @@
               {% if announcement.image %}
                 <img src="{{ announcement.image.url }}" alt="{{ announcement.title }}" class="img-fluid" />
               {% else %}
-                <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80" alt="Default Announcement" class="img-fluid" />
+                <img src="{% static 'vendor/img/image.png' %}" alt="Default Announcement" class="img-fluid" />
               {% endif %}
             </div>
             <div class="announcement-content p-3">
@@ -95,17 +100,32 @@
 <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
 <script>
   AOS.init();
-  document.getElementById('announcementDateFilter').addEventListener('change', function () {
-    const selected = this.value;
+  
+  // Function to filter announcements
+  function filterAnnouncements() {
+    const selectedDate = document.getElementById('announcementDateFilter').value;
+    const searchTerm = document.getElementById('announcementSearch').value.toLowerCase();
     const items = document.querySelectorAll('.announcement-item');
+    
     items.forEach(item => {
-      if (selected === 'all' || item.dataset.date === selected) {
+      const dateMatch = selectedDate === 'all' || item.dataset.date === selectedDate;
+      const title = item.querySelector('h5').textContent.toLowerCase();
+      const content = item.querySelector('p').textContent.toLowerCase();
+      const searchMatch = searchTerm === '' || 
+                         title.includes(searchTerm) || 
+                         content.includes(searchTerm);
+      
+      if (dateMatch && searchMatch) {
         item.style.display = 'block';
       } else {
         item.style.display = 'none';
       }
     });
-  });
+  }
+
+  // Add event listeners
+  document.getElementById('announcementDateFilter').addEventListener('change', filterAnnouncements);
+  document.getElementById('announcementSearch').addEventListener('input', filterAnnouncements);
 </script>
 {% endblock %}
 
@@ -221,6 +241,29 @@
   .announcement-content p {
     font-size: 1.08rem;
     line-height: 1.5;
+  }
+  .search-container, .date-dropdown-container {
+    max-width: 400px;
+    width: 100%;
+  }
+  .search-container input {
+    border-radius: 20px;
+    padding: 0.7rem 1.2rem;
+    border: 1px solid #dee2e6;
+    transition: all 0.3s ease;
+    font-size: 1.15rem;
+  }
+  .search-container input:focus {
+    box-shadow: 0 0 0 0.2rem rgba(24, 68, 50, 0.25);
+    border-color: #184432;
+  }
+  .date-dropdown-container select {
+    border-radius: 20px;
+    padding: 0.7rem 1.2rem;
+    border: 1px solid #dee2e6;
+    transition: all 0.3s ease;
+    font-size: 1.15rem;
+    height: auto;
   }
 </style>
 {% endblock %}

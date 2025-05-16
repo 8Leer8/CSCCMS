@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Student Council - College of Computing Studies</title>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   {% block extra_css %}{% endblock %}  <!-- Add this line -->
   <link rel="stylesheet" href="{% static 'vendor/bootstrap-5.3.3-dist/css/bootstrap.min.css'%}">
   <link rel="stylesheet" href="{% static 'css/base/style.css' %}">
@@ -35,11 +36,11 @@
   <section class="dropdown" id="dropdownMenu">
     <section class="dropdown-main">
       <section class="profile-section">
-        <a href="#" class="profile-link">
+        <a href="{% if user.is_authenticated %}{% url 'profile' %}?from={{ request.path }}{% else %}#{% endif %}" class="profile-link{% if not user.is_authenticated %} disabled{% endif %}">
           <div class="profile-img">
             {% if user.is_authenticated %}
-              {% if user.profile and user.profile.image %}
-                <img src="{{ user.profile.image.url }}" alt="Profile image">
+              {% if user.profile_img %}
+                <img src="{{ user.profile_img.url }}" alt="Profile image">
               {% else %}
                 <img src="{% static 'vendor/img/profile.jpg' %}" alt="Default profile image">
               {% endif %}
@@ -93,7 +94,7 @@
               <li><div class="accordion-link"><a href="{%url 'announcements_list'%}">Announcements</a><span class="material-symbols-outlined">arrow_right_alt</span></div></li>
               <li><div class="accordion-link"><a href="{%url 'events_list'%}">Events</a><span class="material-symbols-outlined">arrow_right_alt</span></div></li>
               <li><div class="accordion-link"><a href="{%url 'posts_list'%}">Posts</a><span class="material-symbols-outlined">arrow_right_alt</span></div></li>
-              <li><div class="accordion-link"><a href="{%url 'transparency_list'%}">Transparency</a><span class="material-symbols-outlined">arrow_right_alt</span></div></li>
+              <li><div class="accordion-link"><a href="{%url 'transparency_list_client'%}">Transparency</a><span class="material-symbols-outlined">arrow_right_alt</span></div></li>
             </ul>
           </li>
           <li class="accordion-list">
@@ -115,8 +116,8 @@
             <ul class="accordion-content">
               <li><div class="accordion-link"><a href="#">About Us</a><span class="material-symbols-outlined">arrow_right_alt</span></div></li>
               <li><div class="accordion-link"><a href="#">Contact Us</a><span class="material-symbols-outlined">arrow_right_alt</span></div></li>
-              <li><div class="accordion-link"><a href="#">Concerns</a><span class="material-symbols-outlined">arrow_right_alt</span></div></li>
-              <li><div class="accordion-link"><a href="{% url 'feedback' %}">Feedback</a><span class="material-symbols-outlined">arrow_right_alt</span></div></li>
+              <li><div class="accordion-link"><a href="#" class="auth-required" data-feature="concern">Concerns</a><span class="material-symbols-outlined">arrow_right_alt</span></div></li>
+              <li><div class="accordion-link"><a href="#" class="auth-required" data-feature="feedback">Feedback</a><span class="material-symbols-outlined">arrow_right_alt</span></div></li>
             </ul>
           </li>
           <li class="accordion-list">
@@ -167,8 +168,8 @@
           <h3 class="footer-link-title">About</h3>
           <ul>
             <li class="footer-link"><a href="#">About us</a></li>
-            <li class="footer-link"><a href="{% url 'complaint' %}">Concerns</a></li>
-            <li class="footer-link"><a href="{% url 'feedback' %}">Feedback</a></li>
+            <li class="footer-link"><a href="#" class="auth-required" data-feature="concern">Concerns</a></li>
+            <li class="footer-link"><a href="#" class="auth-required" data-feature="feedback">Feedback</a></li>
           </ul>
         </div>
         <div class="footer-link-container">
@@ -199,19 +200,127 @@
   <div class="modal fade" id="need_account" tabindex="-1" aria-labelledby="needAccountModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="needAccountModalLabel">Login Required</h5>
+        <div class="modal-header border-0">
+          <div class="modal-icon">
+            <span class="material-symbols-outlined">account_circle</span>
+          </div>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="modal-body">
-          <p>You need to be logged in to access this feature.</p>
+        <div class="modal-body text-center">
+          <h5 class="modal-title mb-3" id="needAccountModalLabel">Authentication Required</h5>
+          <p id="modalMessage" class="modal-message">You need to be logged in to access this feature.</p>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Maybe Later</button>
+        <div class="modal-footer border-0 justify-content-center">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Maybe Later</button>
           <a href="{% url 'auth' %}" class="btn btn-primary">Go to Login</a>
         </div>
       </div>
     </div>
   </div>
+
+  <style>
+    .modal-content {
+      border-radius: 15px;
+      border: none;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .modal-header {
+      padding: 1.5rem 1.5rem 0.5rem;
+      position: relative;
+    }
+
+    .modal-icon {
+      width: 60px;
+      height: 60px;
+      background: #f8f9fa;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1rem;
+    }
+
+    .modal-icon .material-symbols-outlined {
+      font-size: 32px;
+      color: #0d6efd;
+    }
+
+    .modal-body {
+      padding: 0 2rem 1.5rem;
+    }
+
+    .modal-title {
+      font-weight: 600;
+      color: #2c3e50;
+    }
+
+    .modal-message {
+      color: #6c757d;
+      font-size: 1.1rem;
+      line-height: 1.5;
+    }
+
+    .modal-footer {
+      padding: 0 2rem 1.5rem;
+      gap: 1rem;
+    }
+
+    .modal .btn {
+      padding: 0.6rem 1.5rem;
+      font-weight: 500;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .modal .btn-light {
+      background-color: #f8f9fa;
+      border: 1px solid #dee2e6;
+      color: #6c757d;
+    }
+
+    .modal .btn-light:hover {
+      background-color: #e9ecef;
+    }
+
+    .modal .btn-primary {
+      background-color: #0d6efd;
+      border: none;
+    }
+
+    .modal .btn-primary:hover {
+      background-color: #0b5ed7;
+      transform: translateY(-1px);
+    }
+
+    .btn-close {
+      position: absolute;
+      right: 1rem;
+      top: 1rem;
+      opacity: 0.5;
+      transition: opacity 0.3s ease;
+    }
+
+    .btn-close:hover {
+      opacity: 1;
+    }
+  </style>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const authRequiredLinks = document.querySelectorAll('.auth-required');
+      const modal = new bootstrap.Modal(document.getElementById('need_account'));
+      const modalMessage = document.getElementById('modalMessage');
+
+      authRequiredLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          const feature = this.getAttribute('data-feature');
+          modalMessage.textContent = `Account is required to proceed giving ${feature}.`;
+          modal.show();
+        });
+      });
+    });
+  </script>
 </body>
 </html>

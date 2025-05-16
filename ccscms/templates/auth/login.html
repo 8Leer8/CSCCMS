@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,152 +6,420 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login/Signup</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
-        .auth-container {
-            perspective: 1000px;
+        :root {
+            --primary: #14532d;
+            --secondary: #14532d;
+            --accent: #14532d;
+            --button-bg: #14532d;
+            --button-hover-bg: #0e3c20;
+            --error-fg: #ba2121;
+            --body-bg: #e5e7eb;
+            --card-bg: #fff;
+            --text-dark: #14532d;
+            --text-light: #fff;
+        }
+        body {
+            min-height: 100vh;
+            background: var(--body-bg);
+        }
+        .main-flex {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: row;
+        }
+        .left-panel {
+            flex: 1 1 0%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: var(--text-light);
+            position: relative;
+            overflow: hidden;
+            padding: 0 2rem;
+        }
+        .left-panel .logo {
+            width: 100px;
+            height: 100px;
+            background: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 12px 0 rgba(0,0,0,0.10);
+            overflow: hidden;
+        }
+        .left-panel .logo img {
+            width: 90px;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+        .left-panel h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1.25rem;
+            text-align: center;
+            line-height: 1.2;
+        }
+        .left-panel p {
+            font-size: 1.1rem;
+            color: #e0e7ff;
+            margin-bottom: 2.5rem;
+            max-width: 340px;
+            text-align: center;
+            line-height: 1.5;
+        }
+        .left-panel .guest-btn {
+            position: absolute;
+            bottom: 2rem;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+        .left-panel .guest-btn a {
+            background: var(--card-bg);
+            color: var(--primary);
+            font-weight: 600;
+            border-radius: 999px;
+            padding: 0.75rem 2.5rem;
+            font-size: 1.1rem;
+            box-shadow: 0 2px 12px 0 rgba(0,0,0,0.10);
+            text-decoration: none;
+            transition: background 0.2s, color 0.2s;
+        }
+        .left-panel .guest-btn a:hover {
+            background: var(--primary);
+            color: var(--text-light);
+        }
+        .right-panel {
+            flex: 1 1 0%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+        }
+        .auth-card {
+            width: 100%;
+            max-width: 350px;
+            background: var(--card-bg);
+            border-radius: 24px;
+            box-shadow: 0 4px 32px 0 rgba(0,0,0,0.10);
+            padding: 2.5rem 2rem 2rem 2rem;
+            position: relative;
+            transition: max-width 0.4s cubic-bezier(.4,2,.6,1), padding 0.4s cubic-bezier(.4,2,.6,1);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .auth-form.signup-active ~ .auth-card,
+        .auth-card.signup-active {
+            max-width: 520px;
+            padding: 3.5rem 3rem 3.5rem 3rem;
         }
         .auth-form {
-            transform-style: preserve-3d;
-            transition: transform 0.8s;
-        }
-        .auth-form.flipped {
-            transform: rotateY(180deg);
+            min-height: 480px;
+            position: relative;
         }
         .form-front, .form-back {
-            backface-visibility: hidden;
             position: absolute;
             width: 100%;
+            left: 0;
+            top: 0;
+            transition: opacity 0.3s, visibility 0.3s;
+            display: flex;
+            flex-direction: column;
+        }
+        .form-front {
+            opacity: 1;
+            visibility: visible;
+            z-index: 2;
+            min-height: 480px;
+            justify-content: center;
+            align-items: center;
             height: 100%;
         }
         .form-back {
-            transform: rotateY(180deg);
+            opacity: 0;
+            visibility: hidden;
+            z-index: 1;
+            min-height: 600px;
+            padding-bottom: 1.5rem;
+            justify-content: flex-start;
+            align-items: stretch;
         }
-        .flip-btn {
-            transition: all 0.3s;
+        .auth-form.signup-active .form-front {
+            opacity: 0;
+            visibility: hidden;
+            z-index: 1;
         }
-        .flip-btn:hover {
-            transform: translateY(-2px);
+        .auth-form.signup-active .form-back {
+            opacity: 1;
+            visibility: visible;
+            z-index: 2;
+        }
+        .auth-title {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            font-weight: 700;
+            color: var(--text-dark);
+            letter-spacing: 0.01em;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .input-group {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+        .input-group .material-icons {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary);
+            font-size: 1.3rem;
+        }
+        .input-group input, .input-group select {
+            width: 100%;
+            border: none;
+            border-bottom: 2px solid #e5e7eb;
+            outline: none;
+            padding: 0.75rem 0.5rem 0.75rem 2.2rem;
+            font-size: 1rem;
+            background: transparent;
+            transition: border-color 0.2s;
+            color: var(--text-dark);
+        }
+        .input-group input:focus, .input-group select:focus {
+            border-bottom: 2px solid var(--primary);
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 0.25rem;
+            color: var(--primary);
+            font-size: 0.98rem;
+            font-weight: 500;
+        }
+        .input-group input[type="file"] {
+            padding-left: 2.2rem;
+            border: none;
+        }
+        .error-message {
+            color: var(--error-fg);
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        .error-message .material-icons {
+            font-size: 1rem;
+        }
+        .formal-btn {
+            background: var(--button-bg);
+            color: var(--text-light);
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 1.05rem;
+            padding: 0.75rem 0;
+            transition: background 0.2s;
+            border: none;
+            margin-right: 0.5rem;
+        }
+        .formal-btn:hover, .formal-btn:focus {
+            background: var(--button-hover-bg);
+        }
+        .formal-btn-alt {
+            background: #f3f4f6;
+            color: var(--primary);
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 1.05rem;
+            padding: 0.75rem 0;
+            border: none;
+        }
+        .formal-btn-alt:hover, .formal-btn-alt:focus {
+            background: var(--primary);
+            color: var(--text-light);
+        }
+        @media (max-width: 900px) {
+            .main-flex {
+                flex-direction: column;
+            }
+            .left-panel, .right-panel {
+                flex: none;
+                width: 100%;
+                border-radius: 0;
+            }
+            .left-panel {
+                border-radius: 0 0 24px 24px;
+                min-height: 220px;
+                padding: 2rem 1rem 1rem 1rem;
+                align-items: center;
+                justify-content: flex-start;
+            }
+            .left-panel h1 {
+                font-size: 1.3rem;
+                margin-bottom: 1rem;
+            }
+            .left-panel p {
+                font-size: 1rem;
+                margin-bottom: 1.5rem;
+                max-width: 95vw;
+            }
+            .left-panel .guest-btn {
+                position: static;
+                width: 100%;
+                margin-top: 1.5rem;
+                margin-bottom: 0.5rem;
+                justify-content: center;
+            }
+            .left-panel .guest-btn a {
+                width: 100%;
+                max-width: 340px;
+                margin: 0 auto;
+                display: block;
+            }
+        }
+        @media (max-width: 600px) {
+            .auth-card {
+                max-width: 98vw;
+                padding: 1.5rem 0.5rem 1.5rem 0.5rem;
+                border-radius: 16px;
+            }
+            .left-panel {
+                min-height: 140px;
+                padding: 1rem 0;
+            }
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center">
-    <div class="auth-container w-full max-w-md">
-        <div class="auth-form relative w-full h-[500px]">
-            <!-- Login Form (Front) -->
-            <div class="form-front bg-white rounded-lg shadow-xl p-8">
-                <h2 class="text-2xl font-bold text-center text-gray-800 mb-8">Welcome Back</h2>
-                
-                <form method="POST" action="{% url 'auth' %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="login" value="true">
-                    
-                    <div class="mb-4">
-                        <label for="login-email" class="block text-gray-700 text-sm font-medium mb-2">Email</label>
-                        <input type="email" id="login-email" name="email" required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    
-                    <div class="mb-6">
-                        <label for="login-password" class="block text-gray-700 text-sm font-medium mb-2">Password</label>
-                        <input type="password" id="login-password" name="password" required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    
-                    <button type="submit" 
-                        class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                        Login
-                    </button>
-                </form>
-                
-                <div class="mt-6 text-center">
-                    <p class="text-gray-600">Don't have an account? 
-                        <button id="flip-to-signup" class="flip-btn text-blue-600 font-medium hover:text-blue-800">
-                            Sign up
-                        </button>
-                    </p>
-                </div>
+<body>
+    <div class="main-flex">
+        <!-- Left Panel -->
+        <div class="left-panel">
+            <div class="logo">
+                <img src="{% static 'vendor/img/student_Council.JPG' %}" alt="Logo">
             </div>
-            
-            <!-- Signup Form (Back) -->
-            <div class="form-back bg-white rounded-lg shadow-xl p-8">
-                <h2 class="text-2xl font-bold text-center text-gray-800 mb-8">Create Account</h2>
-                
-                <form method="POST" action="{% url 'auth' %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="signup" value="true">
-                    
-                    <div class="grid grid-cols-2 gap-4 mb-4">
-                        <div>
-                            <label for="signup-firstname" class="block text-gray-700 text-sm font-medium mb-2">First Name</label>
-                            <input type="text" id="signup-firstname" name="firstname" required
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <h1>Welcome to Student Council<br>College of Computing Studies</h1>
+            <p>
+                Access your hub for all things student leadership. Here, you can manage posts, events, announcements, and stay updated on the latest activities shaping our school community.<br>
+                <span style="display:block; margin-top:1.2em;">Log in to stay connected, informed, and involved in making a difference!</span>
+            </p>
+            <div class="guest-btn">
+                <a href="/">Continue as Guest</a>
+            </div>
+        </div>
+        <!-- Right Panel -->
+        <div class="right-panel">
+            <div class="auth-card" id="authCard">
+                <div class="auth-form" id="authForm">
+                    <!-- Login Form (Front) -->
+                    <div class="form-front">
+                        <div class="auth-title">Sign in to your account</div>
+                        {% if messages %}
+                        <div class="error-message">
+                            <span class="material-icons">error</span>
+                            {% for message in messages %}{{ message }}{% endfor %}
                         </div>
-                        <div>
-                            <label for="signup-lastname" class="block text-gray-700 text-sm font-medium mb-2">Last Name</label>
-                            <input type="text" id="signup-lastname" name="lastname" required
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        {% endif %}
+                        <form method="POST" action="{% url 'auth' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="login" value="true">
+                            <input type="hidden" name="next" value="{{ request.GET.next }}">
+                            <div class="input-group">
+                                <label for="login-email">E-mail Address</label>
+                                <span class="material-icons">email</span>
+                                <input type="email" id="login-email" name="email" required placeholder="Enter your email">
+                            </div>
+                            <div class="input-group">
+                                <label for="login-password">Password</label>
+                                <span class="material-icons">lock</span>
+                                <input type="password" id="login-password" name="password" required placeholder="Enter your password">
+                            </div>
+                            <div class="flex items-center justify-between mt-6">
+                                <button type="submit" class="formal-btn w-1/2">Sign In</button>
+                                <button type="button" id="flip-to-signup" class="formal-btn-alt w-1/2">Sign Up</button>
+                            </div>
+                        </form>
+                    </div>
+                    <!-- Signup Form (Back) -->
+                    <div class="form-back">
+                        <div class="auth-title">Create your account</div>
+                        {% if messages %}
+                        <div class="error-message">
+                            <span class="material-icons">error</span>
+                            {% for message in messages %}{{ message }}{% endfor %}
                         </div>
+                        {% endif %}
+                        <form method="POST" action="{% url 'auth' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="signup" value="true">
+                            <input type="hidden" name="next" value="{{ request.GET.next }}">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="input-group col-span-1">
+                                    <label for="signup-firstname">First Name</label>
+                                    <span class="material-icons">person</span>
+                                    <input type="text" id="signup-firstname" name="firstname" required placeholder="Enter your first name">
+                                </div>
+                                <div class="input-group col-span-1">
+                                    <label for="signup-lastname">Last Name</label>
+                                    <span class="material-icons">person</span>
+                                    <input type="text" id="signup-lastname" name="lastname" required placeholder="Enter your last name">
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label for="signup-email">E-mail Address</label>
+                                <span class="material-icons">email</span>
+                                <input type="email" id="signup-email" name="email" required placeholder="Enter your email">
+                            </div>
+                            <div class="input-group">
+                                <label for="signup-password">Password</label>
+                                <span class="material-icons">lock</span>
+                                <input type="password" id="signup-password" name="password" required placeholder="Enter your password">
+                            </div>
+                            <div class="input-group">
+                                <label for="signup-password2">Confirm Password</label>
+                                <span class="material-icons">lock</span>
+                                <input type="password" id="signup-password2" name="password2" required placeholder="Confirm your password">
+                            </div>
+                            <div class="flex flex-row gap-4 mt-8 w-full">
+                                <button type="submit" class="formal-btn flex-1">Sign Up</button>
+                                <button type="button" id="flip-to-login" class="formal-btn-alt flex-1">Sign In</button>
+                            </div>
+                        </form>
                     </div>
-                    
-                    <div class="mb-4">
-                        <label for="signup-email" class="block text-gray-700 text-sm font-medium mb-2">Email</label>
-                        <input type="email" id="signup-email" name="email" required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    
-                    <div class="mb-4">
-                        <label for="signup-contact" class="block text-gray-700 text-sm font-medium mb-2">Contact Number</label>
-                        <input type="tel" id="signup-contact" name="contact_number" required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    
-                    <div class="mb-4">
-                        <label for="signup-password" class="block text-gray-700 text-sm font-medium mb-2">Password</label>
-                        <input type="password" id="signup-password" name="password" required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    
-                    <div class="mb-6">
-                        <label for="signup-password2" class="block text-gray-700 text-sm font-medium mb-2">Confirm Password</label>
-                        <input type="password" id="signup-password2" name="password2" required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    
-                    <button type="submit" 
-                        class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
-                        Sign Up
-                    </button>
-                </form>
-                
-                <div class="mt-6 text-center">
-                    <p class="text-gray-600">Already have an account? 
-                        <button id="flip-to-login" class="flip-btn text-blue-600 font-medium hover:text-blue-800">
-                            Login
-                        </button>
-                    </p>
                 </div>
             </div>
         </div>
     </div>
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const authForm = document.querySelector('.auth-form');
+            const authForm = document.getElementById('authForm');
+            const authCard = document.getElementById('authCard');
             const flipToSignup = document.getElementById('flip-to-signup');
             const flipToLogin = document.getElementById('flip-to-login');
-            
-            flipToSignup.addEventListener('click', function() {
-                authForm.classList.add('flipped');
-            });
-            
-            flipToLogin.addEventListener('click', function() {
-                authForm.classList.remove('flipped');
-            });
-            
+            if (flipToSignup) {
+                flipToSignup.addEventListener('click', function() {
+                    authForm.classList.add('signup-active');
+                    authCard.classList.add('signup-active');
+                });
+            }
+            if (flipToLogin) {
+                flipToLogin.addEventListener('click', function() {
+                    authForm.classList.remove('signup-active');
+                    authCard.classList.remove('signup-active');
+                });
+            }
             // Check for URL parameters to show specific form
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('form') === 'signup') {
-                authForm.classList.add('flipped');
+                authForm.classList.add('signup-active');
+                authCard.classList.add('signup-active');
             }
         });
     </script>

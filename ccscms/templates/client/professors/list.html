@@ -15,6 +15,7 @@
     <!-- Department Filter -->
     <div class="row mb-4">
         <div class="col-md-6 offset-md-3">
+            <label for="departmentFilter" class="form-label mb-2 fw-bold">Filter by Department:</label>
             <select id="departmentFilter" class="form-select form-select-lg">
                 <option value="all">All Departments</option>
                 {% for dept_id, data in faculty_by_department.items %}
@@ -32,7 +33,7 @@
         <div class="card-body p-4" style="background: transparent;">
             <div class="row justify-content-center">
                 {% for faculty in data.members %}
-                <div class="col-12 col-sm-10 col-md-6 col-lg-4 mb-4 d-flex justify-content-center">
+                <div class="col-12 col-sm-10 col-md-6 col-lg-3 mb-4 d-flex justify-content-center">
                     <div class="card faculty-card border-0 shadow-sm">
                         <div class="position-relative">
                             {% if faculty.faculty_img %}

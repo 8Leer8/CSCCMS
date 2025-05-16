@@ -44,12 +44,13 @@ urlpatterns = [
     path('committees/', ClientViews.committees_list, name='committees_list'),
     path('committees/<int:committee_id>/', ClientViews.committee_detail, name='committee_detail'),
     path('accomplishments/', client_views.accomplishments_list, name='accomplishments_list'),
-    path('transparency/', client_views.TransparencyListView.as_view(), name='transparency_list'),
-    path('transparency/<int:pk>/', client_views.TransparencyDetailView.as_view(), name='transparency_detail'),
+    path('transparency/', client_views.TransparencyListView.as_view(), name='transparency_list_client'),
+    path('transparency/<int:pk>/', client_views.TransparencyDetailView.as_view(), name='transparency_detail_client'),
     path('about/', client_views.about_page, name='about_page'),
     path('contact/', client_views.contact_page, name='contact_page'),
     path('feedback/', client_views.feedback, name='feedback'),
-      path('complaint/', client_views.complaint, name='complaint'),
+    path('complaint/', client_views.complaint, name='complaint'),
+    path('profile/', client_views.profile, name='profile'),
 
 
     
@@ -156,4 +157,5 @@ urlpatterns = [
     path('cscadmin/transparency/<int:pk>/delete/', delete_transparency, name='delete_transparency'),
     path('cscadmin/transparency/<int:pk>/restore/', restore_transparency, name='restore_transparency'),
     path('cscadmin/transparency/form/', transparency_form, name='transparency_form'),
+
 ]
