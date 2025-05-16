@@ -115,7 +115,7 @@ class AuthView(View):
             login(request, account)
             if next_url:
                 return redirect(next_url)
-            return redirect('landing')
+            return redirect('landing_page')
             
         return redirect('auth')
 
