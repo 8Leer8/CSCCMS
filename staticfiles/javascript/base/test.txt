@@ -46,8 +46,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const accordionLabels = document.querySelectorAll(".accordion-label:not(.login):not(.logout)");
   const accordionContents = document.querySelectorAll(".accordion-content");
 
+  // Remove all inline display settings, just use classes
   accordionContents.forEach(content => {
-    content.style.display = "none";
+    content.classList.remove("open");
   });
 
   accordionLabels.forEach(label => {
@@ -58,13 +59,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const content = label.nextElementSibling;
 
-      if (content.style.display === "flex") {
-        content.style.display = "none";
+      if (content.classList.contains("open")) {
+        content.classList.remove("open");
         return;
       }
 
-      accordionContents.forEach(c => c.style.display = "none");
-      content.style.display = "flex";
+      // Close all others
+      accordionContents.forEach(c => c.classList.remove("open"));
+      content.classList.add("open");
     });
   });
 });

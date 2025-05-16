@@ -321,12 +321,6 @@
                     <!-- Login Form (Front) -->
                     <div class="form-front">
                         <div class="auth-title">Sign in to your account</div>
-                        {% if messages %}
-                        <div class="error-message">
-                            <span class="material-icons">error</span>
-                            {% for message in messages %}{{ message }}{% endfor %}
-                        </div>
-                        {% endif %}
                         <form method="POST" action="{% url 'auth' %}">
                             {% csrf_token %}
                             <input type="hidden" name="login" value="true">
