@@ -366,10 +366,6 @@ def get_dashboard_data(request):
         logger.error(f"Error in get_dashboard_data: {e}", exc_info=True)
         return {}
 
-
-def client_lpage(request):
-    return redirect('landing_page')
-
 class EventListView(LoginRequiredMixin, UserPassesTestMixin, View):
     def test_func(self):
         return is_admin(self.request.user)

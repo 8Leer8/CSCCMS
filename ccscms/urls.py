@@ -25,7 +25,6 @@ from .views import (
 
 urlpatterns = [
     # Public routes
-    path('base/', client_views.base, name='base'),
     path('', client_views.landing_page, name='landing_page'),
     path('auth/', AuthView.as_view(), name='auth'),
     path('logout/', logout_view, name='logout'),
@@ -144,8 +143,6 @@ urlpatterns = [
     path('cscadmin/accounts/<int:pk>/detail/', account_detail, name='account_detail'),
     path('cscadmin/accounts/form-data/', account_form_data, name='account_form_data'),
     path('cscadmin/accounts/<int:pk>/restore/', account_restore, name='account_restore'),
-    # Legacy client page (redirects to landing page)
-    path('client/lpage/', client_lpage, name='client_lpage'),
     
     # Add this new pattern
     path('cscadmin/export/', export_data, name='export_data'),
