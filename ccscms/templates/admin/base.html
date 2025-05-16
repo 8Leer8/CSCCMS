@@ -239,11 +239,7 @@
                     </button>
                     <h1 class="ml-4 text-xl font-semibold text-primary-dark" id="page-title">Dashboard Overview</h1>
                 </div>
-                <div class="flex items-center space-x-4" id="page-actions">
-                    <button class="px-3 py-1 text-sm text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200">
-                        <i class="fas fa-download mr-1"></i> Export
-                    </button>
-                </div>
+                
             </div>
 
             <!-- Mobile Sidebar -->
@@ -429,18 +425,101 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     
     <script src="{% static 'javascript/base/admin_achievements.js' %}"></script>
+    <script src="{% static 'javascript/base/admin_accomplishments.js' %}"></script>
     
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    
+    <script src="{% static 'javascript/admin/event_form.js' %}"></script>
+    <script src="{% static 'javascript/admin/event_admin.js' %}"></script>
     <script>
     // Global variables
 let currentPage = sessionStorage.getItem('currentPage') || 'dashboard';
 let currentCategoryType = '';
 let currentCategoryId = '';
-let currentEventId = '';
+window.currentEventId = null;
 let itemToDelete = { type: '', id: '' };
 let showingDeletedAnnouncements = false;
 let currentAnnouncementId = null;
+window.showingDeletedEvents = false;
+
+// --- Category Filter Modal Logic ---
+let selectedLabelIds = [];
+let selectedTypeIds = [];
+let selectedAudienceIds = [];
+
+$(document).on('click', '#categoryFilterBtn', function() {
+    // Open modal
+    $('#categoryFilterModal').removeClass('hidden');
+    // Fetch and populate options
+    $.get('/cscadmin/events/form-data/', function(response) {
+        // Labels
+        let labelHtml = '';
+        (response.event_labels || []).forEach(label => {
+            const checked = selectedLabelIds.includes(label.id) ? 'checked' : '';
+            labelHtml += `<label class='inline-flex items-center'><input type='checkbox' class='category-label-checkbox' value='${label.id}' ${checked}> <span class='ml-1'>${label.type}</span></label>`;
+        });
+        $('#categoryFilterLabels').html(labelHtml || '<span class="text-gray-400 text-xs">No labels</span>');
+        // Types
+        let typeHtml = '';
+        (response.event_types || []).forEach(type => {
+            const checked = selectedTypeIds.includes(type.id) ? 'checked' : '';
+            typeHtml += `<label class='inline-flex items-center'><input type='checkbox' class='category-type-checkbox' value='${type.id}' ${checked}> <span class='ml-1'>${type.type}</span></label>`;
+        });
+        $('#categoryFilterTypes').html(typeHtml || '<span class="text-gray-400 text-xs">No types</span>');
+        // Audiences
+        let audienceHtml = '';
+        (response.audiences || []).forEach(aud => {
+            const checked = selectedAudienceIds.includes(aud.id) ? 'checked' : '';
+            audienceHtml += `<label class='inline-flex items-center'><input type='checkbox' class='category-audience-checkbox' value='${aud.id}' ${checked}> <span class='ml-1'>${aud.type}</span></label>`;
+        });
+        $('#categoryFilterAudiences').html(audienceHtml || '<span class="text-gray-400 text-xs">No audiences</span>');
+    });
+});
+
+$(document).on('click', '#closeCategoryFilterModalBtn', function() {
+    $('#categoryFilterModal').addClass('hidden');
+});
+
+$(document).on('click', '#applyCategoryFilterBtn', function() {
+    // Collect selected IDs
+    selectedLabelIds = [];
+    selectedTypeIds = [];
+    selectedAudienceIds = [];
+    $('#categoryFilterLabels input:checked').each(function() { selectedLabelIds.push(parseInt($(this).val())); });
+    $('#categoryFilterTypes input:checked').each(function() { selectedTypeIds.push(parseInt($(this).val())); });
+    $('#categoryFilterAudiences input:checked').each(function() { selectedAudienceIds.push(parseInt($(this).val())); });
+    $('#categoryFilterModal').addClass('hidden');
+    loadEvents();
+});
+
+// --- Update loadEvents to include category filters ---
+function loadEvents(page = 1) {
+    showLoading();
+    const params = {
+        status: $('#statusFilter').val(),
+        date_from: $('#dateFromFilter').val(),
+        date_to: $('#dateToFilter').val(),
+        search: $('#searchFilter').val(),
+        page: page
+    };
+    if (selectedLabelIds.length > 0) params.labels = selectedLabelIds.join(',');
+    if (selectedTypeIds.length > 0) params.types = selectedTypeIds.join(',');
+    if (selectedAudienceIds.length > 0) params.audiences = selectedAudienceIds.join(',');
+    $.ajax({
+        url: '/cscadmin/events/list/',
+        method: 'GET',
+        data: params,
+        success: function(response) {
+            renderEventsTable(response);
+        },
+        error: function(xhr) {
+            const error = xhr.responseJSON?.error || 'Failed to load events';
+            showAlert('danger', error);
+        },
+        complete: function() {
+            hideLoading();
+        }
+    });
+}
 
 // Utility functions
 function toggleSidebar() {
@@ -698,57 +777,85 @@ function initializeEventList() {
 function showEventForm(mode = 'create', eventId = null) {
     showLoading();
     currentEventId = eventId;
-    
+
     $.ajax({
-        url: '/cscadmin/events/form-data/',
+        url: '/cscadmin/events/event_form',
         method: 'GET',
-        success: function(response) {
-            // Load the event form template
-            $.ajax({
-                url: '/cscadmin/?page=event_form',
-                method: 'GET',
-                success: function(html) {
-                    $('#eventModalBody').html(html);
-                    
-                    // Populate select options
-                    populateSelectOptions('#eventLabels', response.event_labels);
-                    populateSelectOptions('#eventTypes', response.event_types);
-                    populateSelectOptions('#eventAudiences', response.audiences);
-                    
-                    // Set modal title
-                    $('#eventModalTitle').text(mode === 'edit' ? 'Edit Event' : 'Create New Event');
-                    
-                    // Update submit button
-                    updateEventSubmitButton(mode);
-                    
-                    // If editing, load the event data
-                    if (mode === 'edit' && eventId) {
-                        loadEventData(eventId);
-                    } else {
-                        hideLoading();
-                    }
-                    
-                    openModal('eventModal');
-                },
-                error: function() {
-                    hideLoading();
-                    showAlert('danger', 'Failed to load event form');
-                }
-            });
+        success: function(html) {
+            $('#eventModalBody').html(html);
+            $('#eventModalTitle').text(mode === 'edit' ? 'Edit Event' : 'Create New Event');
+            updateEventSubmitButton(mode);
+            if (mode === 'edit' && eventId) {
+                loadEventData(eventId);
+            } else {
+                hideLoading();
+            }
+            openModal('eventModal');
         },
         error: function() {
             hideLoading();
-            showAlert('danger', 'Failed to load form data');
+            showAlert('danger', 'Failed to load event form');
         }
     });
 }
 
-function populateSelectOptions(selector, options) {
-    let html = '';
-    options.forEach(option => {
-        html += `<option value="${option.id}">${option.type || option.category || option.name}</option>`;
+function loadEventData(eventId) {
+    showLoading();
+    $.ajax({
+        url: `/cscadmin/events/${eventId}/update/`,
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        success: function(response) {
+            if (response.success && response.event) {
+                // Fill basic fields
+                $('#eventId').val(response.event.id);
+                $('#eventName').val(response.event.name);
+                $('#eventDate').val(response.event.date_event);
+                $('#eventStartTime').val(response.event.start_at);
+                $('#eventEndTime').val(response.event.end_at);
+                $('#eventLocation').val(response.event.location);
+                $('#eventLandmark').val(response.event.landmark);
+                $('#eventPublishStart').val(response.event.start_publish_on);
+                $('#eventPublishEnd').val(response.event.end_publish_on);
+                $('#eventContext').val(response.event.context);
+                $('#eventDescription').val(response.event.description);
+
+                // Checkboxes for labels, types, audiences
+                if (Array.isArray(response.event.labels)) {
+                    response.event.labels.forEach(function(id) {
+                        $(`input[name="eventLabels"][value="${id}"]`).prop('checked', true);
+                    });
+                }
+                if (Array.isArray(response.event.types)) {
+                    response.event.types.forEach(function(id) {
+                        $(`input[name="eventTypes"][value="${id}"]`).prop('checked', true);
+                    });
+                }
+                if (Array.isArray(response.event.audiences)) {
+                    response.event.audiences.forEach(function(id) {
+                        $(`input[name="eventAudiences"][value="${id}"]`).prop('checked', true);
+                    });
+                }
+
+                // Featured image preview
+                if (response.event.event_img) {
+                    $('#currentImage').attr('src', response.event.event_img);
+                    $('#currentImageContainer').removeClass('hidden');
+                    $('#fileName').text('Current image');
+                } else {
+                    $('#currentImageContainer').addClass('hidden');
+                    $('#fileName').text('No file chosen');
+                }
+            }
+            hideLoading();
+        },
+        error: function() {
+            hideLoading();
+            showAlert('danger', 'Failed to load event data');
+        }
     });
-    $(selector).html(html);
 }
 
 function updateEventSubmitButton(mode) {
@@ -760,51 +867,6 @@ function updateEventSubmitButton(mode) {
         $('#eventSubmitBtnIcon').removeClass('fa-save').addClass('fa-plus-circle');
         $('#eventSubmitBtnText').text('Add Event');
     }
-}
-
-function loadEventData(eventId) {
-    showLoading();
-    
-    $.ajax({
-        url: `/cscadmin/events/${eventId}/update/`,
-        method: 'GET',
-        success: function(response) {
-            // Populate form fields
-            $('#eventId').val(response.id);
-            $('#eventName').val(response.name);
-            $('#eventStatus').val(response.status);
-            $('#eventDate').val(response.date_event);
-            $('#eventStartTime').val(response.start_at);
-            $('#eventEndTime').val(response.end_at);
-            $('#eventLocation').val(response.location);
-            $('#eventLandmark').val(response.landmark);
-            $('#eventPublishStart').val(response.start_publish_on);
-            $('#eventPublishEnd').val(response.end_publish_on);
-            $('#eventContext').val(response.context);
-            $('#eventDescription').val(response.description);
-            
-            // Set selected options for multi-selects
-            setSelectedOptions('#eventLabels', response.selected_labels);
-            setSelectedOptions('#eventTypes', response.selected_types);
-            setSelectedOptions('#eventAudiences', response.selected_audiences);
-            
-            // Show current image if exists
-            if (response.featured_image) {
-                $('#currentImage').attr('src', response.featured_image);
-                $('#currentImageContainer').removeClass('hidden');
-            }
-            
-            hideLoading();
-        },
-        error: function() {
-            hideLoading();
-            showAlert('danger', 'Failed to load event data');
-        }
-    });
-}
-
-function setSelectedOptions(selector, selectedValues) {
-    $(selector).val(selectedValues);
 }
 
 function submitEventForm() {
@@ -823,14 +885,14 @@ function submitEventForm() {
     formData.append('eventContext', $('#eventContext').val());
     formData.append('eventDescription', $('#eventDescription').val());
     
-    // Append multi-select values
-    $('#eventLabels option:selected').each(function() {
+    // Append checkbox values
+    $('input[name="eventLabels"]:checked').each(function() {
         formData.append('eventLabels', $(this).val());
     });
-    $('#eventTypes option:selected').each(function() {
+    $('input[name="eventTypes"]:checked').each(function() {
         formData.append('eventTypes', $(this).val());
     });
-    $('#eventAudiences option:selected').each(function() {
+    $('input[name="eventAudiences"]:checked').each(function() {
         formData.append('eventAudiences', $(this).val());
     });
     
@@ -873,78 +935,137 @@ function submitEventForm() {
     });
 }
 
-function loadEvents(page = 1) {
-    showLoading();
-    
-    const params = {
-        status: $('#statusFilter').val(),
-        date_from: $('#dateFromFilter').val(),
-        date_to: $('#dateToFilter').val(),
-        search: $('#searchFilter').val(),
-        page: page
-    };
-    
-    $.ajax({
-        url: '/cscadmin/events/list/',
-        method: 'GET',
-        data: params,
-        success: function(response) {
-            renderEventsTable(response);
-        },
-        error: function(xhr) {
-            const error = xhr.responseJSON?.error || 'Failed to load events';
-            showAlert('danger', error);
-        },
-        complete: function() {
-            hideLoading();
-        }
-    });
-}
-
 function renderEventsTable(data) {
-    if (!data || !data.events || data.events.length === 0) {
-        $('#eventsTableBody').html(`
-            <tr>
-                <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">
-                    No events found
-                </td>
-            </tr>
-        `);
-        return;
-    }
-    
     let tableRows = '';
-    data.events.forEach(event => {
-        const statusClass = {
-            'active': 'bg-green-100 text-green-800',
-            'expired': 'bg-red-100 text-red-800',
-            'scheduled': 'bg-blue-100 text-blue-800'
-        }[event.status] || 'bg-gray-100 text-gray-800';
-        
-        tableRows += `
-            <tr class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${escapeHtml(event.name) || 'N/A'}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${event.date_event || 'N/A'}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${escapeHtml(event.location) || 'N/A'}</td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
-                        ${(event.status || '').charAt(0).toUpperCase() + (event.status || '').slice(1)}
-                    </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button class="text-yellow-600 hover:text-yellow-900 edit-event-btn mr-3" data-id="${event.id}">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="text-red-600 hover:text-red-900 delete-event-btn" data-id="${event.id}">
-                        <i class="fas fa-trash"></i>
-                    </button>
+    
+    if (data.events && data.events.length > 0) {
+        data.events.forEach(event => {
+            const statusBadgeClass = {
+                'active': 'bg-green-100 text-green-800',
+                'expired': 'bg-red-100 text-red-800',
+                'scheduled': 'bg-blue-100 text-blue-800'
+            }[event.status] || 'bg-gray-100 text-gray-800';
+            
+            const eventDate = event.date_event ? new Date(event.date_event).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            }) : 'Not specified';
+            
+            const publishStart = event.start_publish_on ? new Date(event.start_publish_on).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            }) : 'Not specified';
+            
+            const publishEnd = event.end_publish_on ? new Date(event.end_publish_on).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            }) : 'Not specified';
+            
+            const eventImage = event.event_img ? 
+                `<img src="${event.event_img}" alt="${event.name}" class="h-12 w-12 rounded-md object-cover cursor-pointer hover:opacity-75 event-image-preview" data-src="${event.event_img}">` :
+                `<div class="h-12 w-12 rounded-md bg-gray-200 flex items-center justify-center text-gray-400"><i class="fas fa-calendar-alt"></i></div>`;
+            
+            const context = event.context ? 
+                (event.context.length > 100 ? event.context.substring(0, 97) + '...' : event.context) :
+                'No description available';
+            
+            // Group categories
+            const labelBadges = (event.labels && event.labels.length) ?
+                `<div><span class='text-xs font-semibold text-blue-700'>Label:</span> <span>${event.labels.map(cat => `<span class='px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800 mr-1'>${cat}</span>`).join('')}</span></div>` : '';
+            const typeBadges = (event.types && event.types.length) ?
+                `<div><span class='text-xs font-semibold text-green-700'>Type:</span> <span>${event.types.map(cat => `<span class='px-2 py-1 text-xs rounded-full bg-green-100 text-green-800 mr-1'>${cat}</span>`).join('')}</span></div>` : '';
+            const audienceBadges = (event.audiences && event.audiences.length) ?
+                `<div><span class='text-xs font-semibold text-purple-700'>Audience:</span> <span>${event.audiences.map(cat => `<span class='px-2 py-1 text-xs rounded-full bg-purple-100 text-purple-800 mr-1'>${cat}</span>`).join('')}</span></div>` : '';
+            const categoriesHtml = (labelBadges || typeBadges || audienceBadges) ?
+                `<div class='space-y-1'>${labelBadges}${typeBadges}${audienceBadges}</div>` :
+                '<span class="text-gray-400 text-sm">No categories</span>';
+            
+            // Publish period with labels
+            const publishPeriodHtml = `<div><span class='font-semibold text-xs text-gray-600'>Start:</span> <span>${publishStart}</span></div><div><span class='font-semibold text-xs text-gray-600'>End:</span> <span>${publishEnd}</span></div>`;
+            
+            tableRows += `
+                <tr class="${event.is_deleted ? 'bg-gray-50' : 'hover:bg-gray-50'}">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">${eventImage}</div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium ${event.is_deleted ? 'text-gray-500' : 'text-gray-900'}">${event.name || 'Untitled Event'}</div>
+                                <div class="text-sm ${event.is_deleted ? 'text-gray-400' : 'text-gray-500'} max-w-xl">${context}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="text-sm ${event.is_deleted ? 'text-gray-500' : 'text-gray-900'}">${eventDate}</div>
+                        <div class="text-sm ${event.is_deleted ? 'text-gray-400' : 'text-gray-500'}">${event.location || 'Not specified'}</div>
+                    </td>
+                    <td class="px-6 py-4">
+                        ${publishPeriodHtml}
+                    </td>
+                    <td class="px-6 py-4">
+                        ${categoriesHtml}
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusBadgeClass}">
+                            ${(event.status || 'unknown').charAt(0).toUpperCase() + (event.status || 'unknown').slice(1)}
+                            ${event.is_deleted ? ' (Deleted)' : ''}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-right text-sm font-medium">
+                        ${event.is_deleted ? `
+                            <button class="text-green-600 hover:text-green-900 restore-event-btn mr-3" data-id="${event.id}">
+                                <i class="fas fa-trash-restore"></i>
+                            </button>
+                        ` : `
+                            <button class="text-blue-600 hover:text-blue-900 edit-event-btn mr-3" data-id="${event.id}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="text-red-600 hover:text-red-900 delete-event-btn" data-id="${event.id}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        `}
+                    </td>
+                </tr>
+            `;
+        });
+    } else {
+        tableRows = `
+            <tr>
+                <td colspan="6" class="px-6 py-12 text-center">
+                    <div class="text-gray-400">
+                        <i class="fas fa-calendar-times fa-2x mb-2"></i>
+                        <p class="text-sm">No events found</p>
+                    </div>
                 </td>
             </tr>
         `;
-    });
+    }
     
     $('#eventsTableBody').html(tableRows);
     renderPagination(data);
+    
+    // Attach event handlers
+    $('.edit-event-btn').click(function() {
+        const eventId = $(this).data('id');
+        showEventForm('edit', eventId);
+    });
+    
+    $('.delete-event-btn').click(function() {
+        const eventId = $(this).data('id');
+        showDeleteConfirmation(eventId);
+    });
+    
+    $('.restore-event-btn').click(function() {
+        const eventId = $(this).data('id');
+        restoreEvent(eventId);
+    });
+    
+    $('.event-image-preview').click(function() {
+        const imageSrc = $(this).data('src');
+        showImagePreview(imageSrc);
+    });
 }
 
 function renderPagination(data) {

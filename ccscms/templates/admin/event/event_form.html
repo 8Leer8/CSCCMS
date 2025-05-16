@@ -37,33 +37,6 @@
                         </div>
                     </div>
                     
-                    <!-- Status -->
-                    <div>
-                        <label for="eventStatus" class="block text-sm font-medium text-gray-700 mb-1 flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            Status *
-                        </label>
-                        <div class="relative">
-                            <select id="eventStatus" name="eventStatus" required
-                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 pl-8 pr-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                                <option value="">Select Status</option>
-                                <option value="active">Active</option>
-                                <option value="scheduled">Scheduled</option>
-                                <option value="expired">Expired</option>
-                            </select>
-                            <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="invalid-feedback text-sm text-red-600 mt-1 hidden">
-                            Please select a status
-                        </div>
-                    </div>
-                    
                     <!-- Event Date -->
                     <div>
                         <label for="eventDate" class="block text-sm font-medium text-gray-700 mb-1 flex items-center">
@@ -235,68 +208,58 @@
                     </svg>
                     Event Categories
                 </h3>
-                
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
                     <!-- Event Labels -->
                     <div>
-                        <label for="eventLabels" class="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+                        <label class="block text-sm font-medium text-gray-700 mb-1 flex items-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                             </svg>
                             Event Labels
                         </label>
-                        <div class="relative">
-                            <select id="eventLabels" name="eventLabels" multiple
-                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 pl-8 pr-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                                <!-- Options will be loaded via AJAX -->
-                            </select>
-                            <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                                </svg>
-                            </div>
+                        <div class="mt-2 space-y-2 border border-gray-200 rounded-md p-2" style="max-height: 120px; overflow-y: auto;">
+                            {% for label in event_labels %}
+                                <label class="inline-flex items-center">
+                                    <input type="checkbox" name="eventLabels" value="{{ label.id }}"{% if selected_labels and label.id in selected_labels %} checked{% endif %}>
+                                    <span class="ml-2">{{ label.type }}</span>
+                                </label>
+                            {% endfor %}
                         </div>
                     </div>
                     
                     <!-- Event Types -->
                     <div>
-                        <label for="eventTypes" class="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+                        <label class="block text-sm font-medium text-gray-700 mb-1 flex items-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                             </svg>
                             Event Types
                         </label>
-                        <div class="relative">
-                            <select id="eventTypes" name="eventTypes" multiple
-                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 pl-8 pr-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                                <!-- Options will be loaded via AJAX -->
-                            </select>
-                            <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                                </svg>
-                            </div>
+                        <div class="mt-2 space-y-2 border border-gray-200 rounded-md p-2" style="max-height: 120px; overflow-y: auto;">
+                            {% for type in event_types %}
+                                <label class="inline-flex items-center">
+                                    <input type="checkbox" name="eventTypes" value="{{ type.id }}"{% if selected_types and type.id in selected_types %} checked{% endif %}>
+                                    <span class="ml-2">{{ type.type }}</span>
+                                </label>
+                            {% endfor %}
                         </div>
                     </div>
                     
                     <!-- Target Audiences -->
                     <div>
-                        <label for="eventAudiences" class="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+                        <label class="block text-sm font-medium text-gray-700 mb-1 flex items-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                             </svg>
                             Target Audiences
                         </label>
-                        <div class="relative">
-                            <select id="eventAudiences" name="eventAudiences" multiple
-                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 pl-8 pr-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                                <!-- Options will be loaded via AJAX -->
-                            </select>
-                            <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                                </svg>
-                            </div>
+                        <div class="mt-2 space-y-2 border border-gray-200 rounded-md p-2" style="max-height: 120px; overflow-y: auto;">
+                            {% for aud in audiences %}
+                                <label class="inline-flex items-center">
+                                    <input type="checkbox" name="eventAudiences" value="{{ aud.id }}"{% if selected_audiences and aud.id in selected_audiences %} checked{% endif %}>
+                                    <span class="ml-2">{{ aud.type }}</span>
+                                </label>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
@@ -472,430 +435,3 @@
     }
 </style>
 
-<script>
-// Function to update the file name display
-function updateFileName(input) {
-    const fileNameDisplay = document.getElementById('fileName');
-    if (input.files.length > 0) {
-        fileNameDisplay.textContent = input.files[0].name;
-        fileNameDisplay.classList.remove('text-gray-500');
-        fileNameDisplay.classList.add('text-gray-700', 'font-medium');
-        
-        // Preview the new image
-        const preview = document.getElementById('currentImage');
-        if (preview) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                preview.src = e.target.result;
-                document.getElementById('currentImageContainer').classList.remove('hidden');
-            }
-            reader.readAsDataURL(input.files[0]);
-        }
-    } else {
-        fileNameDisplay.textContent = 'No file chosen';
-        fileNameDisplay.classList.add('text-gray-500');
-        fileNameDisplay.classList.remove('text-gray-700', 'font-medium');
-    }
-}
-
-// Form validation and submission
-document.getElementById('eventForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    // Clear previous errors
-    document.querySelectorAll('.is-invalid').forEach(el => {
-        el.classList.remove('is-invalid');
-    });
-    document.querySelectorAll('.invalid-feedback').forEach(el => {
-        el.classList.add('hidden');
-    });
-
-    // Validate required fields
-    const requiredFields = [
-        'eventName', 'eventStatus', 'eventDate',
-        'eventStartTime', 'eventEndTime', 'eventLocation',
-        'eventContext', 'eventDescription'
-    ];
-    
-    let isValid = true;
-    let firstErrorField = null;
-    
-    requiredFields.forEach(fieldId => {
-        const field = document.getElementById(fieldId);
-        if (field && !field.value) {
-            field.classList.add('is-invalid');
-            const feedback = field.nextElementSibling;
-            if (feedback && feedback.classList.contains('invalid-feedback')) {
-                feedback.classList.remove('hidden');
-            }
-            isValid = false;
-            
-            if (!firstErrorField) {
-                firstErrorField = field;
-            }
-        }
-    });
-    
-    // Validate time
-    const startTime = document.getElementById('eventStartTime')?.value;
-    const endTime = document.getElementById('eventEndTime')?.value;
-    if (startTime && endTime && startTime >= endTime) {
-        const endTimeField = document.getElementById('eventEndTime');
-        if (endTimeField) {
-            endTimeField.classList.add('is-invalid');
-            const feedback = endTimeField.nextElementSibling;
-            if (feedback && feedback.classList.contains('invalid-feedback')) {
-                feedback.textContent = 'End time must be after start time';
-                feedback.classList.remove('hidden');
-            }
-            isValid = false;
-            
-            if (!firstErrorField) {
-                firstErrorField = endTimeField;
-            }
-        }
-    }
-    
-    if (!isValid) {
-        // Scroll to first error field
-        if (firstErrorField) {
-            firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            firstErrorField.focus();
-        }
-        return;
-    }
-    
-    // Submit the form
-    submitEventForm();
-});
-
-
-// Function to close modal
-function closeModal() {
-  const modal = document.getElementById('eventModal');
-  if (modal) {
-    modal.classList.add('hidden');
-    document.body.classList.remove('overflow-hidden');
-  }
-}
-
-// Updated form submission handler
-function submitEventForm() {
-    const form = document.getElementById('eventForm');
-    if (!form) {
-        console.error('Form not found');
-        return;
-    }
-    
-    const formData = new FormData(form);
-    const eventId = document.getElementById('eventId')?.value;
-    const isEdit = !!eventId;
-    const url = isEdit ? `/cscadmin/events/${eventId}/update/` : '/cscadmin/events/create/';
-
-    showLoading();
-
-    fetch(url, {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            return response.json().then(err => { 
-                throw err; 
-            });
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data.success) {
-            // Close the modal
-            closeModal();
-            
-            showAlert('success', data.message || (isEdit ? 'Event updated successfully!' : 'Event created successfully!'));
-            
-            // Reset form if create operation
-            if (!isEdit) {
-                form.reset();
-                document.getElementById('fileName').textContent = 'No file chosen';
-                document.getElementById('currentImageContainer').classList.add('hidden');
-            }
-            
-            // Reload events if function exists
-            if (typeof loadEvents === 'function') {
-                loadEvents();
-            }
-        } else {
-            handleFormErrors(data);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showAlert('danger', error.message || 'An error occurred while saving the event');
-    })
-    .finally(() => {
-        hideLoading();
-    });
-}
-
-// Helper function to get CSRF token
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-function handleFormErrors(data) {
-    if (data.errors) {
-        Object.entries(data.errors).forEach(([field, errors]) => {
-            const fieldElement = document.getElementById(field);
-            if (fieldElement) {
-                fieldElement.classList.add('is-invalid');
-                const feedback = fieldElement.nextElementSibling;
-                if (feedback && feedback.classList.contains('invalid-feedback')) {
-                    feedback.textContent = Array.isArray(errors) ? errors.join(', ') : errors;
-                    feedback.classList.remove('hidden');
-                }
-            }
-        });
-        
-        const firstError = document.querySelector('.is-invalid');
-        if (firstError) {
-            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            firstError.focus();
-        }
-    }
-    showAlert('danger', data.message || data.error || 'Failed to save event');
-}
-// Helper function to show alerts
-function showAlert(type, message) {
-    const messagesContainer = document.getElementById('messages-container');
-    if (!messagesContainer) {
-        console.error('Messages container not found');
-        return;
-    }
-    
-    const alertHtml = `
-        <div class="border-l-4 ${type === 'success' ? 'bg-green-100 border-green-400 text-green-700' : 'bg-red-100 border-red-400 text-red-700'} p-4 mb-4 rounded">
-            <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    ${type === 'success' ? '<svg class="h-5 w-5 text-green-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>' : '<svg class="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" /></svg>'}
-                </div>
-                <div class="ml-3">
-                    <p class="text-sm">${message}</p>
-                </div>
-                <div class="ml-auto pl-3">
-                    <button type="button" class="text-gray-500 hover:text-gray-700" onclick="this.parentElement.parentElement.parentElement.remove()">
-                        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
-                    </button>
-                </div>
-            </div>
-        </div>
-    `;
-    messagesContainer.innerHTML = alertHtml;
-}
-
-
-// Load form data (categories, labels, audiences)
-function loadFormData() {
-    showLoading();
-    
-    fetch('/cscadmin/events/form-data/', {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data) {
-            populateSelect('#eventLabels', data.event_labels || []);
-            populateSelect('#eventTypes', data.event_types || []);
-            populateSelect('#eventAudiences', data.audiences || []);
-        } else {
-            console.error('Unexpected response format', data);
-            showAlert('warning', 'Received form data in unexpected format');
-        }
-    })
-    .catch(error => {
-        console.error('Error loading form data:', error);
-        showAlert('danger', 'Failed to load form options. Using empty defaults.');
-        initializeFormWithEmptyData();
-    })
-    .finally(() => {
-        hideLoading();
-    });
-}
-
-// Helper function to populate select elements
-function populateSelect(selector, items) {
-    const select = document.querySelector(selector);
-    if (!select) return;
-    
-    select.innerHTML = '';
-    items.forEach(item => {
-        const option = document.createElement('option');
-        option.value = item.id;
-        option.textContent = item.type || item.name || item.label;
-        select.appendChild(option);
-    });
-}
-
-// Initialize form with empty data if loading fails
-function initializeFormWithEmptyData() {
-    populateSelect('#eventLabels', []);
-    populateSelect('#eventTypes', []);
-    populateSelect('#eventAudiences', []);
-}
-
-// Load form data when the page loads
-document.addEventListener('DOMContentLoaded', function() {
-    // Load form categories
-    loadFormData();
-    
-    // Check if we're editing an event
-    const eventId = document.getElementById('eventId')?.value;
-    if (eventId && eventId !== '') {
-        loadEventData(eventId);
-    }
-    
-    // Add event listener for modal close button if exists
-    const closeButton = document.querySelector('.modal-close');
-    if (closeButton) {
-        closeButton.addEventListener('click', closeModal);
-    }
-});
-
-// Function to load existing event data for editing
-function loadEventData(eventId) {
-    showLoading();
-    
-    fetch(`/cscadmin/events/${eventId}/update`, {
-        method: 'GET',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
-            'X-Requested-With': 'XMLHttpRequest',
-            'Accept': 'application/json'
-        }
-    })
-    .then(response => {
-        // First check if response is OK (status 200-299)
-        if (!response.ok) {
-            // Try to get error message from response
-            return response.text().then(text => {
-                let errorMsg = `Server error: ${response.status}`;
-                try {
-                    const errorData = JSON.parse(text);
-                    if (errorData.error) errorMsg += ` - ${errorData.error}`;
-                } catch (e) {
-                    errorMsg += ` - ${text}`;
-                }
-                throw new Error(errorMsg);
-            });
-        }
-        
-        // Check if response has content
-        const contentLength = response.headers.get('Content-Length');
-        if (contentLength === '0') {
-            throw new Error('Empty response from server');
-        }
-        
-        // Parse JSON
-        return response.json().then(data => {
-            if (!data) {
-                throw new Error('No data received');
-            }
-            return data;
-        });
-    })
-    .then(data => {
-        if (data.success) {
-            populateFormWithEventData(data.event);
-        } else {
-            throw new Error(data.error || 'Invalid response format');
-        }
-    })
-    .catch(error => {
-        console.error('Error loading event data:', error);
-        showAlert('danger', error.message || 'Failed to load event data');
-    })
-    .finally(() => {
-        hideLoading();
-    });
-}
-
-// Helper function to populate form with event data
-function populateFormWithEventData(eventData) {
-    try {
-        // Basic Information
-        document.getElementById('eventId').value = eventData.id || '';
-        document.getElementById('eventName').value = eventData.name || '';
-        document.getElementById('eventStatus').value = eventData.status || '';
-        document.getElementById('eventDate').value = eventData.date_event || '';
-        document.getElementById('eventStartTime').value = eventData.start_at || '';
-        document.getElementById('eventEndTime').value = eventData.end_at || '';
-        
-        // Location Information
-        document.getElementById('eventLocation').value = eventData.location || '';
-        document.getElementById('eventLandmark').value = eventData.landmark || '';
-        document.getElementById('eventPublishStart').value = eventData.start_publish_on || '';
-        document.getElementById('eventPublishEnd').value = eventData.end_publish_on || '';
-        
-        // Description
-        document.getElementById('eventContext').value = eventData.context || '';
-        document.getElementById('eventDescription').value = eventData.description || '';
-        
-        // Categories
-        if (eventData.labels && Array.isArray(eventData.labels)) {
-            const labelsSelect = document.getElementById('eventLabels');
-            Array.from(labelsSelect.options).forEach(option => {
-                option.selected = eventData.labels.includes(parseInt(option.value));
-            });
-        }
-        
-        if (eventData.types && Array.isArray(eventData.types)) {
-            const typesSelect = document.getElementById('eventTypes');
-            Array.from(typesSelect.options).forEach(option => {
-                option.selected = eventData.types.includes(parseInt(option.value));
-            });
-        }
-        
-        if (eventData.audiences && Array.isArray(eventData.audiences)) {
-            const audiencesSelect = document.getElementById('eventAudiences');
-            Array.from(audiencesSelect.options).forEach(option => {
-                option.selected = eventData.audiences.includes(parseInt(option.value));
-            });
-        }
-        
-        // Featured Image
-        const imageContainer = document.getElementById('currentImageContainer');
-        const imageElement = document.getElementById('currentImage');
-        if (eventData.featured_image) {
-            imageElement.src = eventData.featured_image;
-            imageContainer.classList.remove('hidden');
-        } else {
-            imageContainer.classList.add('hidden');
-        }
-    } catch (error) {
-        console.error('Error populating form:', error);
-        throw error;
-    }
-}
-</script>

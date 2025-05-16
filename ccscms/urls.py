@@ -17,7 +17,8 @@ from .views import (
     account_delete, account_detail, account_form_data,
     ClientViews, accomplishment_restore, accomplishment_delete,
     export_data, achievement_detail_admin, achievement_restore,
-    announcement_form,
+    announcement_form, event_form,
+    event_categories_api,
 )
 
 urlpatterns = [
@@ -71,9 +72,11 @@ urlpatterns = [
     path('cscadmin/events/<int:pk>/update/', EventUpdateView.as_view(), name='event_update'),
     path('cscadmin/events/<int:pk>/delete/', EventDeleteView.as_view(), name='event_delete'),
     path('cscadmin/events/form/', admin_dashboard, name='event_form_template'),
+    path('cscadmin/events/event_form/', event_form, name='event_form'),
     path('cscadmin/events/form-data/', get_event_form_data, name='event_form_data'),
     path('events/<int:pk>/restore/', EventRestoreView.as_view(), name='event_restore'),
     path('events/<int:pk>/permanent-delete/', EventPermanentDeleteView.as_view(), name='event_permanent_delete'),
+    path('cscadmin/events/categories/', event_categories_api, name='event_categories_api'),
     
     # Categories Management
     path('cscadmin/categories/', categories_management, name='categories_management'),   

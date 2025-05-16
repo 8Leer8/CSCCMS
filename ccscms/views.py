@@ -356,11 +356,16 @@ class EventListView(LoginRequiredMixin, UserPassesTestMixin, View):
         status = request.GET.get('status')
         if status:
             events = events.filter(status=status)
-            
+        
         date_from = request.GET.get('date_from')
         date_to = request.GET.get('date_to')
         if date_from and date_to:
             events = events.filter(date_event__range=[date_from, date_to])
+        
+        # Add support for single event_date filter
+        event_date = request.GET.get('event_date')
+        if event_date:
+            events = events.filter(date_event=event_date)
             
         search = request.GET.get('search')
         if search:
@@ -370,32 +375,73 @@ class EventListView(LoginRequiredMixin, UserPassesTestMixin, View):
                 Q(description__icontains=search)
             )
             
-        paginator = Paginator(events.order_by('-date_event'), 10)
+        # Filter by category selections
+        label_ids = request.GET.get('labels')
+        if label_ids:
+            label_ids = [int(i) for i in label_ids.split(',') if i.isdigit()]
+            if label_ids:
+                events = events.filter(labels__id__in=label_ids)
+        type_ids = request.GET.get('types')
+        if type_ids:
+            type_ids = [int(i) for i in type_ids.split(',') if i.isdigit()]
+            if type_ids:
+                events = events.filter(types__id__in=type_ids)
+        audience_ids = request.GET.get('audiences')
+        if audience_ids:
+            audience_ids = [int(i) for i in audience_ids.split(',') if i.isdigit()]
+            if audience_ids:
+                events = events.filter(audiences__id__in=audience_ids)
+                
+        # Order events by date
+        events = events.order_by('-date_event')
+        
+        # Pagination
+        paginator = Paginator(events, 10)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
         
         events_data = []
         for event in page_obj:
+            labels = list(event.labels.values_list('type', flat=True))
+            types = list(event.types.values_list('type', flat=True))
+            audiences = list(event.audiences.values_list('type', flat=True))
             event_data = {
                 'id': event.id,
                 'name': event.name,
-                'description': event.description,
-                'context': event.context,
                 'date_event': event.date_event.strftime("%Y-%m-%d") if event.date_event else None,
-                'start_at': event.start_at.strftime("%H:%M") if event.start_at else None,
-                'end_at': event.end_at.strftime("%H:%M") if event.end_at else None,
                 'location': event.location,
                 'status': event.status,
-                'event_img': request.build_absolute_uri(event.event_img.url) if event.event_img else None,                'is_active': event.is_active
+                'event_img': request.build_absolute_uri(event.event_img.url) if event.event_img else None,
+                'context': event.context,
+                'description': event.description,
+                'start_at': event.start_at.strftime("%H:%M") if event.start_at else None,
+                'end_at': event.end_at.strftime("%H:%M") if event.end_at else None,
+                'start_publish_on': event.start_publish_on.strftime("%Y-%m-%d") if event.start_publish_on else None,
+                'end_publish_on': event.end_publish_on.strftime("%Y-%m-%d") if event.end_publish_on else None,
+                'labels': labels,
+                'types': types,
+                'audiences': audiences,
+                'is_active': event.is_active,
+                'is_deleted': not event.is_active
             }
             events_data.append(event_data)
             
+        # Add pagination info for frontend
+        start_index = page_obj.start_index() if events_data else 0
+        end_index = page_obj.end_index() if events_data else 0
+        total_items = paginator.count
+        
         return JsonResponse({
             'events': events_data,
             'has_previous': page_obj.has_previous(),
             'has_next': page_obj.has_next(),
+            'previous_page_number': page_obj.previous_page_number() if page_obj.has_previous() else None,
+            'next_page_number': page_obj.next_page_number() if page_obj.has_next() else None,
             'current_page': page_obj.number,
             'total_pages': paginator.num_pages,
+            'start_index': start_index,
+            'end_index': end_index,
+            'total_items': total_items
         })
 
 class EventCreateView(LoginRequiredMixin, UserPassesTestMixin, View):
@@ -411,7 +457,6 @@ class EventCreateView(LoginRequiredMixin, UserPassesTestMixin, View):
             # Map form field names to model field names
             field_map = {
                 'eventName': 'name',
-                'eventStatus': 'status',
                 'eventDate': 'date_event',
                 'eventStartTime': 'start_at',
                 'eventEndTime': 'end_at',
@@ -429,7 +474,7 @@ class EventCreateView(LoginRequiredMixin, UserPassesTestMixin, View):
             
             for form_field, model_field in field_map.items():
                 value = request.POST.get(form_field)
-                if form_field in ['eventName', 'eventStatus', 'eventDate', 
+                if form_field in ['eventName', 'eventDate', 
                                  'eventStartTime', 'eventEndTime', 'eventLocation',
                                  'eventContext', 'eventDescription'] and not value:
                     missing_fields.append(form_field)
@@ -462,6 +507,13 @@ class EventCreateView(LoginRequiredMixin, UserPassesTestMixin, View):
                     'error': 'Invalid date or time format',
                     'message': f'Error parsing date/time: {str(e)}'
                 }, status=400)
+
+            # Set status based on publish start date
+            today = timezone.now().date()
+            if data.get('start_publish_on'):
+                data['status'] = 'scheduled' if data['start_publish_on'] > today else 'active'
+            else:
+                data['status'] = 'active'
 
             # Create the event
             event = Event.objects.create(
@@ -537,7 +589,7 @@ class EventUpdateView(LoginRequiredMixin, UserPassesTestMixin, View):
                     'description': event.description,
                     'start_publish_on': event.start_publish_on.strftime('%Y-%m-%d') if event.start_publish_on else None,
                     'end_publish_on': event.end_publish_on.strftime('%Y-%m-%d') if event.end_publish_on else None,
-                    'featured_image': request.build_absolute_uri(event.event_img.url) if event.event_img else None,
+                    'event_img': request.build_absolute_uri(event.event_img.url) if event.event_img else None,
                     'labels': labels,
                     'types': types,
                     'audiences': audiences,
@@ -558,6 +610,79 @@ class EventUpdateView(LoginRequiredMixin, UserPassesTestMixin, View):
                 'error': str(e)
             }, status=500)
 
+    def post(self, request, pk):
+        try:
+            event = Event.objects.get(pk=pk, is_active=True)
+            
+            # Map form field names to model field names
+            field_map = {
+                'eventName': 'name',
+                'eventDate': 'date_event',
+                'eventStartTime': 'start_at',
+                'eventEndTime': 'end_at',
+                'eventLocation': 'location',
+                'eventContext': 'context',
+                'eventDescription': 'description',
+                'eventLandmark': 'landmark',
+                'eventPublishStart': 'start_publish_on',
+                'eventPublishEnd': 'end_publish_on'
+            }
+
+            # Update basic fields
+            for form_field, model_field in field_map.items():
+                value = request.POST.get(form_field)
+                if value is not None:
+                    if model_field in ['date_event', 'start_publish_on', 'end_publish_on']:
+                        value = datetime.strptime(value, '%Y-%m-%d').date()
+                    elif model_field in ['start_at', 'end_at']:
+                        value = datetime.strptime(value, '%H:%M').time()
+                    setattr(event, model_field, value)
+
+            # Update image if provided
+            if 'eventFeaturedImage' in request.FILES:
+                event.event_img = request.FILES['eventFeaturedImage']
+
+            # Save the event
+            event.save()
+
+            # Update many-to-many relationships
+            # First, clear existing relationships
+            event.labels.clear()
+            event.types.clear()
+            event.audiences.clear()
+
+            # Then add new relationships
+            for label_id in request.POST.getlist('eventLabels', []):
+                if label_id:
+                    EventLabelList.objects.create(event=event, event_label_id=label_id)
+
+            for type_id in request.POST.getlist('eventTypes', []):
+                if type_id:
+                    EventTypeList.objects.create(event=event, event_type_id=type_id)
+
+            for audience_id in request.POST.getlist('eventAudiences', []):
+                if audience_id:
+                    EventAudience.objects.create(event=event, audience_id=audience_id)
+
+            return JsonResponse({
+                'success': True,
+                'message': 'Event updated successfully!'
+            })
+
+        except Event.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'error': 'Event not found'
+            }, status=404)
+            
+        except Exception as e:
+            logger.error(f"Error updating event: {str(e)}", exc_info=True)
+            return JsonResponse({
+                'success': False,
+                'error': str(e),
+                'message': f'Server error while updating event: {str(e)}'
+            }, status=500)
+
 class EventDeleteView(LoginRequiredMixin, UserPassesTestMixin, View):
     def test_func(self):
         return is_admin(self.request.user)
@@ -571,18 +696,23 @@ class EventDeleteView(LoginRequiredMixin, UserPassesTestMixin, View):
             return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
 def get_event_form_data(request):
-    event_labels = list(EventLabel.objects.filter(is_active=True).values('id', 'type'))
-    event_types = list(EventType.objects.filter(is_active=True).values('id', 'type'))
-    audiences = list(Audience.objects.filter(is_active=True).values('id', 'type'))
-    
-    return JsonResponse({
-        'success': True,
-        'event_labels': event_labels,
-        'event_types': event_types,
-        'audiences': audiences,
-    })
-    
-    # Add these views to your existing views.py
+    try:
+        event_labels = list(EventLabel.all_objects.filter(is_active=True).values('id', 'type'))
+        event_types = list(EventType.all_objects.filter(is_active=True).values('id', 'type'))
+        audiences = list(Audience.all_objects.filter(is_active=True).values('id', 'type'))
+        
+        return JsonResponse({
+            'success': True,
+            'event_labels': event_labels,
+            'event_types': event_types,
+            'audiences': audiences,
+        })
+    except Exception as e:
+        logger.error(f"Error getting event form data: {str(e)}", exc_info=True)
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
 
 class EventRestoreView(LoginRequiredMixin, UserPassesTestMixin, View):
     def test_func(self):
@@ -590,8 +720,8 @@ class EventRestoreView(LoginRequiredMixin, UserPassesTestMixin, View):
 
     def post(self, request, pk):
         try:
-            event = get_object_or_404(Event, pk=pk, is_active=False)
-            event.is_active = True  # Change to True to restore the event
+            event = get_object_or_404(Event.all_objects, pk=pk, is_active=False)
+            event.is_active = True  # Restore
             event.save()
             
             # Log the restoration
@@ -718,6 +848,37 @@ def ajax_create_category(request):
         description = data.get('description', '')
         is_active = data.get('is_active', True)
         
+        # Validate required fields
+        if not category_type or not type_name:
+            return JsonResponse({
+                'success': False, 
+                'error': 'Category type and name are required'
+            }, status=400)
+            
+        # Validate category type
+        if category_type not in ['label', 'type', 'audience']:
+            return JsonResponse({
+                'success': False, 
+                'error': 'Invalid category type'
+            }, status=400)
+            
+        # Check for duplicate names
+        if category_type == 'label' and EventLabel.objects.filter(type=type_name).exists():
+            return JsonResponse({
+                'success': False,
+                'error': 'A label with this name already exists'
+            }, status=400)
+        elif category_type == 'type' and EventType.objects.filter(type=type_name).exists():
+            return JsonResponse({
+                'success': False,
+                'error': 'A type with this name already exists'
+            }, status=400)
+        elif category_type == 'audience' and Audience.objects.filter(type=type_name).exists():
+            return JsonResponse({
+                'success': False,
+                'error': 'An audience with this name already exists'
+            }, status=400)
+        
         if category_type == 'label':
             obj = EventLabel.objects.create(
                 type=type_name,
@@ -736,8 +897,6 @@ def ajax_create_category(request):
                 description=description,
                 is_active=is_active
             )
-        else:
-            return JsonResponse({'success': False, 'error': 'Invalid category type'}, status=400)
             
         return JsonResponse({
             'success': True,
@@ -746,8 +905,16 @@ def ajax_create_category(request):
             'description': obj.description,
             'is_active': obj.is_active
         })
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'success': False,
+            'error': 'Invalid JSON data'
+        }, status=400)
     except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=400)
 
 @csrf_exempt
 @login_required
@@ -761,14 +928,50 @@ def ajax_update_category(request):
         description = data.get('description', '')
         is_active = data.get('is_active', True)
         
-        if category_type == 'label':
-            obj = get_object_or_404(EventLabel, pk=item_id)
-        elif category_type == 'type':
-            obj = get_object_or_404(EventType, pk=item_id)
-        elif category_type == 'audience':
-            obj = get_object_or_404(Audience, pk=item_id)
-        else:
-            return JsonResponse({'success': False, 'error': 'Invalid category type'}, status=400)
+        # Validate required fields
+        if not category_type or not type_name or not item_id:
+            return JsonResponse({
+                'success': False,
+                'error': 'Category type, name, and ID are required'
+            }, status=400)
+            
+        # Validate category type
+        if category_type not in ['label', 'type', 'audience']:
+            return JsonResponse({
+                'success': False,
+                'error': 'Invalid category type'
+            }, status=400)
+            
+        # Get the object
+        try:
+            if category_type == 'label':
+                obj = EventLabel.objects.get(pk=item_id)
+            elif category_type == 'type':
+                obj = EventType.objects.get(pk=item_id)
+            elif category_type == 'audience':
+                obj = Audience.objects.get(pk=item_id)
+        except (EventLabel.DoesNotExist, EventType.DoesNotExist, Audience.DoesNotExist):
+            return JsonResponse({
+                'success': False,
+                'error': 'Category not found'
+            }, status=404)
+            
+        # Check for duplicate names (excluding current item)
+        if category_type == 'label' and EventLabel.objects.exclude(pk=item_id).filter(type=type_name).exists():
+            return JsonResponse({
+                'success': False,
+                'error': 'A label with this name already exists'
+            }, status=400)
+        elif category_type == 'type' and EventType.objects.exclude(pk=item_id).filter(type=type_name).exists():
+            return JsonResponse({
+                'success': False,
+                'error': 'A type with this name already exists'
+            }, status=400)
+        elif category_type == 'audience' and Audience.objects.exclude(pk=item_id).filter(type=type_name).exists():
+            return JsonResponse({
+                'success': False,
+                'error': 'An audience with this name already exists'
+            }, status=400)
             
         obj.type = type_name
         obj.description = description
@@ -782,8 +985,16 @@ def ajax_update_category(request):
             'description': obj.description,
             'is_active': obj.is_active
         })
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'success': False,
+            'error': 'Invalid JSON data'
+        }, status=400)
     except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=400)
 
 @csrf_exempt
 @login_required
@@ -2977,4 +3188,40 @@ def announcement_form(request, pk=None):
     return render(request, 'admin/announcement/announcement_form.html', {
         'audiences': audiences,
         'selected_audiences': selected_audiences
+    })
+
+@login_required
+@user_passes_test(is_admin)
+def event_form(request, pk=None):
+    event_labels = EventLabel.objects.filter(is_active=True)
+    event_types = EventType.objects.filter(is_active=True)
+    audiences = Audience.objects.filter(is_active=True)
+    selected_labels = []
+    selected_types = []
+    selected_audiences = []
+    if pk:
+        event = Event.objects.get(pk=pk)
+        selected_labels = list(event.labels.values_list('id', flat=True))
+        selected_types = list(event.types.values_list('id', flat=True))
+        selected_audiences = list(event.audiences.values_list('id', flat=True))
+    return render(request, 'admin/event/event_form.html', {
+        'event_labels': event_labels,
+        'event_types': event_types,
+        'audiences': audiences,
+        'selected_labels': selected_labels,
+        'selected_types': selected_types,
+        'selected_audiences': selected_audiences,
+    })
+
+@login_required
+@user_passes_test(is_admin)
+def event_categories_api(request):
+    labels = list(EventLabel.objects.filter(is_active=True).values('id', 'type', 'description'))
+    types = list(EventType.objects.filter(is_active=True).values('id', 'type', 'description'))
+    audiences = list(Audience.objects.filter(is_active=True).values('id', 'type', 'description'))
+    return JsonResponse({
+        'success': True,
+        'labels': [{'id': l['id'], 'name': l['type'], 'description': l['description']} for l in labels],
+        'types': [{'id': t['id'], 'name': t['type'], 'description': t['description']} for t in types],
+        'audiences': [{'id': a['id'], 'name': a['type'], 'description': a['description']} for a in audiences],
     })

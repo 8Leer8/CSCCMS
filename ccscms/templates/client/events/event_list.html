@@ -43,7 +43,7 @@
     
     <!-- Filter Form -->
     <div class="filter-container mb-4">
-        <form method="get" class="filter-form">
+        <form method="get" class="filter-form" id="filterForm">
             <div class="filter-item">
                 <label for="status">Status:</label>
                 <select id="status" name="status">
@@ -70,7 +70,7 @@
             </div>
             
             <div class="filter-buttons">
-                <button type="submit" class="filter-btn">Filter</button>
+                <button type="submit" class="filter-btn" id="filterBtn">Filter</button>
                 <a href="{% url 'events_list' %}" class="reset-btn">Reset</a>
             </div>
         </form>
@@ -141,4 +141,59 @@
     {% endif %}
 </section>
 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const filterForm = document.getElementById('filterForm');
+    const filterBtn = document.getElementById('filterBtn');
+    const eventList = document.querySelector('.event_list');
+    
+    filterForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Show loading state
+        filterBtn.disabled = true;
+        filterBtn.textContent = 'Filtering...';
+        eventList.innerHTML = '<div class="text-center py-5"><p>Loading...</p></div>';
+        
+        // Get form data
+        const formData = new FormData(filterForm);
+        const queryString = new URLSearchParams(formData).toString();
+        
+        // Submit form via AJAX
+        fetch(`${window.location.pathname}?${queryString}`)
+            .then(response => response.text())
+            .then(html => {
+                // Create a temporary div to parse the HTML
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = html;
+                
+                // Extract the event list content
+                const newEventList = tempDiv.querySelector('.event_list');
+                if (newEventList) {
+                    eventList.innerHTML = newEventList.innerHTML;
+                }
+                
+                // Update pagination if it exists
+                const newPagination = tempDiv.querySelector('.pagination-container');
+                const currentPagination = document.querySelector('.pagination-container');
+                if (newPagination && currentPagination) {
+                    currentPagination.innerHTML = newPagination.innerHTML;
+                }
+                
+                // Reset button state
+                filterBtn.disabled = false;
+                filterBtn.textContent = 'Filter';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                eventList.innerHTML = '<div class="text-center py-5"><p>Error loading events. Please try again.</p></div>';
+                filterBtn.disabled = false;
+                filterBtn.textContent = 'Filter';
+            });
+    });
+});
+</script>
 {% endblock %}

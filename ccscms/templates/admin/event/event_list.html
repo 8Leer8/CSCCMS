@@ -27,12 +27,14 @@
                 </select>
             </div>
             <div>
-                <label for="dateFromFilter" class="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">From Date</label>
-                <input type="date" id="dateFromFilter" class="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-primary-dark focus:border-primary-dark text-sm">
+                <label class="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Category</label>
+                <button id="categoryFilterBtn" type="button" class="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-white text-left text-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-dark focus:border-primary-dark">
+                    <i class="fas fa-filter mr-2"></i>Filter Category
+                </button>
             </div>
             <div>
-                <label for="dateToFilter" class="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">To Date</label>
-                <input type="date" id="dateToFilter" class="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-primary-dark focus:border-primary-dark text-sm">
+                <label for="eventDateFilter" class="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Event Date</label>
+                <input type="date" id="eventDateFilter" class="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-primary-dark focus:border-primary-dark text-sm">
             </div>
             <div>
                 <label for="searchFilter" class="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Search</label>
@@ -46,14 +48,64 @@
         </div>
     </div>
     
+    <!-- Category Filter Modal -->
+    <div class="fixed inset-0 z-50 hidden" id="categoryFilterModal">
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
+                <div class="bg-white px-6 pt-6 pb-4 sm:p-8 sm:pb-4">
+                    <h3 class="text-lg leading-6 font-bold text-gray-900 mb-4">Filter by Category</h3>
+                    <div class="space-y-6 max-h-96 overflow-y-auto custom-scrollbar">
+                        <div>
+                            <div class="mb-2 text-xs font-semibold text-blue-700 uppercase tracking-wider">Labels</div>
+                            <div id="categoryFilterLabels" class="flex flex-wrap gap-3"></div>
+                        </div>
+                        <div>
+                            <div class="mb-2 text-xs font-semibold text-green-700 uppercase tracking-wider">Types</div>
+                            <div id="categoryFilterTypes" class="flex flex-wrap gap-3"></div>
+                        </div>
+                        <div>
+                            <div class="mb-2 text-xs font-semibold text-purple-700 uppercase tracking-wider">Audiences</div>
+                            <div id="categoryFilterAudiences" class="flex flex-wrap gap-3"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" id="applyCategoryFilterBtn" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary-dark text-base font-medium text-white hover:bg-primary-darker focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">Apply</button>
+                    <button type="button" id="closeCategoryFilterModalBtn" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Event Form Modal -->
+    <div class="fixed inset-0 z-50 hidden" id="formModal">
+      <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="closeModal('formModal')"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl w-full">
+          <div class="bg-white px-6 pt-6 pb-4 sm:p-8 sm:pb-4">
+            <h3 class="text-lg leading-6 font-bold text-gray-900 mb-4" id="modalTitle">Event Form</h3>
+            <div id="modalBody" class="max-h-[70vh] overflow-y-auto"></div>
+          </div>
+          <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+            <button type="button" id="modalSubmitBtn" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary-dark text-base font-medium text-white hover:bg-primary-darker focus:outline-none sm:ml-3 sm:w-auto sm:text-sm" onclick="submitEventForm()">Submit</button>
+            <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" onclick="closeModal('formModal')">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
     <!-- Events Table -->
     <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
                 <tr>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Event Details</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date & Time</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Location</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date & Location</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Publish Period</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Categories</th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
                     <th scope="col" class="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
                 </tr>
@@ -145,8 +197,7 @@
 
 <script>
 // Global variables for event management
-var currentEventId = null;
-let showingDeletedEvents = false;
+window.showingDeletedEvents = false;
 let itemIdToDelete = null;
 
 // Utility functions
@@ -245,22 +296,22 @@ function showEventForm(mode = 'create', eventId = null) {
     updateSubmitButton(mode);
     
     $.ajax({
-        url: '/cscadmin/?page=event_form',
+        url: '/cscadmin/events/event_form',
         method: 'GET',
         success: function(html) {
             $('#modalBody').html(html);
             $('#modalTitle').text(mode === 'edit' ? 'Edit Event' : 'Create New Event');
             openModal('formModal');
-            
             if (mode === 'edit' && eventId) {
                 loadEventData(eventId);
             } else {
                 hideLoading();
             }
         },
-        error: function() {
+        error: function(xhr, status, error) {
             hideLoading();
             showAlert('danger', 'Failed to load event form');
+            console.error("Add Event AJAX error:", status, error, xhr);
         }
     });
 }
@@ -272,33 +323,56 @@ function loadEventData(eventId) {
         url: `/cscadmin/events/${eventId}/update/`,
         method: 'GET',
         success: function(response) {
-            $('#eventId').val(response.id);
-            $('#eventName').val(response.name);
-            $('#eventStatus').val(response.status);
-            $('#eventDate').val(response.date_event);
-            $('#eventStartTime').val(response.start_at);
-            $('#eventEndTime').val(response.end_at);
-            $('#eventLocation').val(response.location);
-            $('#eventLandmark').val(response.landmark);
-            $('#eventPublishStart').val(response.start_publish_on);
-            $('#eventPublishEnd').val(response.end_publish_on);
-            $('#eventContext').val(response.context);
-            $('#eventDescription').val(response.description);
-            
-            setSelectedOptions('#eventLabels', response.selected_labels);
-            setSelectedOptions('#eventTypes', response.selected_types);
-            setSelectedOptions('#eventAudiences', response.selected_audiences);
-            
-            if (response.featured_image) {
-                $('#currentImage').attr('src', response.featured_image);
-                $('#currentImageContainer').removeClass('hidden');
+            if (response.success && response.event) {
+                const event = response.event;
+                $('#eventId').val(event.id);
+                $('#eventName').val(event.name);
+                $('#eventStatus').val(event.status);
+                $('#eventDate').val(event.date_event);
+                $('#eventStartTime').val(event.start_at);
+                $('#eventEndTime').val(event.end_at);
+                $('#eventLocation').val(event.location);
+                $('#eventLandmark').val(event.landmark);
+                $('#eventPublishStart').val(event.start_publish_on);
+                $('#eventPublishEnd').val(event.end_publish_on);
+                $('#eventContext').val(event.context);
+                $('#eventDescription').val(event.description);
+                
+                // Handle categories
+                if (Array.isArray(event.labels)) {
+                    event.labels.forEach(function(id) {
+                        $(`input[name="eventLabels"][value="${id}"]`).prop('checked', true);
+                    });
+                }
+                if (Array.isArray(event.types)) {
+                    event.types.forEach(function(id) {
+                        $(`input[name="eventTypes"][value="${id}"]`).prop('checked', true);
+                    });
+                }
+                if (Array.isArray(event.audiences)) {
+                    event.audiences.forEach(function(id) {
+                        $(`input[name="eventAudiences"][value="${id}"]`).prop('checked', true);
+                    });
+                }
+                
+                // Handle image
+                if (event.event_img) {
+                    $('#currentImage').attr('src', event.event_img);
+                    $('#currentImageContainer').removeClass('hidden');
+                    $('#fileName').text('Current image');
+                } else {
+                    $('#currentImageContainer').addClass('hidden');
+                    $('#fileName').text('No file chosen');
+                }
+            } else {
+                showAlert('danger', 'Failed to load event data: Invalid response format');
             }
-            
             hideLoading();
         },
-        error: function() {
+        error: function(xhr, status, error) {
             hideLoading();
-            showAlert('danger', 'Failed to load event data');
+            showAlert('danger', 'Failed to load event data: ' + (error || 'Unknown error'));
+            console.error('Error loading event data:', status, error, xhr);
         }
     });
 }
@@ -374,10 +448,14 @@ function deleteEvent() {
 
 // Event list rendering and management
 function renderEventsTable(data) {
+    console.log(event.labels, event.types, event.audiences);
+    console.log("Rendering events table with data:", data);
     let tableRows = '';
     
     if (data.events && data.events.length > 0) {
+        console.log("Number of events to render:", data.events.length);
         data.events.forEach(event => {
+            console.log("Processing event:", event);
             const statusBadgeClass = {
                 'active': 'bg-green-100 text-green-800',
                 'expired': 'bg-red-100 text-red-800',
@@ -390,22 +468,55 @@ function renderEventsTable(data) {
                 day: 'numeric'
             }) : 'Not specified';
             
-            let timeDisplay = '';
-            if (event.start_at || event.end_at) {
-                const startTime = event.start_at ? formatTime(event.start_at) : '';
-                const endTime = event.end_at ? formatTime(event.end_at) : '';
-                timeDisplay = startTime && endTime ? `${startTime} - ${endTime}` : startTime || endTime || 'Time not specified';
-            }
+            const publishStart = event.start_publish_on ? new Date(event.start_publish_on).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            }) : 'Not specified';
             
-            const description = event.description || event.context || '';
-            const displayDescription = description ? 
-                (description.length > 100 ? description.substring(0, 97) + '...' : description) :
-                'No description available';
+            const publishEnd = event.end_publish_on ? new Date(event.end_publish_on).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            }) : 'Not specified';
             
             const eventImage = event.event_img ? 
-                `<img src="${event.event_img}" alt="${event.name}" class="h-10 w-10 rounded-md object-cover cursor-pointer hover:opacity-75 event-image-preview" data-src="${event.event_img}">` :
-                `<div class="h-10 w-10 rounded-md bg-gray-200 flex items-center justify-center text-gray-400"><i class="fas fa-calendar-alt"></i></div>`;
+                `<img src="${event.event_img}" alt="${event.name}" class="h-12 w-12 rounded-md object-cover cursor-pointer hover:opacity-75 event-image-preview" data-src="${event.event_img}">` :
+                `<div class="h-12 w-12 rounded-md bg-gray-200 flex items-center justify-center text-gray-400"><i class="fas fa-calendar-alt"></i></div>`;
             
+            const context = event.context ? 
+                (event.context.length > 100 ? event.context.substring(0, 97) + '...' : event.context) :
+                'No description available';
+            
+            // Clean grouped categories
+            let categoriesHtml = '';
+            const labelNames = (event.labels || []).map(cat => typeof cat === 'string' ? cat : (cat.type || cat.name || '')).filter(Boolean);
+            const typeNames = (event.types || []).map(cat => typeof cat === 'string' ? cat : (cat.type || cat.name || '')).filter(Boolean);
+            const audienceNames = (event.audiences || []).map(cat => typeof cat === 'string' ? cat : (cat.type || cat.name || '')).filter(Boolean);
+            if (labelNames.length || typeNames.length || audienceNames.length) {
+                if (labelNames.length) {
+                    categoriesHtml += `<div class='inline-block mb-1 px-2 py-1 rounded bg-blue-100 text-blue-800 text-xs font-medium'><strong>Label:</strong> ${labelNames.join(', ')}</div><br/>`;
+                }
+                if (typeNames.length) {
+                    categoriesHtml += `<div class='inline-block mb-1 px-2 py-1 rounded bg-green-100 text-green-800 text-xs font-medium'><strong>Type:</strong> ${typeNames.join(', ')}</div><br/>`;
+                }
+                if (audienceNames.length) {
+                    categoriesHtml += `<div class='inline-block mb-1 px-2 py-1 rounded bg-purple-100 text-purple-800 text-xs font-medium'><strong>Audience:</strong> ${audienceNames.join(', ')}</div>`;
+                }
+            } else {
+                categoriesHtml = '<span class="text-gray-400 text-sm">No categories</span>';
+            }
+
+            // Minimalist publish period
+            let publishPeriodHtml = 'Not specified';
+            if (publishStart && publishEnd) {
+                publishPeriodHtml = `${publishStart} → ${publishEnd}`;
+            } else if (publishStart) {
+                publishPeriodHtml = `${publishStart}`;
+            } else if (publishEnd) {
+                publishPeriodHtml = `${publishEnd}`;
+            }
+
             tableRows += `
                 <tr class="${event.is_deleted ? 'bg-gray-50' : 'hover:bg-gray-50'}">
                     <td class="px-6 py-4">
@@ -413,17 +524,19 @@ function renderEventsTable(data) {
                             <div class="flex-shrink-0">${eventImage}</div>
                             <div class="ml-4">
                                 <div class="text-sm font-medium ${event.is_deleted ? 'text-gray-500' : 'text-gray-900'}">${event.name || 'Untitled Event'}</div>
-                                <div class="text-sm ${event.is_deleted ? 'text-gray-400' : 'text-gray-500'} max-w-xl">${displayDescription}</div>
+                                <div class="text-sm ${event.is_deleted ? 'text-gray-400' : 'text-gray-500'} max-w-xl">${context}</div>
                             </div>
                         </div>
                     </td>
                     <td class="px-6 py-4">
                         <div class="text-sm ${event.is_deleted ? 'text-gray-500' : 'text-gray-900'}">${eventDate}</div>
-                        <div class="text-sm ${event.is_deleted ? 'text-gray-400' : 'text-gray-500'}">${timeDisplay}</div>
+                        <div class="text-sm ${event.is_deleted ? 'text-gray-400' : 'text-gray-500'}">${event.location || 'Not specified'}</div>
                     </td>
                     <td class="px-6 py-4">
-                        <div class="text-sm ${event.is_deleted ? 'text-gray-500' : 'text-gray-900'}">${event.location || 'Not specified'}</div>
-                        <div class="text-sm ${event.is_deleted ? 'text-gray-400' : 'text-gray-500'}">${event.landmark || ''}</div>
+                        <span class="text-xs">${publishPeriodHtml}</span>
+                    </td>
+                    <td class="px-6 py-4">
+                        ${categoriesHtml}
                     </td>
                     <td class="px-6 py-4">
                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusBadgeClass}">
@@ -449,9 +562,10 @@ function renderEventsTable(data) {
             `;
         });
     } else {
+        console.log("No events to render");
         tableRows = `
             <tr>
-                <td colspan="5" class="px-6 py-12 text-center">
+                <td colspan="6" class="px-6 py-12 text-center">
                     <div class="text-gray-400">
                         <i class="fas fa-calendar-times fa-2x mb-2"></i>
                         <p class="text-sm">No events found</p>
@@ -461,7 +575,9 @@ function renderEventsTable(data) {
         `;
     }
     
+    console.log("Generated table HTML:", tableRows);
     $('#eventsTableBody').html(tableRows);
+    console.log("Table body after update:", $('#eventsTableBody').html());
     renderPagination(data);
     
     // Attach event handlers
@@ -471,8 +587,8 @@ function renderEventsTable(data) {
     });
     
     $('.delete-event-btn').click(function() {
-        itemIdToDelete = $(this).data('id');
-        openModal('deleteModal');
+        const eventId = $(this).data('id');
+        showDeleteConfirmation(eventId);
     });
     
     $('.restore-event-btn').click(function() {
@@ -481,9 +597,8 @@ function renderEventsTable(data) {
     });
     
     $('.event-image-preview').click(function() {
-        const imgSrc = $(this).data('src');
-        $('#largeEventImage').attr('src', imgSrc);
-        $('#imagePreviewModal').removeClass('hidden');
+        const imageSrc = $(this).data('src');
+        showImagePreview(imageSrc);
     });
 }
 
@@ -560,9 +675,8 @@ function renderPagination(data) {
     }
     
     $('#paginationContainer').html(paginationHtml);
-    
-    // Attach click handlers to pagination links
-    $('#paginationContainer a[data-page]').click(function(e) {
+    // Attach click handlers to pagination links using event delegation
+    $('#paginationContainer').off('click', 'a[data-page]').on('click', 'a[data-page]', function(e) {
         e.preventDefault();
         const page = $(this).data('page');
         loadEvents(page);
@@ -571,31 +685,66 @@ function renderPagination(data) {
 
 function loadEvents(page = 1) {
     showLoading();
-    
     const params = {
         status: $('#statusFilter').val(),
-        date_from: $('#dateFromFilter').val(),
-        date_to: $('#dateToFilter').val(),
+        event_date: $('#eventDateFilter').val(),
         search: $('#searchFilter').val(),
         page: page,
-        show_deleted: showingDeletedEvents
+        show_deleted: window.showingDeletedEvents
     };
-    
+
+    // Add selected categories to params
+    const selectedLabels = [];
+    const selectedTypes = [];
+    const selectedAudiences = [];
+
+    $('#categoryFilterLabels input:checked').each(function() {
+        selectedLabels.push($(this).val());
+    });
+    $('#categoryFilterTypes input:checked').each(function() {
+        selectedTypes.push($(this).val());
+    });
+    $('#categoryFilterAudiences input:checked').each(function() {
+        selectedAudiences.push($(this).val());
+    });
+
+    if (selectedLabels.length) {
+        params.labels = selectedLabels.join(',');
+    } else {
+        delete params.labels;
+    }
+    if (selectedTypes.length) {
+        params.types = selectedTypes.join(',');
+    } else {
+        delete params.types;
+    }
+    if (selectedAudiences.length) {
+        params.audiences = selectedAudiences.join(',');
+    } else {
+        delete params.audiences;
+    }
+
     $.ajax({
         url: '/cscadmin/events/list/',
         method: 'GET',
         data: params,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        },
         success: function(response) {
-            if (response && response.events) {
+            console.log("Events loaded (success handler):", response);
+            try {
                 renderEventsTable(response);
-            } else {
-                showAlert('warning', 'No events found');
+            } catch (e) {
+                console.error('Error in renderEventsTable:', e, response);
             }
         },
-        error: function(xhr) {
+        error: function(xhr, status, error) {
+            console.error('AJAX error in loadEvents:', status, error, xhr);
             showAlert('danger', 'Failed to load events');
         },
-        complete: function() {
+        complete: function(xhr, status) {
+            console.log('AJAX complete in loadEvents:', status);
             hideLoading();
         }
     });
@@ -604,7 +753,6 @@ function loadEvents(page = 1) {
 // Deleted events management
 function loadDeletedEvents(page = 1) {
     showLoading();
-    
     $.ajax({
         url: '/cscadmin/events/list/',
         method: 'GET',
@@ -612,14 +760,29 @@ function loadDeletedEvents(page = 1) {
             show_deleted: true,
             page: page
         },
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        },
         success: function(response) {
-            if (response && response.events) {
+            console.log("Deleted events loaded:", response);
+            if (response.events && response.events.length > 0) {
                 renderDeletedEventsTable(response);
             } else {
-                showAlert('warning', 'No deleted events found');
+                $('#deletedEventsTableBody').html(`
+                    <tr>
+                        <td colspan="4" class="px-6 py-8 text-center">
+                            <div class="text-gray-400">
+                                <i class="fas fa-calendar-times fa-2x mb-2"></i>
+                                <p class="text-sm">No deleted events found</p>
+                            </div>
+                        </td>
+                    </tr>
+                `);
+                $('#deletedEventsPagination').empty();
             }
         },
         error: function(xhr) {
+            console.error('Error loading deleted events:', xhr);
             showAlert('danger', 'Failed to load deleted events');
         },
         complete: function() {
@@ -675,9 +838,6 @@ function renderDeletedEventsTable(data) {
                     <td class="px-6 py-4 text-right text-sm font-medium">
                         <button class="text-green-600 hover:text-green-900 restore-event-btn mr-3" data-id="${event.id}">
                             <i class="fas fa-trash-restore"></i> Restore
-                        </button>
-                        <button class="text-red-600 hover:text-red-900 permanent-delete-event-btn" data-id="${event.id}">
-                            <i class="fas fa-trash-alt"></i> Delete
                         </button>
                     </td>
                 </tr>
@@ -802,10 +962,9 @@ function renderDeletedEventsPagination(data) {
 }
 
 function restoreEvent(eventId) {
-    s();
-    
+    showLoading();
     $.ajax({
-        url: `/cscadmin/events/${eventId}/restore/`,
+        url: `/events/${eventId}/restore/`,
         method: 'POST',
         headers: {
             'X-CSRFToken': getCookie('csrftoken')
@@ -883,17 +1042,53 @@ $(document).ready(function() {
     });
     
     // Filter change handlers
-    $('#statusFilter, #dateFromFilter, #dateToFilter').change(function() {
+    $('#statusFilter, #eventDateFilter').change(function() {
         loadEvents();
     });
-    
-    $('#searchFilter').keyup(function(e) {a
+
+    $('#searchFilter').on('keyup', function(e) {
         if (e.key === 'Enter') {
             loadEvents();
         }
     });
-    
+
+    // Category filter modal handlers
+    $('#categoryFilterBtn').click(function() {
+        openModal('categoryFilterModal');
+    });
+
+    $('#closeCategoryFilterModalBtn').click(function() {
+        closeModal('categoryFilterModal');
+    });
+
+    $('#applyCategoryFilterBtn').click(function() {
+        closeModal('categoryFilterModal');
+        loadEvents();
+    });
+
     // Load initial events
     loadEvents();
+
+    // Style checkboxes in modal
+    setTimeout(function() {
+        $('#categoryFilterModal input[type="checkbox"]').addClass('form-checkbox h-4 w-4 text-primary-dark rounded border-gray-300 focus:ring-primary-dark');
+    }, 100);
 });
 </script>
+
+<style>
+.custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #c5c5c5;
+    border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+</style>
