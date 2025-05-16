@@ -1,7 +1,6 @@
 from django.urls import path
 from .views import (
-    AuthView, logout_view, admin_dashboard,
-    client_lpage, get_dashboard_data, EventListView, EventCreateView, 
+    AuthView, logout_view, admin_dashboard, get_dashboard_data, EventListView, EventCreateView, 
     EventUpdateView, EventDeleteView, get_event_form_data,
     EventRestoreView, EventPermanentDeleteView,
     manage_labels, manage_types, manage_audiences,
