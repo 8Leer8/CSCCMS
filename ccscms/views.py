@@ -90,7 +90,7 @@ class AuthView(View):
                 messages.error(request, 'Passwords do not match')
                 return redirect('auth')
                 
-            if User.objects.filter(account__email=email).exists():
+            if Account.objects.filter(email=email).exists():
                 messages.error(request, 'Email already exists')
                 return redirect('auth')
                 

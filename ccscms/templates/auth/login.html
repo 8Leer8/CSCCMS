@@ -296,6 +296,43 @@
                 padding: 1rem 0;
             }
         }
+        
+        /* Floating Error Message Styles */
+        .floating-error {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        .floating-error .material-icons {
+            color: var(--error-fg);
+        }
+        
+        .floating-error p {
+            color: var(--error-fg);
+            margin: 0;
+            font-size: 1rem;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translate(-50%, -60%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translate(-50%, -50%); }
+            to { opacity: 0; transform: translate(-50%, -60%); }
+        }
     </style>
 </head>
 <body>
@@ -307,8 +344,8 @@
             </div>
             <h1>Welcome to Student Council<br>College of Computing Studies</h1>
             <p>
-                Access your hub for all things student leadership. Here, you can manage posts, events, announcements, and stay updated on the latest activities shaping our school community.<br>
-                <span style="display:block; margin-top:1.2em;">Log in to stay connected, informed, and involved in making a difference!</span>
+                Access your hub for all things student leadership. Here, you can view posts, events, and announcements, and stay informed about the latest activities shaping our school community. <br>
+                <span style="display:block; margin-top:1.2em;">Log in to stay connected, up-to-date, and engaged with student leadership in action!</span>
             </p>
             <div class="guest-btn">
                 <a href="/">Continue as Guest</a>
@@ -344,12 +381,7 @@
                     <!-- Signup Form (Back) -->
                     <div class="form-back">
                         <div class="auth-title">Create your account</div>
-                        {% if messages %}
-                        <div class="error-message">
-                            <span class="material-icons">error</span>
-                            {% for message in messages %}{{ message }}{% endfor %}
-                        </div>
-                        {% endif %}
+                       
                         <form method="POST" action="{% url 'auth' %}">
                             {% csrf_token %}
                             <input type="hidden" name="signup" value="true">
@@ -391,6 +423,27 @@
             </div>
         </div>
     </div>
+
+    {% if messages %}
+    <div id="floating-error" class="floating-error">
+        <span class="material-icons">error</span>
+        <p>{% for message in messages %}{{ message }}{% endfor %}</p>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const errorMessage = document.getElementById('floating-error');
+            if (errorMessage) {
+                setTimeout(() => {
+                    errorMessage.style.animation = 'fadeOut 0.3s ease-in-out forwards';
+                    setTimeout(() => {
+                        errorMessage.remove();
+                    }, 300);
+                }, 3000);
+            }
+        });
+    </script>
+    {% endif %}
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const authForm = document.getElementById('authForm');
