@@ -214,8 +214,15 @@ class Department(SoftDeleteModel):
         db_table = 'department'
         ordering = ['college', 'name']
 
+class PositionType(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
 class Position(SoftDeleteModel):
     name = models.CharField(max_length=100)
+    position_type = models.ForeignKey(PositionType, on_delete=models.CASCADE, null=True, blank=True)
     abbreviation = models.CharField(max_length=20, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     
@@ -249,6 +256,7 @@ class Officer(SoftDeleteModel):
 class OfficerMember(SoftDeleteModel):
     officer = models.ForeignKey(Officer, on_delete=models.CASCADE, related_name='members')
     position = models.ForeignKey(Position, on_delete=models.PROTECT)
+    img = models.ImageField(upload_to=upload_to, null=True, blank=True)
     lastname = models.CharField(max_length=100)
     firstname = models.CharField(max_length=100)
     middlename = models.CharField(max_length=100, null=True, blank=True)

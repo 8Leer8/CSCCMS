@@ -246,6 +246,9 @@ def admin_dashboard(request):
             elif page == 'transparency_form':
                 html = render_to_string('admin/transparency/transparency_form.html', request=request)
                 return HttpResponse(html)
+            elif page == 'officer_members':
+                html = render_to_string('admin/officer_member/officer_member_list.html', request=request)
+                return JsonResponse({'html': html})
             else:
                 return JsonResponse({'error': f'Page "{page}" not found'}, status=404)
         except Exception as e:
@@ -874,6 +877,7 @@ def ajax_create_category(request):
         type_name = data.get('type')
         description = data.get('description', '')
         is_active = data.get('is_active', True)
+        scope_id = data.get('scope_id')
         
         # Validate required fields
         if not category_type or not type_name:
@@ -883,12 +887,12 @@ def ajax_create_category(request):
             }, status=400)
             
         # Validate category type
-        if category_type not in ['label', 'type', 'audience']:
+        if category_type not in ['label', 'type', 'audience', 'category']:
             return JsonResponse({
                 'success': False, 
                 'error': 'Invalid category type'
             }, status=400)
-            
+        
         # Check for duplicate names
         if category_type == 'label' and EventLabel.objects.filter(type=type_name).exists():
             return JsonResponse({
@@ -904,6 +908,11 @@ def ajax_create_category(request):
             return JsonResponse({
                 'success': False,
                 'error': 'An audience with this name already exists'
+            }, status=400)
+        elif category_type == 'category' and Category.objects.filter(category=type_name, scope_id=scope_id).exists():
+            return JsonResponse({
+                'success': False,
+                'error': 'A category with this name already exists in this scope'
             }, status=400)
         
         if category_type == 'label':
@@ -924,11 +933,18 @@ def ajax_create_category(request):
                 description=description,
                 is_active=is_active
             )
-            
+        elif category_type == 'category':
+            obj = Category.objects.create(
+                category=type_name,
+                description=description,
+                is_active=is_active,
+                scope_id=scope_id
+            )
+        
         return JsonResponse({
             'success': True,
             'id': obj.id,
-            'type': obj.type,
+            'type': getattr(obj, 'type', getattr(obj, 'category', '')),
             'description': obj.description,
             'is_active': obj.is_active
         })
@@ -3606,5 +3622,204 @@ def account_restore(request, pk):
             return JsonResponse({'success': True, 'message': 'Account restored successfully'})
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=400)
+
+@login_required
+@user_passes_test(is_admin)
+def categories_by_scope(request, scope_id):
+    categories = Category.objects.filter(scope_id=scope_id)
+    html = render_to_string('admin/categories/categories_scope_table.html', {'categories': categories})
+    return JsonResponse({'html': html})
+
+@login_required
+@user_passes_test(is_admin)
+def officer_member_list(request):
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        try:
+            search = request.GET.get('search', '')
+            page = request.GET.get('page', 1)
+            department = request.GET.get('department', '')
+            term = request.GET.get('term', '')
+            fetch_terms = request.GET.get('fetch_terms', '')
+            officer_members = OfficerMember.objects.select_related('position', 'department').all()
+            if fetch_terms:
+                # Return unique term ranges
+                terms = officer_members.values_list('start_term', 'end_term')
+                unique_terms = set()
+                for st, et in terms:
+                    if st and et:
+                        unique_terms.add(f"{st.year}-{et.year}")
+                return JsonResponse({'success': True, 'terms': sorted(unique_terms, reverse=True)})
+            if search:
+                officer_members = officer_members.filter(
+                    Q(firstname__icontains=search) |
+                    Q(middlename__icontains=search) |
+                    Q(lastname__icontains=search) |
+                    Q(position_id__icontains=search) |
+                    Q(department_id__icontains=search)
+                )
+            if department:
+                officer_members = officer_members.filter(department_id=department)
+            if term:
+                try:
+                    start, end = map(int, term.split('-'))
+                    officer_members = officer_members.filter(start_term__year=start, end_term__year=end)
+                except Exception:
+                    pass
+            paginator = Paginator(officer_members.order_by('-start_term'), 10)
+            page_obj = paginator.get_page(page)
+            data = []
+            for member in page_obj:
+                full_name = ' '.join(filter(None, [member.firstname, member.middlename, member.lastname]))
+                position_name = getattr(member.position, 'name', '') if member.position else ''
+                department_name = getattr(member.department, 'name', '') if member.department else ''
+                profile_img_url = member.profile_img.url if member.profile_img else ''
+                data.append({
+                    'id': member.id,
+                    'name': full_name,
+                    'position_id': member.position_id if member.position_id else '',
+                    'position': position_name,
+                    'department_id': member.department_id if member.department_id else '',
+                    'department': department_name,
+                    'start_term': member.start_term.year if member.start_term else '',
+                    'end_term': member.end_term.year if member.end_term else '',
+                    'status': 'Active' if member.is_active else 'Inactive',
+                    'bio': member.bio or '',
+                    'profile_img': request.build_absolute_uri(profile_img_url) if profile_img_url else '',
+                })
+            return JsonResponse({
+                'success': True,
+                'officer_members': data,
+                'has_previous': page_obj.has_previous(),
+                'has_next': page_obj.has_next(),
+                'current_page': page_obj.number,
+                'total_pages': paginator.num_pages,
+                'total_count': paginator.count,
+            })
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
+
+@login_required
+@user_passes_test(is_admin)
+def officer_member_form_data(request):
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        from .models import Position, Department
+        positions = list(Position.objects.filter(is_active=True, position_type_id=1).values('id', 'name'))
+        departments = list(Department.objects.filter(is_active=True).values('id', 'name'))
+        return JsonResponse({'success': True, 'positions': positions, 'departments': departments})
+    return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
+
+@csrf_exempt
+@login_required
+@user_passes_test(is_admin)
+def officer_member_create(request):
+    if request.method == 'POST':
+        try:
+            data = request.POST
+            name = data.get('name')
+            position_id = data.get('position')
+            department_id = data.get('department')
+            start_term = data.get('start_term')
+            end_term = data.get('end_term')
+            bio = data.get('bio', '')
+            profile_img = request.FILES.get('profile_img')
+            # Split name
+            name_parts = name.split()
+            firstname = name_parts[0] if len(name_parts) > 0 else ''
+            middlename = ' '.join(name_parts[1:-1]) if len(name_parts) > 2 else (name_parts[1] if len(name_parts) == 3 else '')
+            lastname = name_parts[-1] if len(name_parts) > 1 else ''
+            from .models import Position, Department, Officer
+            # Use the first officer for now (or adjust as needed)
+            officer = Officer.objects.first()
+            member = OfficerMember.objects.create(
+                officer=officer,
+                firstname=firstname,
+                middlename=middlename,
+                lastname=lastname,
+                position_id=position_id,
+                department_id=department_id,
+                start_term=f"{start_term}-01-01",
+                end_term=f"{end_term}-01-01",
+                bio=bio,
+                profile_img=profile_img,
+                is_active=True
+            )
+            return JsonResponse({'success': True, 'id': member.id, 'message': 'Officer member created successfully'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=400)
+
+@csrf_exempt
+@login_required
+@user_passes_test(is_admin)
+def officer_member_update(request, pk):
+    if request.method == 'POST':
+        try:
+            member = OfficerMember.objects.get(pk=pk)
+            name = request.POST.get('name', '')
+            name_parts = name.split()
+            member.firstname = name_parts[0] if len(name_parts) > 0 else ''
+            member.middlename = ' '.join(name_parts[1:-1]) if len(name_parts) > 2 else (name_parts[1] if len(name_parts) == 3 else '')
+            member.lastname = name_parts[-1] if len(name_parts) > 1 else ''
+            member.position_id = request.POST.get('position')
+            member.department_id = request.POST.get('department')
+            member.start_term = f"{request.POST.get('start_term')}-01-01"
+            member.end_term = f"{request.POST.get('end_term')}-01-01"
+            member.bio = request.POST.get('bio', '')
+            if 'profile_img' in request.FILES:
+                member.profile_img = request.FILES['profile_img']
+            member.is_active = (request.POST.get('status', 'active') == 'active')
+            member.save()
+            return JsonResponse({'success': True, 'message': 'Officer member updated successfully'})
+        except OfficerMember.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Officer member not found'}, status=404)
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=400)
+
+@login_required
+@user_passes_test(is_admin)
+def officer_member_detail(request, pk):
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        try:
+            member = OfficerMember.objects.select_related('position', 'department').get(pk=pk)
+            full_name = ' '.join(filter(None, [member.firstname, member.middlename, member.lastname]))
+            position_name = getattr(member.position, 'name', '') if member.position else ''
+            department_name = getattr(member.department, 'name', '') if member.department else ''
+            profile_img_url = member.profile_img.url if member.profile_img else ''
+            data = {
+                'id': member.id,
+                'firstname': member.firstname,
+                'middlename': member.middlename,
+                'lastname': member.lastname,
+                'name': full_name,
+                'position_id': member.position_id,
+                'position': position_name,
+                'department_id': member.department_id,
+                'department': department_name,
+                'start_term': member.start_term.year if member.start_term else '',
+                'end_term': member.end_term.year if member.end_term else '',
+                'status': 'active' if member.is_active else 'inactive',
+                'bio': member.bio or '',
+                'profile_img': request.build_absolute_uri(profile_img_url) if profile_img_url else '',
+            }
+            return JsonResponse({'success': True, 'member': data})
+        except OfficerMember.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Officer member not found'}, status=404)
+    return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
+
+@csrf_exempt
+@login_required
+@user_passes_test(is_admin)
+def officer_member_delete(request, pk):
+    if request.method == 'POST':
+        try:
+            member = OfficerMember.objects.get(pk=pk)
+            member.is_active = False
+            member.save()
+            return JsonResponse({'success': True, 'message': 'Officer member deactivated'})
+        except OfficerMember.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Officer member not found'}, status=404)
     return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=400)
 

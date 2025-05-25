@@ -32,6 +32,19 @@
                 <a href="{% url 'transparency_list_client' %}" class="nav-link"><i class="bi bi-eye"></i> <span class="nav-link-text">TRANSPARENCY</span></a>
             </div>
         </div>
+        <!-- Auth Button in Offcanvas, bottom right -->
+        <div class="offcanvas-auth-btn-container">
+        {% if not user.is_authenticated %}
+            <a href="{% url 'auth' %}" class="offcanvas-auth-btn">
+                <i class="bi bi-person-circle"></i> <span class="offcanvas-auth-text">Login / Sign Up</span>
+            </a>
+        {% else %}
+            <a href="{% url 'logout' %}" class="offcanvas-auth-btn logged-in">
+                <i class="bi bi-person-circle"></i>
+                <span class="offcanvas-auth-text">Hello, {{ user.firstname }}!   <span class="offcanvas-logout-line">|</span> <span class="offcanvas-logout-text">Logout</span></span>
+            </a>
+        {% endif %}
+        </div>
     </nav>
 </div>
 
@@ -574,6 +587,175 @@ AOS.init();
 .offcanvas .nav-link:hover .nav-link-text::after,
 .offcanvas .nav-link:focus .nav-link-text::after {
     width: 100%;
+}
+.offcanvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  /* other existing styles */
+}
+.offcanvas-auth-btn-container {
+  position: absolute;
+  right: 2.5rem;
+  bottom: 2.5rem;
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+.offcanvas-auth-btn, .offcanvas-auth-btn.logged-in {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  background: #222;
+  color: #fff;
+  font-weight: bold;
+  font-size: 1.2rem;
+  border-radius: 2rem;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+  padding: 0.7rem 1.5rem;
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  border: 2px solid #ff5e62;
+  width: fit-content;
+}
+.offcanvas-auth-btn:hover, .offcanvas-auth-btn:focus {
+  background: #ff5e62;
+  color: #fff;
+  box-shadow: 0 6px 24px rgba(255,94,98,0.18);
+}
+.offcanvas-auth-btn .bi, .offcanvas-auth-btn.logged-in .bi {
+  font-size: 1.7rem;
+  margin-right: 0.5rem;
+}
+.offcanvas-auth-btn.logged-in {
+  background: #222;
+  color: #fff;
+  cursor: default;
+  border: 2px solid #ff5e62;
+}
+.offcanvas-auth-btn.logged-in .offcanvas-auth-text {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+.offcanvas-auth-small {
+  font-size: 0.8rem;
+  color: #bbb;
+  margin-left: 2.2rem;
+}
+@media (max-width: 600px) {
+  .offcanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    max-width: 100vw;
+    max-height: 100vh;
+    overflow-y: auto;
+    background: rgba(20, 20, 20, 0.98);
+    padding: 2.5rem 1.2rem 1.2rem 1.2rem;
+    box-sizing: border-box;
+    display: block !important;
+  }
+  .offcanvas .nav-links-grid {
+    flex-direction: column;
+    gap: 0.3rem;
+    margin-top: 0 !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    width: 100%;
+    align-items: stretch;
+    padding-top: 1.5rem;
+  }
+  .offcanvas .nav-links-col {
+    gap: 0.2rem;
+    width: 100%;
+  }
+  .offcanvas .nav-link {
+    font-size: 1.05rem;
+    font-weight: 700;
+    padding: 0.35rem 0.7rem;
+    border-radius: 0.5rem;
+    margin-bottom: 0.2rem;
+  }
+  .offcanvas .nav-link .bi, .offcanvas .nav-link .fa {
+    font-size: 1rem;
+    margin-right: 0.3rem;
+  }
+  .offcanvas .nav-link-text {
+    font-size: 0.98rem;
+    letter-spacing: 0.5px;
+  }
+  .offcanvas-auth-btn-container {
+    right: 0.5rem;
+    bottom: 0.5rem;
+  }
+  .offcanvas-auth-btn, .offcanvas-auth-btn.logged-in {
+    padding: 0.55rem 1.2rem;
+    font-size: 0.95rem;
+    border-radius: 1.2rem;
+    gap: 0.5rem;
+  }
+  .offcanvas-auth-btn .bi, .offcanvas-auth-btn.logged-in .bi {
+    font-size: 0.95rem;
+    margin-right: 0.2rem;
+  }
+}
+.offcanvas-logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #222;
+  color: #ff5e62;
+  font-weight: bold;
+  font-size: 1.1rem;
+  border-radius: 2rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  padding: 0.5rem 1.2rem;
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  border: 2px solid #ff5e62;
+  margin-top: 0.7rem;
+  width: fit-content;
+}
+.offcanvas-logout-btn:hover, .offcanvas-logout-btn:focus {
+  background: #ff5e62;
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(255,94,98,0.18);
+}
+.offcanvas-logout-btn .bi {
+  font-size: 1.3rem;
+  margin-right: 0.3rem;
+}
+.offcanvas-auth-btn.logged-in .offcanvas-logout-text {
+  color: #ff5e62;
+  font-weight: 600;
+  margin-left: 0.5rem;
+  position: relative;
+  transition: color 0.2s;
+}
+.offcanvas-auth-btn.logged-in:hover .offcanvas-logout-text,
+.offcanvas-auth-btn.logged-in:focus .offcanvas-logout-text {
+  color: #fff;
+}
+.offcanvas-auth-btn.logged-in .offcanvas-logout-text::after {
+  content: '';
+  display: block;
+  height: 3px;
+  width: 0;
+  background: #ff5e62;
+  border-radius: 2px;
+  transition: width 0.3s;
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+}
+.offcanvas-auth-btn.logged-in:hover .offcanvas-logout-text::after,
+.offcanvas-auth-btn.logged-in:focus .offcanvas-logout-text::after {
+  width: 100%;
 }
 </style>
 

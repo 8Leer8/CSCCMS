@@ -15,12 +15,32 @@
                class="categories-tab transition-all duration-300 ease-in-out whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
                 Target Audiences
             </a>
+            <a href="javascript:void(0)" data-tab="categories"
+               class="categories-tab transition-all duration-300 ease-in-out whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                Categories
+            </a>
         </nav>
     </div>
 
     <!-- Content will be loaded here -->
     <div id="categories-content" class="transition-opacity duration-300 ease-in-out opacity-100">
         <!-- Content loaded via AJAX -->
+    </div>
+</div>
+
+<!-- Categories Sub-tabs and Content (hidden by default, shown when Categories tab is active) -->
+<div id="categories-subtabs-container" class="hidden bg-white p-4 rounded-lg shadow-sm border border-gray-100 mt-4">
+    <nav class="flex space-x-4 mb-4">
+        <a href="javascript:void(0)" class="category-scope-tab px-3 py-2 rounded-md text-sm font-medium text-gray-700 bg-gray-100" data-scope="1">Announcement</a>
+        <a href="javascript:void(0)" class="category-scope-tab px-3 py-2 rounded-md text-sm font-medium text-gray-700 bg-gray-100" data-scope="2">Event</a>
+        <a href="javascript:void(0)" class="category-scope-tab px-3 py-2 rounded-md text-sm font-medium text-gray-700 bg-gray-100" data-scope="3">Achievement</a>
+        <a href="javascript:void(0)" class="category-scope-tab px-3 py-2 rounded-md text-sm font-medium text-gray-700 bg-gray-100" data-scope="4">Accomplishment</a>
+        <a href="javascript:void(0)" class="category-scope-tab px-3 py-2 rounded-md text-sm font-medium text-gray-700 bg-gray-100" data-scope="5">Transparency</a>
+        <a href="javascript:void(0)" class="category-scope-tab px-3 py-2 rounded-md text-sm font-medium text-gray-700 bg-gray-100" data-scope="6">Post</a>
+        <a href="javascript:void(0)" class="category-scope-tab px-3 py-2 rounded-md text-sm font-medium text-gray-700 bg-gray-100" data-scope="7">General</a>
+    </nav>
+    <div id="categories-scope-content">
+        <!-- Categories table for selected scope will be loaded here -->
     </div>
 </div>
 
@@ -37,6 +57,7 @@
                         <div class="mt-4">
                             <input type="hidden" id="categoryId">
                             <input type="hidden" id="categoryType">
+                            <input type="hidden" id="categoryScopeId">
                             <div class="mb-4">
                                 <label class="block text-sm font-medium text-gray-700">Name</label>
                                 <input type="text" id="categoryName" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
@@ -130,7 +151,10 @@ function loadData(categoryType) {
         url: url,
         type: 'GET',
         success: function(response) {
-            console.log('Data loaded successfully:', response.data);
+            // Inject HTML for labels if provided
+            if (categoryType === 'label' && response.html) {
+                $('#categories-content').html(response.html);
+            }
             updateTable(categoryType, response.data);
             $('#categories-content').css('opacity', '0').animate({opacity: 1}, 300);
             hideLoading();
@@ -204,6 +228,7 @@ function openAddModal(categoryType) {
         case 'label': title = 'Add New Event Label'; break;
         case 'type': title = 'Add New Event Type'; break;
         case 'audience': title = 'Add New Target Audience'; break;
+        case 'category': title = 'Add New Category'; break;
     }
     
     $('#modalTitle').text(title);
@@ -212,11 +237,17 @@ function openAddModal(categoryType) {
     $('#categoryName').val('');
     $('#categoryDescription').val('');
     $('#categoryStatus').val('true');
-    
+    // If in categories tab, set scope id
+    if (categoryType === 'category') {
+        const scopeId = $('.category-scope-tab.bg-primary-dark').data('scope');
+        $('#categoryScopeId').val(scopeId);
+    }
     $('#categoryModal').removeClass('hidden').hide().fadeIn(200);
 }
 
 function editCategory(categoryType, id, name, description, isActive) {
+    console.log('editCategory called with:', { categoryType, id, name, description, isActive });
+    
     currentCategoryType = categoryType;
     currentCategoryId = id;
     
@@ -225,7 +256,17 @@ function editCategory(categoryType, id, name, description, isActive) {
         case 'label': title = 'Edit Event Label'; break;
         case 'type': title = 'Edit Event Type'; break;
         case 'audience': title = 'Edit Target Audience'; break;
+        case 'category': title = 'Edit Category'; break;
     }
+    
+    console.log('Setting modal fields with:', {
+        title,
+        id,
+        categoryType,
+        name,
+        description,
+        isActive
+    });
     
     $('#modalTitle').text(title);
     $('#categoryId').val(id);
@@ -233,6 +274,15 @@ function editCategory(categoryType, id, name, description, isActive) {
     $('#categoryName').val(name);
     $('#categoryDescription').val(description);
     $('#categoryStatus').val(isActive ? 'true' : 'false');
+    
+    console.log('Modal field values after setting:', {
+        title: $('#modalTitle').text(),
+        id: $('#categoryId').val(),
+        categoryType: $('#categoryType').val(),
+        name: $('#categoryName').val(),
+        description: $('#categoryDescription').val(),
+        status: $('#categoryStatus').val()
+    });
     
     $('#categoryModal').removeClass('hidden').hide().fadeIn(200);
 }
@@ -252,7 +302,10 @@ function saveCategory() {
         description: description,
         is_active: is_active
     };
-    
+    // If in categories tab, add scope_id
+    if (categoryType === 'category') {
+        data.scope_id = $('#categoryScopeId').val();
+    }
     if (id) {
         data.id = id;
         var url = "{% url 'ajax_update_category' %}";
@@ -272,7 +325,12 @@ function saveCategory() {
             if (response.success) {
                 showAlert('success', 'Item saved successfully');
                 closeModal();
-                loadData(categoryType);
+                if (categoryType === 'category') {
+                    // Reload current scope
+                    loadCategoriesByScope($('#categoryScopeId').val());
+                } else {
+                    loadData(categoryType);
+                }
             } else {
                 showAlert('danger', response.error || 'Failed to save item');
             }
@@ -419,6 +477,50 @@ $(document).ready(function() {
         loadData('audience');
         $('.categories-tab[data-tab="audiences"]').addClass('border-primary-dark text-primary-dark')
                            .removeClass('border-transparent text-gray-500');
+    } else {
+        // Default to labels tab
+        loadData('label');
+        $('.categories-tab[data-tab="labels"]').addClass('border-primary-dark text-primary-dark')
+                           .removeClass('border-transparent text-gray-500');
     }
+
+    // Add handler for new Categories tab
+    $('.categories-tab[data-tab="categories"]').on('click', function(e) {
+        e.preventDefault();
+        $('.categories-tab').removeClass('border-primary-dark text-primary-dark')
+                           .addClass('border-transparent text-gray-500');
+        $(this).removeClass('border-transparent text-gray-500')
+               .addClass('border-primary-dark text-primary-dark');
+        $('#categories-content').addClass('hidden');
+        $('#categories-subtabs-container').removeClass('hidden');
+        // Load default scope (Announcement)
+        loadCategoriesByScope(1);
+        $('.category-scope-tab').removeClass('bg-primary-dark text-white').addClass('bg-gray-100 text-gray-700');
+        $('.category-scope-tab[data-scope="1"]').addClass('bg-primary-dark text-white').removeClass('bg-gray-100 text-gray-700');
+    });
+    // Sub-tab click handler
+    $('.category-scope-tab').on('click', function() {
+        var scopeId = $(this).data('scope');
+        $('.category-scope-tab').removeClass('bg-primary-dark text-white').addClass('bg-gray-100 text-gray-700');
+        $(this).addClass('bg-primary-dark text-white').removeClass('bg-gray-100 text-gray-700');
+        loadCategoriesByScope(scopeId);
+    });
 });
+
+// Function to load categories by scope (AJAX)
+function loadCategoriesByScope(scopeId) {
+    showLoading();
+    $.ajax({
+        url: '/cscadmin/categories/by-scope/' + scopeId + '/',
+        type: 'GET',
+        success: function(response) {
+            $('#categories-scope-content').html(response.html);
+            hideLoading();
+        },
+        error: function(xhr, status, error) {
+            $('#categories-scope-content').html('<div class="text-red-600">Failed to load categories for this scope.</div>');
+            hideLoading();
+        }
+    });
+}
 </script>

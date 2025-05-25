@@ -20,6 +20,9 @@ from .views import (
     event_categories_api,
     transparency_list, create_transparency, update_transparency, delete_transparency, restore_transparency,
     transparency_form, account_restore,
+    categories_by_scope,
+    officer_member_list, officer_member_form_data, officer_member_create,
+    officer_member_detail, officer_member_delete, officer_member_update,
 )
 
 urlpatterns = [
@@ -85,6 +88,7 @@ urlpatterns = [
     path('cscadmin/categories/labels/', manage_labels, name='manage_labels'),
     path('cscadmin/categories/types/', manage_types, name='manage_types'),
     path('cscadmin/categories/audiences/', manage_audiences, name='manage_audiences'),
+    path('cscadmin/categories/by-scope/<int:scope_id>/', categories_by_scope, name='categories_by_scope'),
     
     # AJAX endpoints for categories
     path('ajax/categories/labels/', ajax_labels, name='ajax_labels'),
@@ -153,5 +157,13 @@ urlpatterns = [
     path('cscadmin/transparency/<int:pk>/delete/', delete_transparency, name='delete_transparency'),
     path('cscadmin/transparency/<int:pk>/restore/', restore_transparency, name='restore_transparency'),
     path('cscadmin/transparency/form/', transparency_form, name='transparency_form'),
+
+    # Officer member AJAX endpoints
+    path('cscadmin/officer_members/list/', officer_member_list, name='officer_member_list'),
+    path('cscadmin/officer_members/form-data/', officer_member_form_data, name='officer_member_form_data'),
+    path('cscadmin/officer_members/create/', officer_member_create, name='officer_member_create'),
+    path('cscadmin/officer_members/<int:pk>/detail/', officer_member_detail, name='officer_member_detail'),
+    path('cscadmin/officer_members/<int:pk>/delete/', officer_member_delete, name='officer_member_delete'),
+    path('cscadmin/officer_members/<int:pk>/update/', officer_member_update, name='officer_member_update'),
 
 ]

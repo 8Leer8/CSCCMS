@@ -210,6 +210,10 @@
                                     <i class="fas fa-user-tie mr-3 group-hover:text-neutral-light"></i>
                                     Officers
                                 </a>
+                                <a href="#" data-page="officer_members" class="flex items-center px-4 py-2 text-sm font-medium rounded-md group nav-link">
+                                    <i class="fas fa-users mr-3 group-hover:text-neutral-light"></i>
+                                    Officer Members
+                                </a>
                                 <a href="#" data-page="committee" class="flex items-center px-4 py-2 text-sm font-medium rounded-md group nav-link">
                                     <i class="fas fa-users-between-lines mr-3 group-hover:text-neutral-light"></i>
                                     Committee
@@ -434,7 +438,9 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="{% static 'javascript/admin/event_form.js' %}"></script>
     <script src="{% static 'javascript/admin/event_admin.js' %}"></script>
+    <script src="{% static 'javascript/admin/officer_member_admin.js' %}"></script>
     <script src="{% static 'admin/account_admin.js' %}"></script>
+    <script src="{% static 'javascript/admin/officer_member.js' %}"></script>
     <script>
     // Global variables
 let currentPage = sessionStorage.getItem('currentPage') || 'dashboard';
@@ -683,6 +689,10 @@ function loadPageContent(page) {
                     initializeSettingsPage();
                 } else if (page === 'transparency') {
                     initializeTransparencyList();
+                } else if (page === 'officer_members') {
+                    if (typeof initializeOfficerMemberPage === 'function') {
+                        initializeOfficerMemberPage();
+                    }
                 }
             } else {
                 showAlert('danger', 'Invalid response format');
