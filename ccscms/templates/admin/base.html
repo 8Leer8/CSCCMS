@@ -542,6 +542,10 @@ function toggleDropdown(dropdownId) {
     dropdown.toggleClass('hidden');
     // Rotate the arrow icon
     dropdown.prev().find('.dropdown-arrow').toggleClass('rotate-180');
+    
+    // Store dropdown state in sessionStorage
+    const isOpen = !dropdown.hasClass('hidden');
+    sessionStorage.setItem(`dropdown_${dropdownId}`, isOpen);
 }
 
 function openModal(modalId) {
@@ -1473,8 +1477,21 @@ function deleteEvent() {
     });
 }
 
+// Add this function to restore dropdown states on page load
+function restoreDropdownStates() {
+    $('[id$="-dropdown"]').each(function() {
+        const dropdownId = $(this).attr('id');
+        const isOpen = sessionStorage.getItem(`dropdown_${dropdownId}`) === 'true';
+        if (isOpen) {
+            $(this).removeClass('hidden');
+            $(this).prev().find('.dropdown-arrow').addClass('rotate-180');
+        }
+    });
+}
+
 // Initialize dashboard on first load
 loadPageContent(currentPage);
+restoreDropdownStates();
 
 // Handle navigation
 $(document).on('click', '.nav-link[data-page]', function(e) {
