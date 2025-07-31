@@ -289,12 +289,23 @@ class Committee(SoftDeleteModel):
         ordering = ['name']
         verbose_name_plural = 'committees'
 
+class CommitteeRole(SoftDeleteModel):
+    name = models.CharField(max_length=100, unique=True)
+    description = models.TextField(null=True, blank=True)
+
+    class Meta:
+        db_table = 'committee_role'
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
 class CommitteeMember(SoftDeleteModel):
     committee = models.ForeignKey(Committee, on_delete=models.CASCADE, related_name='members')
     lastname = models.CharField(max_length=100)
     firstname = models.CharField(max_length=100)
     middlename = models.CharField(max_length=100, null=True, blank=True)
-    role = models.CharField(max_length=100)
+    role = models.ForeignKey(CommitteeRole, on_delete=models.PROTECT, related_name='members', null=True, blank=True)
     contact_number = models.CharField(max_length=20)
     email = models.EmailField()
     joined_at = models.DateField()
@@ -303,10 +314,11 @@ class CommitteeMember(SoftDeleteModel):
     
     class Meta:
         db_table = 'committee_member'
-        ordering = ['committee', 'role', 'lastname']
+        ordering = ['committee', 'role__name', 'lastname']
         indexes = [
             models.Index(fields=['committee']),
             models.Index(fields=['email']),
+            models.Index(fields=['role']),
         ]
 
 class Faculty(SoftDeleteModel):

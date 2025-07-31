@@ -44,7 +44,7 @@ from .models import (
     Status, Category, College, Department, Position, Committee, CommitteeMember,
     Faculty, ComplaintType, Transparency, GalleryPost, GalleryPostImage,
     PostImage, AccomplishmentImage, AchievementImage, AnnouncementAudience, 
-    FeedbackType
+    FeedbackType, CommitteeRole
 )
 
 def is_admin(user):
@@ -249,8 +249,30 @@ def admin_dashboard(request):
             elif page == 'officer_members':
                 html = render_to_string('admin/officer_member/officer_member_list.html', request=request)
                 return JsonResponse({'html': html})
+            elif page == 'committee':
+                html = render_to_string('admin/committee_member/committee.html', request=request)
+                return JsonResponse({'html': html})
+            elif page == 'faculty':
+                html = render_to_string('admin/faculty/list.html', {
+                    'colleges': College.objects.filter(is_active=True),
+                    'departments': Department.objects.filter(is_active=True)
+                }, request=request)
+                return JsonResponse({'html': html})
+            elif page == 'faculty_form':
+                html = render_to_string('admin/faculty/faculty_form.html', {
+                    'positions': Position.objects.filter(is_active=True),
+                    'colleges': College.objects.filter(is_active=True),
+                    'departments': Department.objects.filter(is_active=True)
+                }, request=request)
+                return HttpResponse(html)
+            elif page == 'complaints':
+                html = render_to_string('admin/complaint/complaint_list.html', request=request)
+                return JsonResponse({'html': html})
+            elif page == 'feedback':
+                html = render_to_string('admin/feedback/feedback_list.html', request=request)
+                return JsonResponse({'html': html})
             else:
-                return JsonResponse({'error': f'Page "{page}" not found'}, status=404)
+                return JsonResponse({'error': 'Invalid page'}, status=400)
         except Exception as e:
             logger.error(f"Error in admin_dashboard view: {e}", exc_info=True)
             return JsonResponse({'error': f'An error occurred: {str(e)}'}, status=500)
@@ -2467,6 +2489,11 @@ def account_form_data(request):
 def complaints_list(request):
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         try:
+            # If only types are requested (for filter dropdown)
+            if request.GET.get('types_only') == '1':
+                complaint_types = ComplaintType.objects.filter(is_active=True).values('id', 'type')
+                return JsonResponse({'success': True, 'types': list(complaint_types)})
+            # ... existing code ...
             # Get filter parameters
             status = request.GET.get('status', '')
             complaint_type = request.GET.get('type', '')
@@ -2506,7 +2533,7 @@ def complaints_list(request):
                     'complaint_type': complaint.complaint_type.type,
                     'description': complaint.description,
                     'remarks': complaint.remarks,
-                    'created_at': complaint.created_at.strftime('%Y-%m-%d %H:%M'),
+                    'created_at': complaint.created_at.isoformat() if complaint.created_at else None,
                     'updated_at': complaint.updated_at.strftime('%Y-%m-%d %H:%M') if complaint.updated_at else None,
                     'image': request.build_absolute_uri(complaint.complain_img.url) if complaint.complain_img else None,
                     'is_active': complaint.is_active,
@@ -3666,10 +3693,9 @@ def officer_member_list(request):
                     officer_members = officer_members.filter(start_term__year=start, end_term__year=end)
                 except Exception:
                     pass
-            paginator = Paginator(officer_members.order_by('-start_term'), 10)
-            page_obj = paginator.get_page(page)
+            officer_members = officer_members.order_by('-start_term')
             data = []
-            for member in page_obj:
+            for member in officer_members:
                 full_name = ' '.join(filter(None, [member.firstname, member.middlename, member.lastname]))
                 position_name = getattr(member.position, 'name', '') if member.position else ''
                 department_name = getattr(member.department, 'name', '') if member.department else ''
@@ -3689,12 +3715,7 @@ def officer_member_list(request):
                 })
             return JsonResponse({
                 'success': True,
-                'officer_members': data,
-                'has_previous': page_obj.has_previous(),
-                'has_next': page_obj.has_next(),
-                'current_page': page_obj.number,
-                'total_pages': paginator.num_pages,
-                'total_count': paginator.count,
+                'faculty': data
             })
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)}, status=500)
@@ -3823,3 +3844,878 @@ def officer_member_delete(request, pk):
             return JsonResponse({'success': False, 'error': 'Officer member not found'}, status=404)
     return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=400)
 
+from django.shortcuts import render
+from django.http import JsonResponse
+from django.core.paginator import Paginator
+from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_http_methods
+from django.utils import timezone
+from django.db.models import Q
+import json
+
+from ccscms.models import Committee, CommitteeMember
+
+@login_required
+def committee_page(request):
+    """Render the committee management page"""
+    return render(request, 'admin/committee_member/committee.html')
+
+@login_required
+@require_http_methods(['GET'])
+def list_all_committee_members(request):
+    """Get paginated and searchable list of all committee members"""
+    try:
+        page = int(request.GET.get('page', 1))
+        per_page = int(request.GET.get('per_page', 5)) # Keep it at 5 for now
+        search = request.GET.get('search', '')
+        committee_id = request.GET.get('committee_id', None)
+
+        members = CommitteeMember.objects.select_related('committee').filter(is_active=True).order_by('lastname', 'firstname')
+        
+        if search:
+            members = members.filter(
+                Q(firstname__icontains=search) |
+                Q(middlename__icontains=search) |
+                Q(lastname__icontains=search) |
+                Q(role__icontains=search) |
+                Q(committee__name__icontains=search) # Search by committee name
+            )
+        
+        if committee_id:
+            members = members.filter(committee_id=committee_id)
+
+        total_count = members.count()
+        paginator = Paginator(members, per_page)
+        members_page = paginator.get_page(page)
+
+        members_data = []
+        for member in members_page:
+            members_data.append({
+                'id': member.id,
+                'committee_id': member.committee.id if member.committee else None,
+                'committee_name': member.committee.name if member.committee else 'N/A',
+                'lastname': member.lastname,
+                'firstname': member.firstname,
+                'middlename': member.middlename,
+                'role': member.role.name if member.role else 'N/A',
+                'role_id': member.role.id if member.role else None,
+                'contact_number': member.contact_number,
+                'email': member.email,
+                'joined_at': member.joined_at.strftime('%Y-%m-%d') if member.joined_at else None,
+                'is_active': member.is_active
+            })
+
+        return JsonResponse({
+            'success': True,
+            'members': members_data,
+            'total_pages': paginator.num_pages,
+            'current_page': page,
+            'total_count': total_count,
+            'has_next': members_page.has_next(),
+            'has_previous': members_page.has_previous(),
+            'next_page': members_page.next_page_number() if members_page.has_next() else None,
+            'previous_page': members_page.previous_page_number() if members_page.has_previous() else None,
+            'start_index': members_page.start_index() if members_data else 0,
+            'end_index': members_page.end_index() if members_data else 0,
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+@login_required
+@require_http_methods(['GET'])
+def list_all_committees_for_dropdown(request):
+    """Get a list of all active committees for dropdowns"""
+    try:
+        committees = Committee.objects.filter(is_active=True).order_by('name')
+        committee_data = []
+        for committee in committees:
+            committee_data.append({
+                'id': committee.id,
+                'name': committee.name
+            })
+        return JsonResponse({'success': True, 'committees': committee_data})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+@login_required
+@require_http_methods(['GET'])
+def list_all_committee_roles_for_dropdown(request):
+    """Get a list of all active committee roles for dropdowns"""
+    try:
+        roles = CommitteeRole.objects.filter(is_active=True).order_by('name')
+        role_data = []
+        for role in roles:
+            role_data.append({
+                'id': role.id,
+                'name': role.name
+            })
+        return JsonResponse({'success': True, 'roles': role_data})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+@login_required
+@require_http_methods(['GET'])
+def list_committees(request):
+    """Get paginated list of committees"""
+    try:
+        page = int(request.GET.get('page', 1))
+        per_page = int(request.GET.get('per_page', 10))
+        search = request.GET.get('search', '')
+        
+        committees = Committee.objects.all()
+        
+        if search:
+            committees = committees.filter(name__icontains=search)
+        
+        # Get total count before pagination
+        total_count = committees.count()
+        
+        # Paginate
+        paginator = Paginator(committees, per_page)
+        committees_page = paginator.get_page(page)
+        
+        committees_data = []
+        for committee in committees_page:
+            committees_data.append({
+                'id': committee.id,
+                'name': committee.name,
+                'description': committee.description,
+                'members_count': CommitteeMember.objects.filter(committee=committee, is_active=True).count(),
+                'created_at': committee.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+                'is_active': committee.is_active
+            })
+        
+        return JsonResponse({
+            'success': True,
+            'committees': committees_data,
+            'total_pages': paginator.num_pages,
+            'current_page': page,
+            'total_count': total_count,
+            'has_next': committees_page.has_next(),
+            'has_previous': committees_page.has_previous(),
+            'next_page': committees_page.next_page_number() if committees_page.has_next() else None,
+            'previous_page': committees_page.previous_page_number() if committees_page.has_previous() else None
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+@login_required
+@require_http_methods(['POST'])
+def create_committee(request):
+    """Create a new committee"""
+    try:
+        data = json.loads(request.body)
+        committee = Committee.objects.create(
+            name=data.get('name'),
+            description=data.get('description')
+        )
+        return JsonResponse({
+            'success': True,
+            'message': 'Committee created successfully',
+            'committee': {
+                'id': committee.id,
+                'name': committee.name,
+                'description': committee.description,
+                'created_at': committee.created_at.strftime('%Y-%m-%d %H:%M:%S')
+            }
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+@login_required
+@require_http_methods(['GET'])
+def get_committee(request, committee_id):
+    """Get committee details"""
+    try:
+        committee = Committee.objects.get(id=committee_id)
+        return JsonResponse({
+            'success': True,
+            'committee': {
+                'id': committee.id,
+                'name': committee.name,
+                'description': committee.description,
+                'created_at': committee.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+                'is_active': committee.is_active
+            }
+        })
+    except ObjectDoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Committee not found'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+@login_required
+@require_http_methods(['POST'])
+def update_committee(request, committee_id):
+    """Update committee details"""
+    try:
+        data = json.loads(request.body)
+        committee = Committee.objects.get(id=committee_id)
+        
+        committee.name = data.get('name', committee.name)
+        committee.description = data.get('description', committee.description)
+        committee.save()
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Committee updated successfully',
+            'committee': {
+                'id': committee.id,
+                'name': committee.name,
+                'description': committee.description,
+                'created_at': committee.created_at.strftime('%Y-%m-%d %H:%M:%S')
+            }
+        })
+    except ObjectDoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Committee not found'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+@login_required
+@require_http_methods(['POST'])
+def delete_committee(request, committee_id):
+    """Soft delete a committee"""
+    try:
+        committee = Committee.objects.get(id=committee_id)
+        committee.is_active = False
+        committee.save()
+        return JsonResponse({'success': True, 'message': 'Committee deleted successfully'})
+    except ObjectDoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Committee not found'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+@login_required
+@require_http_methods(['POST'])
+def restore_committee(request, committee_id):
+    """Restore a soft-deleted committee"""
+    try:
+        committee = Committee.objects.get(id=committee_id)
+        committee.is_active = True
+        committee.save()
+        return JsonResponse({'success': True, 'message': 'Committee restored successfully'})
+    except ObjectDoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Committee not found'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+@login_required
+@require_http_methods(['GET'])
+def list_members(request, committee_id):
+    """Get list of committee members"""
+    try:
+        members = CommitteeMember.objects.filter(committee_id=committee_id)
+        members_data = []
+        
+        for member in members:
+            members_data.append({
+                'id': member.id,
+                'lastname': member.lastname,
+                'firstname': member.firstname,
+                'middlename': member.middlename,
+                'role': member.role.name if member.role else 'N/A',
+                'role_id': member.role.id if member.role else None,
+                'contact_number': member.contact_number,
+                'email': member.email,
+                'joined_at': member.joined_at.strftime('%Y-%m-%d') if member.joined_at else None,
+                'is_active': member.is_active
+            })
+        
+        return JsonResponse({
+            'success': True,
+            'members': members_data
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+@login_required
+@require_http_methods(['POST'])
+def create_member(request):
+    """Create a new committee member"""
+    try:
+        data = json.loads(request.body)
+        
+        joined_at_str = data.get('joined_at')
+        joined_at = datetime.strptime(joined_at_str, '%Y-%m-%d').date() if joined_at_str else None
+
+        role_id = data.get('role_id')
+        role = CommitteeRole.objects.get(id=role_id) if role_id else None
+
+        member = CommitteeMember.objects.create(
+            committee_id=data.get('committee_id'),
+            lastname=data.get('lastname'),
+            firstname=data.get('firstname'),
+            middlename=data.get('middlename'),
+            role=role,
+            contact_number=data.get('contact_number'),
+            email=data.get('email'),
+            joined_at=joined_at
+        )
+        return JsonResponse({
+            'success': True,
+            'message': 'Member added successfully',
+            'member': {
+                'id': member.id,
+                'lastname': member.lastname,
+                'firstname': member.firstname,
+                'middlename': member.middlename,
+                'role': member.role.name if member.role else None,
+                'role_id': member.role.id if member.role else None,
+                'contact_number': member.contact_number,
+                'email': member.email,
+                'joined_at': member.joined_at.strftime('%Y-%m-%d') if member.joined_at else None
+            }
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+@login_required
+@require_http_methods(['GET'])
+def get_member(request, member_id):
+    """Get member details"""
+    try:
+        member = CommitteeMember.objects.get(id=member_id)
+        return JsonResponse({
+            'success': True,
+            'member': {
+                'id': member.id,
+                'committee_id': member.committee_id,
+                'lastname': member.lastname,
+                'firstname': member.firstname,
+                'middlename': member.middlename,
+                'role': member.role.name if member.role else None,
+                'role_id': member.role.id if member.role else None,
+                'contact_number': member.contact_number,
+                'email': member.email,
+                'joined_at': member.joined_at.strftime('%Y-%m-%d') if member.joined_at else None,
+                'is_active': member.is_active
+            }
+        })
+    except ObjectDoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Member not found'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+@login_required
+@require_http_methods(['POST'])
+def update_member(request, member_id):
+    """Update member details"""
+    try:
+        data = json.loads(request.body)
+        member = CommitteeMember.objects.get(id=member_id)
+        
+        member.lastname = data.get('lastname', member.lastname)
+        member.firstname = data.get('firstname', member.firstname)
+        member.middlename = data.get('middlename', member.middlename)
+        
+        if 'role_id' in data:
+            role_id = data.get('role_id')
+            member.role = CommitteeRole.objects.get(id=role_id) if role_id else None
+
+        member.contact_number = data.get('contact_number', member.contact_number)
+        member.email = data.get('email', member.email)
+        if 'joined_at' in data:
+            joined_at_str = data.get('joined_at')
+            member.joined_at = datetime.strptime(joined_at_str, '%Y-%m-%d').date() if joined_at_str else None
+        if 'committee_id' in data:
+            member.committee_id = data['committee_id']
+        member.save()
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Member updated successfully',
+            'member': {
+                'id': member.id,
+                'lastname': member.lastname,
+                'firstname': member.firstname,
+                'middlename': member.middlename,
+                'role': member.role.name if member.role else None,
+                'role_id': member.role.id if member.role else None,
+                'contact_number': member.contact_number,
+                'email': member.email,
+                'joined_at': member.joined_at.strftime('%Y-%m-%d') if member.joined_at else None
+            }
+        })
+    except ObjectDoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Member not found'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+@login_required
+@require_http_methods(['POST'])
+def delete_member(request, member_id):
+    """Soft delete a member"""
+    try:
+        member = CommitteeMember.objects.get(id=member_id)
+        member.is_active = False
+        member.save()
+        return JsonResponse({'success': True, 'message': 'Member deleted successfully'})
+    except ObjectDoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Member not found'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+@login_required
+@require_http_methods(['POST'])
+def restore_member(request, member_id):
+    """Restore a soft-deleted member"""
+    try:
+        member = CommitteeMember.objects.get(id=member_id)
+        member.is_active = True
+        member.save()
+        return JsonResponse({'success': True, 'message': 'Member restored successfully'})
+    except ObjectDoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Member not found'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}) 
+
+@login_required
+@require_http_methods(['POST'])
+def create_committee_role(request):
+    """Create a new committee role"""
+    try:
+        data = json.loads(request.body)
+        role = CommitteeRole.objects.create(
+            name=data.get('name'),
+            description=data.get('description')
+        )
+        return JsonResponse({
+            'success': True,
+            'message': 'Role created successfully',
+            'role': {
+                'id': role.id,
+                'name': role.name,
+                'description': role.description,
+            }
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+@login_required
+@require_http_methods(['GET'])
+def get_committee(request, committee_id):
+    """Get committee details"""
+    try:
+        committee = Committee.objects.get(id=committee_id)
+        return JsonResponse({
+            'success': True,
+            'committee': {
+                'id': committee.id,
+                'name': committee.name,
+                'description': committee.description,
+                'created_at': committee.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+                'is_active': committee.is_active
+            }
+        })
+    except ObjectDoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Committee not found'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+@login_required
+@user_passes_test(is_admin)
+def faculty_list(request):
+    """View for listing faculty members in admin panel"""
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        # Get filter parameters
+        status = request.GET.get('status', 'all')
+        department = request.GET.get('department', '')
+        position = request.GET.get('position', '')
+        search = request.GET.get('search', '')
+        page = request.GET.get('page', 1)
+
+        # Build query
+        query = Q()
+        if status != 'all':
+            query &= Q(is_active=status == 'active')
+        if department:
+            query &= Q(department_id=department)
+        if position:
+            query &= Q(position_id=position)
+        if search:
+            query &= (Q(lastname__icontains=search) | 
+                     Q(firstname__icontains=search) | 
+                     Q(email__icontains=search))
+
+        # Get faculty members
+        faculty_list = Faculty.objects.filter(query).select_related(
+            'position', 'college', 'department'
+        ).order_by('lastname', 'firstname')
+
+        # Pagination
+        paginator = Paginator(faculty_list, 10)  # 10 items per page
+        try:
+            faculty_page = paginator.page(page)
+        except:
+            faculty_page = paginator.page(1)
+
+        # Prepare data for response
+        faculty_data = []
+        for faculty in faculty_page:
+            faculty_data.append({
+                'id': faculty.id,
+                'lastname': faculty.lastname,
+                'firstname': faculty.firstname,
+                'middlename': faculty.middlename,
+                'position': faculty.position.name if faculty.position else 'N/A',
+                'position_name': faculty.position.name if faculty.position else None,
+                'college_name': faculty.college.name if faculty.college else None,
+                'department_name': faculty.department.name if faculty.department else None,
+                'designation': faculty.designation,
+                'degree': faculty.degree,
+                'specialty': faculty.specialty,
+                'email': faculty.email,
+                'contact_number': faculty.contact_number,
+                'office_location': faculty.office_location,
+                'faculty_img': faculty.faculty_img.url if faculty.faculty_img else None,
+                'is_active': faculty.is_active,
+                'is_deleted': not faculty.is_active
+            })
+
+        # Always include paginator info, even if only one page or no results
+        paginator_info = {
+            'count': paginator.count,
+            'num_pages': paginator.num_pages,
+            'current_page': faculty_page.number,
+            'has_next': faculty_page.has_next(),
+            'has_previous': faculty_page.has_previous(),
+            'start_index': faculty_page.start_index() if paginator.count > 0 else 0,
+            'end_index': faculty_page.end_index() if paginator.count > 0 else 0,
+        }
+
+        return JsonResponse({
+            'success': True,
+            'faculty': faculty_data,
+            'paginator': paginator_info
+        })
+
+    # For initial page load
+    departments = Department.objects.filter(is_active=True)
+    positions = Position.objects.filter(is_active=True, position_type_id=2)
+    return render(request, 'admin/faculty/list.html', {
+        'departments': departments,
+        'positions': positions,
+    })
+
+@login_required
+@user_passes_test(is_admin)
+def faculty_form(request, pk=None):
+    """View for faculty form (create/edit)"""
+    positions = Position.objects.filter(is_active=True, position_type_id=2)
+    colleges = College.objects.filter(is_active=True)
+    departments = Department.objects.filter(is_active=True)
+    
+    context = {
+        'positions': positions,
+        'colleges': colleges,
+        'departments': departments
+    }
+    
+    if pk:
+        faculty = get_object_or_404(Faculty, pk=pk)
+        context['faculty'] = faculty
+    
+    return render(request, 'admin/faculty/faculty_form.html', context)
+
+@login_required
+@user_passes_test(is_admin)
+def faculty_create(request):
+    """View for creating a new faculty member"""
+    if request.method == 'POST':
+        try:
+            data = request.POST
+            faculty = Faculty.objects.create(
+                lastname=data['lastname'],
+                firstname=data['firstname'],
+                middlename=data.get('middlename'),
+                position_id=data['position'],
+                college_id=data['college'],
+                department_id=data['department'],
+                designation=data['designation'],
+                degree=data['degree'],
+                specialty=data['specialty'],
+                office_location=data['office_location'],
+                contact_number=data['contact_number'],
+                email=data['email'],
+                is_active=data.get('is_active', 'true') == 'true'
+            )
+            
+            if 'faculty_img' in request.FILES:
+                faculty.faculty_img = request.FILES['faculty_img']
+                faculty.save()
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Faculty member created successfully'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            }, status=400)
+    
+    return JsonResponse({
+        'success': False,
+        'error': 'Invalid request method'
+    }, status=405)
+
+@login_required
+@user_passes_test(is_admin)
+def faculty_update(request, pk):
+    """View for updating a faculty member"""
+    if request.method == 'POST':
+        try:
+            faculty = get_object_or_404(Faculty, pk=pk)
+            data = request.POST
+            
+            faculty.lastname = data['lastname']
+            faculty.firstname = data['firstname']
+            faculty.middlename = data.get('middlename')
+            faculty.position_id = data['position']
+            faculty.college_id = data['college']
+            faculty.department_id = data['department']
+            faculty.designation = data['designation']
+            faculty.degree = data['degree']
+            faculty.specialty = data['specialty']
+            faculty.office_location = data['office_location']
+            faculty.contact_number = data['contact_number']
+            faculty.email = data['email']
+            faculty.is_active = data.get('is_active', 'true') == 'true'
+            
+            if 'faculty_img' in request.FILES:
+                faculty.faculty_img = request.FILES['faculty_img']
+            
+            faculty.save()
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Faculty member updated successfully'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            }, status=400)
+    
+    return JsonResponse({
+        'success': False,
+        'error': 'Invalid request method'
+    }, status=405)
+
+@login_required
+@user_passes_test(is_admin)
+def faculty_delete(request, pk):
+    """View for deleting a faculty member"""
+    if request.method == 'POST':
+        try:
+            faculty = get_object_or_404(Faculty, pk=pk)
+            faculty.soft_delete()
+            return JsonResponse({
+                'success': True,
+                'message': 'Faculty member deleted successfully'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            }, status=400)
+    
+    return JsonResponse({
+        'success': False,
+        'error': 'Invalid request method'
+    }, status=405)
+
+@login_required
+@user_passes_test(is_admin)
+def faculty_restore(request, pk):
+    """View for restoring a deleted faculty member"""
+    if request.method == 'POST':
+        try:
+            faculty = get_object_or_404(Faculty, pk=pk)
+            faculty.restore()
+            return JsonResponse({
+                'success': True,
+                'message': 'Faculty member restored successfully'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            }, status=400)
+    
+    return JsonResponse({
+        'success': False,
+        'error': 'Invalid request method'
+    }, status=405)
+
+@login_required
+@user_passes_test(is_admin)
+def faculty_detail(request, pk):
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        try:
+            faculty = get_object_or_404(Faculty, pk=pk)
+            return JsonResponse({
+                'success': True,
+                'faculty': {
+                    'id': faculty.id,
+                    'lastname': faculty.lastname,
+                    'firstname': faculty.firstname,
+                    'middlename': faculty.middlename,
+                    'position': faculty.position_id,
+                    'college': faculty.college_id,
+                    'department': faculty.department_id,
+                    'designation': faculty.designation,
+                    'degree': faculty.degree,
+                    'specialty': faculty.specialty,
+                    'office_location': faculty.office_location,
+                    'contact_number': faculty.contact_number,
+                    'email': faculty.email,
+                    'is_active': faculty.is_active,
+                }
+            })
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
+
+@login_required
+@user_passes_test(is_admin)
+def admin_complaints_page(request):
+    return render(request, 'admin/complaint/complaint_list.html')
+
+@login_required
+@user_passes_test(is_admin)
+def admin_feedback_list(request):
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        try:
+            # If only types are requested (for filter dropdown)
+            if request.GET.get('types_only') == '1':
+                feedback_types = FeedbackType.objects.all().values('id', 'name')
+                return JsonResponse({'success': True, 'types': list(feedback_types)})
+            # Get filter parameters
+            feedback_type = request.GET.get('type', '')
+            rating = request.GET.get('rating', '')
+            feedbacks = Feedback.objects.all().order_by('-created_at')
+            if feedback_type:
+                feedbacks = feedbacks.filter(feedback_type_id=feedback_type)
+            if rating:
+                feedbacks = feedbacks.filter(rating=int(rating))
+            feedback_data = []
+            for fb in feedbacks:
+                feedback_data.append({
+                    'id': fb.id,
+                    'rating': fb.rating,
+                    'comment': fb.comment,
+                    'feedback_type': fb.feedback_type.name if fb.feedback_type else '-',
+                    'created_at': fb.created_at.isoformat() if fb.created_at else None,
+                })
+            return JsonResponse({'success': True, 'feedback': feedback_data})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
+
+@login_required
+@user_passes_test(is_admin)
+def admin_feedback_page(request):
+    return render(request, 'admin/feedback/feedback_list.html')
+
+@csrf_exempt
+@login_required
+@user_passes_test(is_admin)
+def add_complaint_type(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            type_name = data.get('type', '').strip()
+            if not type_name:
+                return JsonResponse({'success': False, 'error': 'Type name is required'}, status=400)
+            # Check for duplicates
+            if ComplaintType.objects.filter(type__iexact=type_name, is_active=True).exists():
+                return JsonResponse({'success': False, 'error': 'Type already exists'}, status=400)
+            new_type = ComplaintType.objects.create(type=type_name, is_active=True)
+            return JsonResponse({'success': True, 'type': {'id': new_type.id, 'type': new_type.type}})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
+
+@login_required
+@user_passes_test(is_admin)
+def list_complaint_types(request):
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        types = list(ComplaintType.objects.filter(is_active=True).values('id', 'type').order_by('type'))
+        return JsonResponse({'success': True, 'types': types})
+    return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
+
+@csrf_exempt
+@login_required
+@user_passes_test(is_admin)
+def edit_complaint_type(request, type_id):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            type_name = data.get('type', '').strip()
+            if not type_name:
+                return JsonResponse({'success': False, 'error': 'Type name is required'}, status=400)
+            ct = ComplaintType.objects.get(pk=type_id, is_active=True)
+            if ComplaintType.objects.filter(type__iexact=type_name, is_active=True).exclude(pk=type_id).exists():
+                return JsonResponse({'success': False, 'error': 'Type already exists'}, status=400)
+            ct.type = type_name
+            ct.save()
+            return JsonResponse({'success': True, 'type': {'id': ct.id, 'type': ct.type}})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
+
+@csrf_exempt
+@login_required
+@user_passes_test(is_admin)
+def delete_complaint_type(request, type_id):
+    if request.method == 'POST':
+        try:
+            ct = ComplaintType.objects.get(pk=type_id, is_active=True)
+            ct.is_active = False
+            ct.save()
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
+
+@login_required
+@user_passes_test(is_admin)
+def list_feedback_types(request):
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        types = list(FeedbackType.objects.all().values('id', 'name').order_by('name'))
+        return JsonResponse({'success': True, 'types': types})
+    return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
+
+@csrf_exempt
+@login_required
+@user_passes_test(is_admin)
+def edit_feedback_type(request, type_id):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            name = data.get('name', '').strip()
+            if not name:
+                return JsonResponse({'success': False, 'error': 'Type name is required'}, status=400)
+            ft = FeedbackType.objects.get(pk=type_id)
+            if FeedbackType.objects.filter(name__iexact=name).exclude(pk=type_id).exists():
+                return JsonResponse({'success': False, 'error': 'Type already exists'}, status=400)
+            ft.name = name
+            ft.save()
+            return JsonResponse({'success': True, 'type': {'id': ft.id, 'name': ft.name}})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
+
+@csrf_exempt
+@login_required
+@user_passes_test(is_admin)
+def delete_feedback_type(request, type_id):
+    if request.method == 'POST':
+        try:
+            ft = FeedbackType.objects.get(pk=type_id)
+            ft.delete()
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)

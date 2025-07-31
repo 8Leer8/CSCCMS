@@ -178,7 +178,7 @@
                                     Accounts
                                 </a>
                                 <a href="#" data-page="complaints" class="flex items-center px-4 py-2 text-sm font-medium rounded-md group nav-link">
-                                    <i class="fas fa-exclamation-triangle mr-3 group-hover:text-neutral-light"></i>
+                                    <i class="fas fa-exclamation-circle mr-3 group-hover:text-neutral-light"></i>
                                     Complaints
                                 </a>
                                 <a href="#" data-page="feedback" class="flex items-center px-4 py-2 text-sm font-medium rounded-md group nav-link">
@@ -206,17 +206,17 @@
                                     <i class="fas fa-tags mr-3 group-hover:text-neutral-light"></i>
                                     Categories
                                 </a>
-                                <a href="#" data-page="officers" class="flex items-center px-4 py-2 text-sm font-medium rounded-md group nav-link">
-                                    <i class="fas fa-user-tie mr-3 group-hover:text-neutral-light"></i>
-                                    Officers
-                                </a>
                                 <a href="#" data-page="officer_members" class="flex items-center px-4 py-2 text-sm font-medium rounded-md group nav-link">
                                     <i class="fas fa-users mr-3 group-hover:text-neutral-light"></i>
-                                    Officer Members
+                                    Officers
                                 </a>
                                 <a href="#" data-page="committee" class="flex items-center px-4 py-2 text-sm font-medium rounded-md group nav-link">
                                     <i class="fas fa-users-between-lines mr-3 group-hover:text-neutral-light"></i>
                                     Committee
+                                </a>
+                                <a href="#" data-page="faculty" class="flex items-center px-4 py-2 text-sm font-medium rounded-md group nav-link">
+                                    <i class="fas fa-chalkboard-teacher mr-3 group-hover:text-neutral-light"></i>
+                                    Faculty
                                 </a>
                             </div>
                         </div>
@@ -441,6 +441,10 @@
     <script src="{% static 'javascript/admin/officer_member_admin.js' %}"></script>
     <script src="{% static 'admin/account_admin.js' %}"></script>
     <script src="{% static 'javascript/admin/officer_member.js' %}"></script>
+    <script src="{% static 'javascript/admin/committee_admin.js' %}"></script>
+    <script src="{% static 'javascript/admin/faculty_admin.js' %}"></script>
+    <script src="{% static 'javascript/admin/complaint_admin.js' %}"></script>
+    <script src="{% static 'javascript/admin/feedback_admin.js' %}"></script>
     <script>
     // Global variables
 let currentPage = sessionStorage.getItem('currentPage') || 'dashboard';
@@ -650,7 +654,8 @@ function loadPageContent(page) {
         'settings': 'System Settings',
         'categories': 'Categories Management',
         'officers': 'Officers Management',
-        'committee': 'Committee Management'
+        'committee': 'Committee Management',
+        'faculty': 'Faculty Management'
     };
     $('#page-title').text(pageTitles[page] || 'Admin Panel');
 
@@ -688,7 +693,7 @@ function loadPageContent(page) {
                 } else if (page === 'accounts') {
                     initializeAccountList();
                 } else if (page === 'feedback') {
-                    initializeFeedbackPage();
+                    initFeedbackPage();
                 } else if (page === 'settings') {
                     initializeSettingsPage();
                 } else if (page === 'transparency') {
@@ -697,6 +702,17 @@ function loadPageContent(page) {
                     if (typeof initializeOfficerMemberPage === 'function') {
                         initializeOfficerMemberPage();
                     }
+                } else if (page === 'committee') {
+                    if (typeof initializeCommitteePage === 'function') {
+                        initializeCommitteePage();
+                    }
+                } else if (page === 'faculty') {
+                    if (typeof initializeFacultyList === 'function') {
+                        initializeFacultyList();
+                        loadFaculty();
+                    }
+                } else if (page === 'complaints') {
+                    initComplaintsPage();
                 }
             } else {
                 showAlert('danger', 'Invalid response format');
@@ -1536,5 +1552,7 @@ $(document).on('click', 'a[href="{% url "logout" %}"]', function(e) {
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <!-- Custom JavaScript -->
     <script src="{% static 'javascript/admin/post_admin.js' %}"></script>
+    <script src="{% static 'javascript/admin/feedback_admin.js' %}"></script>
+    <script src="{% static 'javascript/admin/complaint_admin.js' %}"></script>
 </body>
 </html>

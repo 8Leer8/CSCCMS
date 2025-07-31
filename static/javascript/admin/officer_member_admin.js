@@ -122,15 +122,12 @@ function loadOfficerMembers(page = 1) {
     if (dept) params.department = dept;
     if (term) params.term = term;
     if (search) params.search = search;
-    params.page = page;
     $.get('/cscadmin/officer_members/list/', params, function(response) {
         if (response.success) {
-            // Set results count text for this page
-            const start = (response.current_page - 1) * 10 + 1;
-            const end = start + response.officer_members.length - 1;
-            window.officerMembersResultsCountText = `Showing ${start} to ${end} of ${((response.total_count !== undefined) ? response.total_count : (response.total_pages * 10))} results`;
-            renderOfficerMembersTable(response.officer_members);
-            renderOfficerMembersPagination(response.current_page, response.total_pages, response.has_previous, response.has_next);
+            renderOfficerMembersTable(response.faculty || response.officer_members || []);
+            // Hide pagination and count since all results are shown
+            $('#paginationContainer').empty();
+            $('#officerMembersResultsCount').text('');
         } else {
             showAlert('danger', response.error || 'Failed to load officer members');
         }
@@ -169,45 +166,14 @@ function renderOfficerMembersTable(data) {
         });
     }
     $('#officerMembersTableBody').html(html);
-    // Set results count if available
-    if (window.officerMembersResultsCountText) {
-        $('#officerMembersResultsCount').text(window.officerMembersResultsCountText);
-    }
+    // No results count needed
 }
 
 function renderOfficerMembersPagination(currentPage, totalPages, hasPrevious, hasNext) {
-    const container = $('#paginationContainer');
-    container.empty();
-    if (totalPages <= 1) return;
-    let html = '<div class="flex w-full items-center">';
-    // Results count left-aligned
-    html += '<div id="officerMembersResultsCount" class="text-sm text-gray-600"></div>';
-    // Pagination bar right-aligned
-    html += '<nav class="inline-flex -space-x-px rounded-md shadow-sm border border-gray-300 bg-white">';
-    // Previous button
-    html += `<button class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium ${hasPrevious ? 'text-gray-500 hover:bg-gray-50' : 'text-gray-300 cursor-not-allowed'}" ${hasPrevious ? '' : 'disabled'} data-page="${currentPage - 1}"><span class="sr-only">Previous</span><i class="fas fa-chevron-left"></i></button>`;
-    // Page numbers
-    for (let i = 1; i <= totalPages; i++) {
-        if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
-            html += `<button class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium ${i === currentPage ? 'z-10 bg-blue-50 border-blue-500 text-blue-600' : 'bg-white text-gray-500 hover:bg-gray-50'}" data-page="${i}">${i}</button>`;
-        } else if (i === currentPage - 3 || i === currentPage + 3) {
-            html += '<span class="px-2 text-gray-500">...</span>';
-        }
-    }
-    // Next button
-    html += `<button class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium ${hasNext ? 'text-gray-500 hover:bg-gray-50' : 'text-gray-300 cursor-not-allowed'}" ${hasNext ? '' : 'disabled'} data-page="${currentPage + 1}"><span class="sr-only">Next</span><i class="fas fa-chevron-right"></i></button>`;
-    html += '</nav>';
-    html += '</div>';
-    container.html(html);
+    // No pagination needed
 }
 
-// Handle pagination button clicks
-$(document).off('click', '#paginationContainer [data-page]').on('click', '#paginationContainer [data-page]', function() {
-    const page = parseInt($(this).attr('data-page'));
-    if (!isNaN(page)) {
-        loadOfficerMembers(page);
-    }
-});
+// Pagination click handler removed
 
 function clearOfficerMemberForm() {
     $('#officerMemberId').val('');

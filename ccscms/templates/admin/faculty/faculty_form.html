@@ -1,0 +1,118 @@
+{% load static %}
+<form id="facultyForm" class="space-y-4">
+    <input type="hidden" id="facultyId">
+    <input type="hidden" id="college" name="college" value="7">
+    <input type="hidden" id="isActive" name="isActive" value="true">
+    
+    <!-- Personal Information -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+            <label for="lastname" class="block text-sm font-medium text-gray-700">Last Name *</label>
+            <input type="text" id="lastname" name="lastname" required
+                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
+        </div>
+        <div>
+            <label for="firstname" class="block text-sm font-medium text-gray-700">First Name *</label>
+            <input type="text" id="firstname" name="firstname" required
+                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
+        </div>
+        <div>
+            <label for="middlename" class="block text-sm font-medium text-gray-700">Middle Name</label>
+            <input type="text" id="middlename" name="middlename"
+                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
+        </div>
+    </div>
+
+    <!-- Academic Information -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+            <label for="position" class="block text-sm font-medium text-gray-700">Position *</label>
+            <select id="position" name="position" required
+                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
+                <option value="">Select Position</option>
+                {% for position in positions %}
+                    <option value="{{ position.id }}">{{ position.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="department" class="block text-sm font-medium text-gray-700">Department *</label>
+            <select id="department" name="department" required
+                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
+                <option value="">Select Department</option>
+                {% for department in departments %}
+                    <option value="{{ department.id }}">{{ department.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <!-- Professional Information -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+            <label for="designation" class="block text-sm font-medium text-gray-700">Designation *</label>
+            <input type="text" id="designation" name="designation" required
+                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
+        </div>
+        <div>
+            <label for="degree" class="block text-sm font-medium text-gray-700">Degree *</label>
+            <input type="text" id="degree" name="degree" required
+                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
+        </div>
+        <div>
+            <label for="specialty" class="block text-sm font-medium text-gray-700">Specialty *</label>
+            <input type="text" id="specialty" name="specialty" required
+                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
+        </div>
+    </div>
+
+    <!-- Contact Information -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+            <label for="office_location" class="block text-sm font-medium text-gray-700">Office Location *</label>
+            <input type="text" id="office_location" name="office_location" required
+                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
+        </div>
+        <div>
+            <label for="contact_number" class="block text-sm font-medium text-gray-700">Contact Number *</label>
+            <input type="text" id="contact_number" name="contact_number" required
+                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
+        </div>
+        <div>
+            <label for="email" class="block text-sm font-medium text-gray-700">Email *</label>
+            <input type="email" id="email" name="email" required
+                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-dark focus:border-primary-dark sm:text-sm">
+        </div>
+    </div>
+
+    <!-- Profile Image -->
+    <div class="space-y-2">
+        <label for="faculty_img" class="block text-sm font-medium text-gray-700">Profile Image</label>
+        <div class="flex items-center space-x-4">
+            <div id="currentImageContainer" class="hidden">
+                <img id="currentImage" src="" alt="Current Image" class="h-20 w-20 object-cover rounded-md">
+            </div>
+            <div class="flex-1">
+                <input type="file" id="faculty_img" name="faculty_img" accept="image/*"
+                    class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary-dark file:text-white hover:file:bg-primary-darker">
+                <p class="mt-1 text-sm text-gray-500" id="fileName">No file chosen</p>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+$(document).ready(function() {
+    // Initialize Select2 for dropdowns
+    $('#position, #department').select2({
+        theme: 'classic',
+        width: '100%'
+    });
+
+    // Handle file input change
+    $('#faculty_img').on('change', function() {
+        const fileName = this.files[0]?.name || 'No file chosen';
+        $('#fileName').text(fileName);
+    });
+});
+</script> 
